@@ -1,0 +1,2 @@
+PASS: 01-schema.sql rejects repeat execution without overwriting data
+PASS: 02-seed.sql rejects repeat execution without overwriting data

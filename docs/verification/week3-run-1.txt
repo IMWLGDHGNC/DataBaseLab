@@ -1,0 +1,230 @@
+
+SqlServerVersion                                                                                                                                                                                                  WindowsLog
+                                                                                                                                                                                                                  in
+----------------                                                                                                                                                                                                  ----------
+Microsoft SQL Server 2022 (RTM) - 16.0.1000.6 (X64)                                                                                                                                                               DDJANG\184
+	Oct  8 2022 05:58:25                                                                                                                                                                                             56
+	Copyright (C) 2022 Microsoft Corporation
+	Express Edition (64-bit) on Windows 10 Home China 10.0 <X64> (Build 26200: ) (Hypervisor)
+
+
+
+Executing 01-schema.sql in DataBaseLab_Week3_0cf66f7c4d1cA
+Executing 02-seed.sql in DataBaseLab_Week3_0cf66f7c4d1cA
+Executing 04-verify.sql in DataBaseLab_Week3_0cf66f7c4d1cA
+
+TableName            RowCount DataHash
+---------            -------- --------
+Customer                    3 526DAE94949C5B084E2E1AA535D7E9A056E22FB0556918677725857FD83A8AC0
+Employee                    3 585C77C6809C0EF78733DE12B5ACA98BA2C008A8168F8DAA4FF49368958C7D15
+InventoryBatch              3 95E523DAD2F5E912096935C6CF7F888212F1F2943D376926799989DED753F24B
+InventoryMovement           6 931D0C92AA8F7A8E321D1E9C1FD34F2003B23C9AF8C925E9E81D1EC103E62889
+InventoryReservation        4 017E8D806BC04F4C1599AFCF8F9B6E751EED84C230F93485455A0794F290ED76
+OrderException              2 F45092250484015B0ED94F7CD259DE40D5D372D75781A74F06571BE5FD246400
+PaymentRecord               3 822A68002081944CC1320AF6D632864ADF600FC76DF92C76753EEE683DE40613
+PointsMovement              2 708E18AC73EF920830126A67A0936BB2550D601B0E7DC413A4F7AD7792F51659
+Product                     3 25B10A2B0CD18FE0B8B2116D3136C3DD4EF3B1751F3CD407E14D7C95F0A4E8F4
+ProductCategory             3 76277C768CAD252E80806546651F591CFE6DC00C19609225FAAC1C422071F2FE
+PurchaseOrder               2 D30FCEF166820E3ABCEF62FB7BCECCFF4A30C7153946B06A21959BF712519044
+PurchaseOrderItem           3 E5F9448D3A2DCAB8BB831F635EFE9C0699B4ADFD1FB9296EB57D15740FEF7200
+SalesOrder                  3 5150E6DF6C56A08B89523C4AE49185C4FA6F52693C64E6E5096D3B5628AD77BC
+SalesOrderItem              4 1FA1AD0D590EF49C834641DA0A345784720B5AA6724D2AF01E4333858D193117
+Supplier                    2 B3BD3ABBB6F8281B19BA6F9B900C25155F4B9C6D8AC518FA13F8FE195FBAF78E
+
+
+
+Result      TableCount TotalRows
+------      ---------- ---------
+VERIFY_PASS         15        46
+
+
+
+BatchID OnHandQty ReservedQty AvailableQty
+------- --------- ----------- ------------
+B00           290           0          290
+B01            37           2            0
+B02           498           0          498
+
+
+Executing 03-crud.sql in DataBaseLab_Week3_0cf66f7c4d1cA
+
+Stage          RowCount
+-----          --------
+Product BEFORE        0
+
+
+
+Stage          ProductID  CurrentPrice SaleStatus ReorderLevel
+-----          ---------  ------------ ---------- ------------
+Product INSERT W3_PRODUCT         3.00 在售                    0
+
+
+
+Stage          ProductID  CurrentPrice
+-----          ---------  ------------
+Product UPDATE W3_PRODUCT         3.50
+
+
+
+Stage          RowCount
+-----          --------
+Product DELETE        0
+
+
+
+Stage            RowCount
+-----            --------
+Inventory BEFORE        0
+
+
+
+Stage            BatchID  OnHandQty
+-----            -------  ---------
+Inventory INSERT W3_BATCH        20
+
+
+
+Stage            BatchID  OnHandQty
+-----            -------  ---------
+Inventory UPDATE W3_BATCH        18
+
+
+
+MovementID BatchID  MovementType QuantityDelta PurchaseItemID SalesItemID Reason OperatorID OccurredAt
+---------- -------  ------------ ------------- -------------- ----------- ------ ---------- ----------
+W3_IN      W3_BATCH 采购入库                    20 W3_PDI                     演示整单验收 P00        2026/9/17 9:30:00
+W3_LOSS    W3_BATCH 报损                      -2                            演示包装破损 P00        2026/9/17 10:00:00
+
+
+
+BatchID  PurchaseItemID SupplierBatchNo ProductionDate   ExpiryDate       ReceivedAt        OnHandQty BatchStatus
+-------  -------------- --------------- --------------   ----------       ----------        --------- -----------
+W3_BATCH W3_PDI         DEMO-260917     2026/9/1 0:00:00 2027/9/1 0:00:00 2026/9/17 9:30:00        18 合格
+
+
+
+PurchaseItemID PurchaseOrderID ProductID OrderedQty UnitCost
+-------------- --------------- --------- ---------- --------
+W3_PDI         W3_PO           S01               20     2.20
+
+
+
+PurchaseOrderID SupplierID CreatedBy CreatedAt         ApprovedBy ApprovedAt        ReceivedBy ReceivedAt        OrderStatus RejectionReason
+--------------- ---------- --------- ---------         ---------- ----------        ---------- ----------        ----------- ---------------
+W3_PO           SUP00      P02       2026/9/17 9:00:00 P01        2026/9/17 9:05:00 P00        2026/9/17 9:30:00 已收货
+
+
+
+Stage            RowCount
+-----            --------
+Inventory DELETE        0
+
+
+
+Stage        RowCount
+-----        --------
+Order BEFORE        0
+
+
+
+Stage        SalesOrderID OrderStatus TotalAmount ShippingAddress
+-----        ------------ ----------- ----------- ---------------
+Order INSERT W3_ORDER     待支付                4.40 演示地址 A
+
+
+
+Stage        SalesOrderID OrderStatus TotalAmount ShippingAddress
+-----        ------------ ----------- ----------- ---------------
+Order UPDATE W3_ORDER     待支付                4.40 演示地址 B
+
+
+
+ReservationID SalesItemID BatchID ReservedQty ReservationStatus ReservedAt         EndedAt
+------------- ----------- ------- ----------- ----------------- ----------         -------
+W3_RES        W3_ITEM     B00               1 有效                2026/9/17 12:00:00
+
+
+
+SalesItemID SalesOrderID ProductID Quantity DealUnitPrice
+----------- ------------ --------- -------- -------------
+W3_ITEM     W3_ORDER     S01              1          4.40
+
+
+
+SalesOrderID CustomerID CreatedAt          OrderStatus CompletedAt RecipientName RecipientPhone ShippingAddress TotalAmount
+------------ ---------- ---------          ----------- ----------- ------------- -------------- --------------- -----------
+W3_ORDER     C02        2026/9/17 12:00:00 待支付                     演示收件人         13000000000    演示地址 B                 4.40
+
+
+
+Stage        RowCount
+-----        --------
+Order DELETE        0
+
+
+
+Result    Detail
+------    ------
+CRUD_PASS All teaching changes rolled back
+
+
+Executing 04-verify.sql in DataBaseLab_Week3_0cf66f7c4d1cA
+
+TableName            RowCount DataHash
+---------            -------- --------
+Customer                    3 526DAE94949C5B084E2E1AA535D7E9A056E22FB0556918677725857FD83A8AC0
+Employee                    3 585C77C6809C0EF78733DE12B5ACA98BA2C008A8168F8DAA4FF49368958C7D15
+InventoryBatch              3 95E523DAD2F5E912096935C6CF7F888212F1F2943D376926799989DED753F24B
+InventoryMovement           6 931D0C92AA8F7A8E321D1E9C1FD34F2003B23C9AF8C925E9E81D1EC103E62889
+InventoryReservation        4 017E8D806BC04F4C1599AFCF8F9B6E751EED84C230F93485455A0794F290ED76
+OrderException              2 F45092250484015B0ED94F7CD259DE40D5D372D75781A74F06571BE5FD246400
+PaymentRecord               3 822A68002081944CC1320AF6D632864ADF600FC76DF92C76753EEE683DE40613
+PointsMovement              2 708E18AC73EF920830126A67A0936BB2550D601B0E7DC413A4F7AD7792F51659
+Product                     3 25B10A2B0CD18FE0B8B2116D3136C3DD4EF3B1751F3CD407E14D7C95F0A4E8F4
+ProductCategory             3 76277C768CAD252E80806546651F591CFE6DC00C19609225FAAC1C422071F2FE
+PurchaseOrder               2 D30FCEF166820E3ABCEF62FB7BCECCFF4A30C7153946B06A21959BF712519044
+PurchaseOrderItem           3 E5F9448D3A2DCAB8BB831F635EFE9C0699B4ADFD1FB9296EB57D15740FEF7200
+SalesOrder                  3 5150E6DF6C56A08B89523C4AE49185C4FA6F52693C64E6E5096D3B5628AD77BC
+SalesOrderItem              4 1FA1AD0D590EF49C834641DA0A345784720B5AA6724D2AF01E4333858D193117
+Supplier                    2 B3BD3ABBB6F8281B19BA6F9B900C25155F4B9C6D8AC518FA13F8FE195FBAF78E
+
+
+
+Result      TableCount TotalRows
+------      ---------- ---------
+VERIFY_PASS         15        46
+
+
+
+BatchID OnHandQty ReservedQty AvailableQty
+------- --------- ----------- ------------
+B00           290           0          290
+B01            37           2            0
+B02           498           0          498
+
+
+Executing 05-constraint-tests.sql in DataBaseLab_Week3_0cf66f7c4d1cA
+
+Name                         ExpectedError ActualError Result
+----                         ------------- ----------- ------
+completed_without_time                 547         547 PASS
+delete_referenced_product              547         547 PASS
+duplicate_candidate_key               2627        2627 PASS
+duplicate_successful_payment          2601        2601 PASS
+invalid_batch_dates                    547         547 PASS
+missing_category                       547         547 PASS
+negative_price                         547         547 PASS
+negative_stock                         547         547 PASS
+null_required_name                     515         515 PASS
+wrong_points_customer                  547         547 PASS
+wrong_purchase_same_product            547         547 PASS
+zero_points                            547         547 PASS
+
+
+
+Result                TestCount
+------                ---------
+CONSTRAINT_TESTS_PASS        12
+
+
+WEEK3_PASS: DataBaseLab_Week3_0cf66f7c4d1cA
