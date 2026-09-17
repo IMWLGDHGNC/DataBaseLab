@@ -2,7 +2,7 @@
 
 ## 1. 范围与读法
 
-本版是第二周的**关系模式草案**，沿用第一周的线上零食网店、单店单仓、整单验收、批次保质期、整单锁定与出库、模拟支付、完成后累计积分等业务约定。第一阶段不处理退款、退货、运费、优惠、拆单和积分兑换。表、字段与样例尚未执行 SQL；小组仍需人工复核第一周的假设。本版的“真实样例”指符合业务规律的**虚构测试数据**，不使用真实顾客或员工资料。
+本版是第二周的**关系模式草案**，沿用第一周的线上零食网店、单店单仓、整单验收、批次保质期、整单锁定与出库、模拟支付、完成后累计积分等业务约定。第一阶段不处理退款、退货、运费、优惠、拆单和积分兑换。用户已于 2026-09-17 确认本轮人工复核完成；业务表、字段约束与样例尚未通过 SQL 实现和验证。本版的“真实样例”指符合业务规律的**虚构测试数据**，不使用真实顾客或员工资料。
 
 数据类型按 SQL Server 记法：`VARCHAR(n)`/`NVARCHAR(n)` 的 `n` 是最大字符数，`DECIMAL(10,2)` 的总精度为 10、小数位为 2，`DATETIME2(0)` 精确到秒。金额单位为人民币元，数量为商品的最小销售单位，数据库值不带“元、包、瓶”等字。`NULL` 是数据库空值，`无`表示不设默认值；下列业务范围在第三、四周逐步用约束、程序或事务验证。
 
@@ -34,7 +34,9 @@ flowchart TD
     relock --> inspect
     inspect -->|通过| ship["结束锁定、扣现存、完成订单<br/>InventoryReservation · InventoryMovement<br/>InventoryBatch · SalesOrder · Employee"]
     ship --> member{"完成时是会员？<br/>Customer"}
-    member -->|是| points["记录赠分并更新余额<br/>PointsMovement · Customer"]
+    member -->|是| threshold{"本单实付满 1 元？<br/>PaymentRecord"}
+    threshold -->|是| points["记录赠分并更新余额<br/>PointsMovement · Customer"]
+    threshold -->|否| done
     member -->|否| done["交易结束"]
     points --> done
     ship -.-> warn
@@ -295,13 +297,15 @@ flowchart TD
 | BatchID | VARCHAR | 12 字符 | 否 | 无 | 必须存在于 `InventoryBatch.BatchID` | FK → InventoryBatch.BatchID | 受影响库存批次 |
 | MovementType | NVARCHAR | 10 字符 | 否 | 无 | `采购入库`、`销售出库`、`盘点调整`、`报损` | — | 库存变化业务类型 |
 | QuantityDelta | INT | 32 位整数 | 否 | 无 | 非 0 整数；入库 >0，销售出库/报损 <0；盘点调整可正可负 | — | 现存数量的有符号变化 |
-| PurchaseItemID | VARCHAR | 12 字符 | 是 | NULL | 采购入库时非空并存在于采购明细；其他类型为空 | FK → PurchaseOrderItem.PurchaseItemID | 入库的采购来源 |
+| PurchaseItemID | VARCHAR | 12 字符 | 是 | NULL | 采购入库时非空，且等于所引用批次的 `InventoryBatch.PurchaseItemID`；其他类型为空 | FK → PurchaseOrderItem.PurchaseItemID | 入库的采购来源 |
 | SalesItemID | VARCHAR | 12 字符 | 是 | NULL | 销售出库时非空并存在于销售明细；其他类型为空 | FK → SalesOrderItem.SalesItemID | 出库的销售来源 |
 | Reason | NVARCHAR | 200 字符 | 否 | 无 | 非空；盘点和报损须写具体原因 | — | 变动原因或操作说明 |
 | OperatorID | VARCHAR | 12 字符 | 否 | 无 | 必须存在于 `Employee.EmployeeID` | FK → Employee.EmployeeID | 确认库存变动的员工 |
 | OccurredAt | DATETIME2 | 秒精度 0 | 否 | 无 | 合法时间；销售出库与订单完成时间一致 | — | 实际确认现存变化的时间 |
 
 **码：**PK=`MovementID`；其他 UNIQUE 候选=暂无；FK=`BatchID → InventoryBatch.BatchID`、`PurchaseItemID → PurchaseOrderItem.PurchaseItemID`、`SalesItemID → SalesOrderItem.SalesItemID`、`OperatorID → Employee.EmployeeID`。采购入库与销售出库的来源字段须按类型二选一；来源商品须与批次商品一致。重复执行同一业务不能重复写库存流水，后续事务需实现幂等检查。
+
+采购入库还须满足 `InventoryMovement.PurchaseItemID = InventoryBatch.PurchaseItemID`（按流水的 `BatchID` 找到批次）。即使两条采购明细购买同一商品，也不能交叉引用；两个单列 FK 和商品一致性检查不能保证这一点，后续须另行实现跨表约束。
 
 | MovementID | BatchID | MovementType | QuantityDelta | PurchaseItemID | SalesItemID | Reason | OperatorID | OccurredAt |
 | --- | --- | --- | ---: | --- | --- | --- | --- | --- |
@@ -335,15 +339,15 @@ flowchart TD
 
 ## 15. 积分变动 PointsMovement
 
-只在会员订单**完成**时按实付金额每满 1 元赠 1 分，向下取整；待出库、已取消及普通顾客订单不赠分。本阶段没有扣分、兑换或退货撤销。
+只在会员订单**完成**时按实付金额每满 1 元赠 1 分，向下取整；实付不足 1 元时正常完成订单，但不写积分变动、不更新积分余额。待出库、已取消及普通顾客订单不赠分。本阶段没有扣分、兑换或退货撤销。
 
 | 字段名 | 类型 | 长度/精度 | 允许空 | 默认值 | 域或取值范围 | 码 | 含义 |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | PointsMovementID | VARCHAR | 12 字符 | 否 | 无 | 非空积分变动编号 | PK | 一次积分赠送的标识 |
 | CustomerID | VARCHAR | 12 字符 | 否 | 无 | 必须存在于 `Customer.CustomerID` 且赠分时为会员 | FK → Customer.CustomerID | 获得积分的顾客 |
 | SalesOrderID | VARCHAR | 12 字符 | 否 | 无 | 必须存在于 `SalesOrder.SalesOrderID`；本阶段每单最多一次赠分 | FK；UNIQUE 候选 | 积分来源订单 |
-| PointsDelta | INT | 32 位整数 | 否 | 无 | 正整数；等于 `floor(BasedAmount)` | — | 本次增加的积分 |
-| BasedAmount | DECIMAL | 10,2 | 否 | 无 | >0；等于该完成订单成功支付金额 | — | 计算本次积分所依据的实付金额 |
+| PointsDelta | INT | 32 位整数 | 否 | 无 | 正整数；等于 `floor(BasedAmount)`；计算结果为 0 时不建记录 | — | 本次增加的积分 |
+| BasedAmount | DECIMAL | 10,2 | 否 | 无 | ≥1.00；等于该完成订单成功支付金额 | — | 计算本次积分所依据的实付金额 |
 | Reason | NVARCHAR | 20 字符 | 否 | `订单完成赠分` | 本阶段仅 `订单完成赠分` | — | 变动原因 |
 | OccurredAt | DATETIME2 | 秒精度 0 | 否 | 无 | 与订单完成时间一致 | — | 完成订单并赠分的时间 |
 
@@ -399,10 +403,10 @@ flowchart TD
 
 `C00.PointsBalance=48`、`C01.PointsBalance=16`、`C02.PointsBalance=0` 与积分变动表一致。`ST02` 虽已支付，但没有出库变动、完成时间或积分变动，异常记录 `EX00` 与 `EX01` 解释暂停履约原因。销售订单明细与批次由锁定记录连接，出库流水又通过 `SalesItemID` 追溯到订单；不存在旧稿那种只能靠商品名称人工猜测订单与出库对应关系的情况。
 
-## 18. 仍需小组确认与后续实现
+## 18. 复核状态与后续实现
 
 - 这版是关系模式与测试元组，不是已建成数据库。SQL Server 中的类型选择、主外键、检查约束、唯一约束和初始数据插入仍待第三周实现和运行验证。
-- `Product` 的组合候选码需确认口味、包装版本等是否已由名称和规格充分区分；若不能稳定唯一，只保留 `ProductID` 为可确认候选码。
+- 本轮人工复核已由用户确认完成，沿用本版 `Product` 组合候选码的业务假设：口味、包装版本等由名称和规格充分区分。后续若这一假设不再成立，应重新调整候选码。
 - 跨表规则如“锁定批次的商品等于销售明细商品”“批次初次入库总数等于采购明细数量”“余额等于积分变动合计”“订单总额等于明细合计”，不能仅用单列 PK/FK 保证，需要后续查询、程序或事务验证。
 - 员工岗位与数据库权限是两层概念；权限实验按第四周要求单独设计。已被历史业务引用的基础资料以停用状态保留，不直接删除。
 - 本阶段仍不实现退货、退款、配送费、积分兑换和真实支付接口。顾客个人订单列表应由 `CustomerID` 过滤销售订单得到，并验证只能查看自己的订单；无需重复建表。
