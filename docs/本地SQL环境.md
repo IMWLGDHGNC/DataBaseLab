@@ -1,6 +1,6 @@
 # 本地 SQL Server 环境
 
-使用 SQL Server 2022 Express LocalDB，实例名为 `DataBaseLab`，数据库名为 `DataBaseLab`，通过 Windows 身份验证连接。LocalDB 适合本机开发实验；远程组员连接和完整服务器管理实验需另行配置 SQL Server 服务实例。参见 [Microsoft LocalDB 文档](https://learn.microsoft.com/en-us/sql/database-engine/configure-windows/sql-server-express-localdb?view=sql-server-ver17)。
+使用 SQL Server 2022 Express LocalDB，实例名为 `DataBaseLab`，数据库名为 `DataBaseLab`，通过 Windows 身份验证连接。LocalDB 适合本机开发实验；已部署的共享 SQL Server 2022 容器及 SSH 隧道连接方式见[服务器 SQL Server 环境](服务器SQL环境.md)。参见 [Microsoft LocalDB 文档](https://learn.microsoft.com/en-us/sql/database-engine/configure-windows/sql-server-express-localdb?view=sql-server-ver17)。
 
 ## 安装
 

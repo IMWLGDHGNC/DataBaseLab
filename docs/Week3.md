@@ -17,6 +17,8 @@
 
 本周使用本地实例 `(localdb)\DataBaseLab`，Windows 身份验证，SQL Server 2022 LocalDB `16.0.1000.6`。`DataBaseLab` 是原环境验证数据库，`DataBaseLab_Week3` 是本周业务数据库，二者用途不同。
 
+2026-09-21，`DataBaseLab_Week3` 另行部署到课程服务器的 SQL Server 2022 CU27 容器，并在容器重启后通过 15 表、46 行数据复验。共享连接、运维命令和 Linux 容器导入差异见[服务器 SQL Server 环境](服务器SQL环境.md)。
+
 ## 2. 表结构和约束
 
 沿用第二周全部表名、字段名、长度、精度、可空性和默认值，未新增业务字段。`VARCHAR` 用于 ASCII 编号和电话，`NVARCHAR` 用于中文文字，`DECIMAL(10,2)` 用于金额，`INT` 用于数量与积分，`BIT` 表示会员身份，`DATE` 和 `DATETIME2(0)` 保存日期及秒精度时间。字符长度应理解为 SQL Server 类型的存储单位：`VARCHAR(n)` 的 n 为字节数，`NVARCHAR(n)` 的 n 为双字节单位数。
