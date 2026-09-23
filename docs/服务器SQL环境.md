@@ -1,6 +1,6 @@
 # 服务器 SQL Server 环境
 
-本项目的第三周数据库已于 2026-09-21 部署到课程服务器。远端环境用于小组共享、演示和服务器端验证；本机开发环境仍见[本地 SQL Server 环境](本地SQL环境.md)。
+本项目的第三周数据库已于 2026-09-21 部署到课程服务器，第四周 v0.1 已于 2026-09-23 部署。远端环境用于小组共享、演示和服务器端验证；本机开发环境仍见[本地 SQL Server 环境](本地SQL环境.md)。
 
 ## 当前部署
 
@@ -14,7 +14,7 @@
 | Docker 镜像 | `mcr.microsoft.com/mssql/server:2022-latest` |
 | 持久化卷 | `database-lab-sql-data`，挂载到容器 `/var/opt/mssql` |
 | 重启策略 | `unless-stopped` |
-| 数据库 | `DataBaseLab_Week3` |
+| 数据库 | `DataBaseLab_Week3`、`DataBaseLab_Week4` |
 | SQL 登录名 | `sa` |
 | SQL 监听 | 服务器本机 `127.0.0.1:1433`，不直接暴露到局域网 |
 
@@ -36,7 +36,7 @@ ssh -p $ServerSshPort -L 14330:127.0.0.1:1433 "${ServerUser}@${ServerAddress}"
 - 服务器：`localhost,14330`
 - 身份验证：SQL Login / SQL Server Authentication
 - 用户名：`sa`
-- 数据库：`DataBaseLab_Week3`
+- 数据库：`DataBaseLab_Week4`（需要查看第三周原始部署时选择 `DataBaseLab_Week3`）
 - 加密：启用；若客户端不信任容器的自签名证书，勾选“信任服务器证书”
 
 需要 SQL 密码时，在已登录的服务器终端中查看：
@@ -79,6 +79,7 @@ docker restart database-lab-sqlserver
 ```text
 $HOME/database-lab-deploy
 $HOME/database-lab-deploy/logs
+$HOME/database-lab-deploy/week4
 ```
 
 ## 验证数据库
@@ -87,10 +88,12 @@ $HOME/database-lab-deploy/logs
 
 ```bash
 read -r DBPASS < ~/.config/database-lab/sa-password
+docker cp "$HOME/database-lab-deploy/04-verify.sql" \
+  database-lab-sqlserver:/tmp/database-lab-verify.sql
 docker exec database-lab-sqlserver /opt/mssql-tools18/bin/sqlcmd \
   -S localhost -U sa -P "$DBPASS" -C -I -b -r1 -f 65001 \
-  -d DataBaseLab_Week3 \
-  -i /tmp/database-lab-deploy/04-verify.sql
+  -d DataBaseLab_Week4 \
+  -i /tmp/database-lab-verify.sql
 unset DBPASS
 ```
 
@@ -100,7 +103,7 @@ unset DBPASS
 VERIFY_PASS          15          46
 ```
 
-`15` 是业务表数，`46` 是样例数据总行数。2026-09-21 部署时还通过了 `CRUD_PASS` 和 `CONSTRAINT_TESTS_PASS`（12 项约束测试），并在重启容器后再次得到 `VERIFY_PASS`。
+`15` 是业务表数，`46` 是样例数据总行数。2026-09-21 的第三周部署通过了 `CRUD_PASS` 和 `CONSTRAINT_TESTS_PASS`（12 项约束测试），并在重启容器后再次得到 `VERIFY_PASS`。2026-09-23 的第四周部署还通过 `CONSTRAINT_PASS`（6 项）、`QUERY_PASS`、`VIEW_PASS` 和 `ROLE_PASS`（17 项），正式日志位于服务器的 `database-lab-deploy/logs/week4-deploy-20260923.log`，仓库副本见[第四周服务器部署日志](../result/week4-server-deploy.txt)。
 
 ## 重新导入时的注意事项
 
@@ -112,7 +115,12 @@ VERIFY_PASS          15          46
 04-verify.sql
 03-crud.sql
 04-verify.sql
+week4/constraint.sql
 05-constraint-tests.sql
+week4/query.sql
+week4/view.sql
+week4/role.sql
+04-verify.sql
 ```
 
 Linux 容器内执行 SQL 文件必须使用 `sqlcmd -I -f 65001`：
@@ -129,4 +137,4 @@ Linux 容器内执行 SQL 文件必须使用 `sqlcmd -I -f 65001`：
 - SSH 服务偶尔返回 `Exceeded MaxStartups`，表现为输入密码前连接就被关闭。这是服务器未认证连接数限流，不是密码错误；降低重试频率，稍后重新连接。
 - 当前只配置了 Docker 卷持久化，尚未配置定时 `.bak` 备份和异机备份。存入不可重新生成的数据前，应先补充备份方案。
 - 当前使用 `sa` 便于课程实验。若用于长期共享或接入应用，应创建最小权限账号，不应让应用使用 `sa`。
-- 第三周数据库用于实验和演示，跨表业务规则、并发事务和生产级权限边界仍以 [Week3](Week3.md) 的说明为准。
+- 第三、第四周数据库用于实验和演示，跨表业务规则、并发事务和生产级权限边界仍以 [Week3](Week3.md) 与 [Week4](Week4.md) 的说明为准。

@@ -22,6 +22,6 @@
 
 第一周完成业务分析，第二周形成 15 表关系模式并经用户确认人工复核。第三周在 SQL Server 2022 LocalDB 中实现 15 张表、107 个字段和 46 行样例数据，以及商品、库存与订单 CRUD。第四周增加连接查询、三个视图、异常解决说明约束与四类岗位权限；独立空库运行均通过，含 18 项约束正反例和 17 项权限正反例。第三、四周新增 SQL 仍需小组逐句人工复核，组内分工暂不填写。
 
-本地实例为 `(localdb)\DataBaseLab`，原环境验证数据库为 `DataBaseLab`，第三周业务数据库为 `DataBaseLab_Week3`，第四周独立复现数据库为 `DataBaseLab_Week4`。第三周业务数据库已部署到课程服务器的 SQL Server 2022 容器，通过 SSH 隧道访问；连接信息和重新导入注意事项见服务器环境说明。第四周目前已在本地验证，未声称已部署课程服务器。Mermaid 图可在 GitHub 文档页中查看。
+本地实例为 `(localdb)\DataBaseLab`，原环境验证数据库为 `DataBaseLab`，第三周业务数据库为 `DataBaseLab_Week3`，第四周独立复现数据库为 `DataBaseLab_Week4`。课程服务器的 SQL Server 2022 容器同时保留 `DataBaseLab_Week3` 和已完成部署的 `DataBaseLab_Week4`，通过 SSH 隧道访问；连接信息、部署日志和重新导入注意事项见服务器环境说明。Mermaid 图可在 GitHub 文档页中查看。
 
 从空库复现 v0.1：在 Windows PowerShell 的仓库根目录运行 `powershell.exe -NoProfile -File .\scripts\Run-Week4.ps1`。已有同名数据库时使用 `-Database DataBaseLab_Week4_自定义后缀` 选择新库；完整顺序和结果见[第四周说明](docs/Week4.md)。

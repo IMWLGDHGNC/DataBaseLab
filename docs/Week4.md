@@ -49,6 +49,6 @@ powershell.exe -NoProfile -File .\scripts\Run-Week4.ps1 -Database $db
 
 ## 实际运行
 
-2026-09-23 在 SQL Server 2022 LocalDB 上，两个独立空库均得到 `WEEK4_PASS`；初版日志包含 13 项角色正反例。补强失败用例事务隔离和异常解决权限后，又在课程服务器 SQL Server 2022 的独立临时库完整执行，得到 15 表、46 行、`CRUD_PASS`、六项本周约束用例、12 项第三周非法数据用例、`QUERY_PASS`、`VIEW_PASS` 和 17 项角色正反例。完整输出见 [首次运行](../result/week4-run.txt)、[第二次复现](../result/week4-reproduction.txt)与[服务器合并前验证](../result/week4-server-preflight.txt)。[结果目录](../result/README.md)还包含从实际日志截取并在浏览器呈现的图片；图片是日志呈现截图，不是 SSMS 界面截图。
+2026-09-23 在 SQL Server 2022 LocalDB 上，两个独立空库均得到 `WEEK4_PASS`；初版日志包含 13 项角色正反例。补强失败用例事务隔离和异常解决权限后，又在课程服务器 SQL Server 2022 的独立临时库完整执行，得到 15 表、46 行、`CRUD_PASS`、六项本周约束用例、12 项第三周非法数据用例、`QUERY_PASS`、`VIEW_PASS` 和 17 项角色正反例。合并推送后，同一实现正式部署为服务器数据库 `DataBaseLab_Week4`，再次得到全部通过标记，并独立复核 3 个视图、4 个角色和已启用且可信的新增检查约束。完整输出见 [首次运行](../result/week4-run.txt)、[第二次复现](../result/week4-reproduction.txt)、[服务器合并前验证](../result/week4-server-preflight.txt)与[服务器正式部署](../result/week4-server-deploy.txt)。[结果目录](../result/README.md)还包含从实际日志截取并在浏览器呈现的图片；图片是日志呈现截图，不是 SSMS 界面截图。
 
 本周新增 SQL 仍需组员逐句人工复核。组员姓名、实际分工和人工意见遵照当前要求暂不填写，不把自动验证记作人工验收。
