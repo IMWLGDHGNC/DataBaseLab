@@ -1,6 +1,7 @@
 -- Week 3 created the PK, FK, UNIQUE, CHECK, DEFAULT, and NOT NULL baseline.
 -- Add a rule for resolved exceptions, then test both acceptance and rejection.
 SET NOCOUNT ON;
+SET XACT_ABORT OFF;
 ALTER TABLE dbo.OrderException WITH CHECK ADD CONSTRAINT CK_OrderException_ResolutionNote
 CHECK (HandlingStatus<>N'已解决' OR
        (HandlingNote IS NOT NULL AND LEN(LTRIM(RTRIM(HandlingNote)))>0));
@@ -20,6 +21,7 @@ ROLLBACK TRANSACTION;
 INSERT #ConstraintResults VALUES('valid_resolution',0,0);
 
 DECLARE @Actual int=0;
+BEGIN TRANSACTION;
 BEGIN TRY
     UPDATE dbo.OrderException SET HandlingStatus=N'已解决',HandlingNote=NULL
     WHERE ExceptionID='EX00';
@@ -27,33 +29,40 @@ END TRY
 BEGIN CATCH
     SET @Actual=ERROR_NUMBER();
 END CATCH;
+IF XACT_STATE()<>0 ROLLBACK TRANSACTION;
 INSERT #ConstraintResults VALUES('missing_resolution_note',547,@Actual);
 
 SET @Actual=0;
+BEGIN TRANSACTION;
 BEGIN TRY
     UPDATE dbo.Product SET CategoryID='MISSING' WHERE ProductID='S00';
 END TRY
 BEGIN CATCH
     SET @Actual=ERROR_NUMBER();
 END CATCH;
+IF XACT_STATE()<>0 ROLLBACK TRANSACTION;
 INSERT #ConstraintResults VALUES('missing_category_fk',547,@Actual);
 
 SET @Actual=0;
+BEGIN TRANSACTION;
 BEGIN TRY
     INSERT dbo.ProductCategory(CategoryID,CategoryName) VALUES('NEWCAT',N'饮品');
 END TRY
 BEGIN CATCH
     SET @Actual=ERROR_NUMBER();
 END CATCH;
+IF XACT_STATE()<>0 ROLLBACK TRANSACTION;
 INSERT #ConstraintResults VALUES('duplicate_category_name',2627,@Actual);
 
 SET @Actual=0;
+BEGIN TRANSACTION;
 BEGIN TRY
     UPDATE dbo.Product SET ProductName=NULL WHERE ProductID='S00';
 END TRY
 BEGIN CATCH
     SET @Actual=ERROR_NUMBER();
 END CATCH;
+IF XACT_STATE()<>0 ROLLBACK TRANSACTION;
 INSERT #ConstraintResults VALUES('required_product_name',515,@Actual);
 
 -- DEFAULT is a database property, checked via a temporary transaction.
@@ -72,3 +81,4 @@ IF EXISTS(SELECT 1 FROM #ConstraintResults WHERE ExpectedError<>ActualError)
     THROW 51423,'Constraint case mismatch.',1;
 SELECT 'CONSTRAINT_PASS' AS Result,COUNT(*) AS CaseCount FROM #ConstraintResults;
 DROP TABLE #ConstraintResults;
+SET XACT_ABORT ON;

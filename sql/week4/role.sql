@@ -34,7 +34,9 @@ GRANT UPDATE (BatchStatus) ON dbo.InventoryBatch TO shop_inventory;
 GRANT SELECT ON dbo.vw_OrderDetail TO shop_orders;
 GRANT SELECT ON dbo.SalesOrder TO shop_orders;
 GRANT SELECT ON dbo.OrderException TO shop_orders;
-GRANT UPDATE (HandlingNote) ON dbo.OrderException TO shop_orders;
+-- Exception resolution is a single-row operation protected by the Week 4 CHECK.
+-- Multi-table order/payment/stock workflows remain intentionally unavailable.
+GRANT UPDATE (HandlingStatus,HandlingNote) ON dbo.OrderException TO shop_orders;
 
 -- Execute actual statements under each loginless identity. Writes are rolled back.
 CREATE TABLE #RoleCases (CaseName varchar(50),UserName sysname,Statement nvarchar(max),ExpectedError int);
@@ -46,11 +48,15 @@ INSERT #RoleCases VALUES
 ('buyer_read_supplier','test_buyer',N'SELECT TOP (1) SupplierID FROM dbo.Supplier;',0),
 ('buyer_edit_supplier','test_buyer',N'UPDATE dbo.Supplier SET ContactName=ContactName WHERE SupplierID=''SUP00'';',0),
 ('buyer_cannot_approve','test_buyer',N'UPDATE dbo.PurchaseOrder SET ApprovedBy=''P01'' WHERE PurchaseOrderID=''PO00'';',229),
+('buyer_cannot_direct_create','test_buyer',N'INSERT dbo.PurchaseOrder(PurchaseOrderID,SupplierID,CreatedBy,CreatedAt) VALUES(''W4PO'',''SUP00'',''P02'',''20260923 10:00:00'');',229),
 ('inventory_read_stock','test_inventory',N'SELECT TOP (1) BatchID FROM dbo.vw_InventoryStatus;',0),
 ('inventory_quarantine','test_inventory',N'UPDATE dbo.InventoryBatch SET BatchStatus=BatchStatus WHERE BatchID=''B00'';',0),
 ('inventory_cannot_change_price','test_inventory',N'UPDATE dbo.Product SET CurrentPrice=5 WHERE ProductID=''S00'';',229),
+('inventory_cannot_change_qty','test_inventory',N'UPDATE dbo.InventoryBatch SET OnHandQty=0 WHERE BatchID=''B00'';',230),
 ('orders_read_detail','test_orders',N'SELECT TOP (1) SalesOrderID FROM dbo.vw_OrderDetail;',0),
 ('orders_edit_note','test_orders',N'UPDATE dbo.OrderException SET HandlingNote=HandlingNote WHERE ExceptionID=''EX00'';',0),
+('orders_resolve_exception','test_orders',N'UPDATE dbo.OrderException SET HandlingStatus=N''已解决'',HandlingNote=N''已核实并处理'' WHERE ExceptionID=''EX00'';',0),
+('orders_cannot_resolve_blank','test_orders',N'UPDATE dbo.OrderException SET HandlingStatus=N''已解决'',HandlingNote=NULL WHERE ExceptionID=''EX00'';',547),
 ('orders_cannot_change_stock','test_orders',N'UPDATE dbo.InventoryBatch SET OnHandQty=0 WHERE BatchID=''B00'';',229),
 ('orders_cannot_change_points','test_orders',N'UPDATE dbo.Customer SET PointsBalance=0 WHERE CustomerID=''C00'';',229);
 
