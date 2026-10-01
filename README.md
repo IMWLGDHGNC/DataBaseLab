@@ -1,27 +1,92 @@
-# DataBaseLab
+# DataBaseLab：线上零食网店数据库实验
 
-数据库实验课程项目，以线上零食网店为场景，逐步完成业务需求分析、数据库设计与实现。
+我们以线上零食网店为场景，完成了业务分析、关系模式设计、SQL Server 建库、增删改查、连接查询、视图、完整性约束和角色授权。当前 v0.1 包含 **15 张业务表和 46 行相互关联的样例数据**。项目已在一台服务器上部署，并在独立空库完成全流程复现。
 
-## 文档
+## 项目范围、角色与流程
 
-- [第一周任务讲解](docs/第一周任务讲解.md)
-- [第一周业务分析](docs/Week1.md)
-- [第二周任务讲解](docs/第二周任务讲解.md)
-- [第二周关系模式草稿](docs/Week2.md)
-- [第三周任务讲解](docs/第三周任务讲解.md)
-- [第三周建库、CRUD 与复现结果](docs/Week3.md)
-- [第四周任务讲解](docs/第四周任务讲解.md)
-- [第四周查询、视图、约束、权限与复现结果](docs/Week4.md)
-- [v0.1 阶段报告](docs/阶段报告-v0.1.md)
-- [v0.1 运行结果](result/README.md)
-- [AI 使用记录](docs/AI使用记录.md)
-- [本地 SQL Server 环境配置](docs/本地SQL环境.md)
-- [服务器 SQL Server 连接与运维](docs/服务器SQL环境.md)
+我们将经营范围限定为单店、单仓库、人民币计价的零食网店，记录商品与供应商、采购单及明细、批次库存、销售订单及明细、模拟支付、顾客和会员积分、订单异常。商品浏览点击、真实支付凭据、物流追踪、退货退款及积分兑换暂不进入 v0.1；这些信息尚无完整的业务闭环，提前存入会让状态和金额难以核对。
 
-## 当前内容
+| 角色 | 本阶段职责 |
+| --- | --- |
+| 店长 | 查看经营统计，审批采购，维护商品价格和状态 |
+| 采购员 | 维护供应商资料，建立采购需求和采购单 |
+| 库存管理员 | 验收入库、管理批次质量，复核销售出库 |
+| 订单管理员 | 查看订单并登记、处理履约异常 |
+| 普通顾客 | 浏览公开商品信息，查看本人订单 |
+| 会员 | 具备普通顾客能力，并查看本人积分 |
+| 供应商 | 提供采购商品与联系资料；本阶段不设数据库登录角色 |
 
-第一周完成业务分析，第二周形成 15 表关系模式并经用户确认人工复核。第三周在 SQL Server 2022 LocalDB 中实现 15 张表、107 个字段和 46 行样例数据，以及商品、库存与订单 CRUD。第四周增加连接查询、三个视图、异常解决说明约束与四类岗位权限；独立空库运行均通过，含 18 项约束正反例和 17 项权限正反例。第三、四周新增 SQL 仍需小组逐句人工复核，组内分工暂不填写。
+我们按“补货需求 → 采购单 → 审批验收 → 库存批次及入库流水”记录采购；按“浏览商品 → 下单并锁定批次 → 模拟支付 → 出库复核 → 完成订单 → 会员赠分”记录销售。**锁定只减少可售量，真正出库才减少现存量；已支付也不等于已完成。**支付失败或待支付取消释放锁定；批次到期等异常暂停出库并保留原因。当前角色授权只覆盖已实现的安全操作，跨表业务流程的完整低权限入口仍待后续实现，详见 [Week1](docs/Week1.md) 和 [Week4](docs/Week4.md)。
 
-本地实例为 `(localdb)\DataBaseLab`，原环境验证数据库为 `DataBaseLab`，第三周业务数据库为 `DataBaseLab_Week3`，第四周独立复现数据库为 `DataBaseLab_Week4`。课程服务器的 SQL Server 2022 容器同时保留 `DataBaseLab_Week3` 和已完成部署的 `DataBaseLab_Week4`，通过 SSH 隧道访问；连接信息、部署日志和重新导入注意事项见服务器环境说明。Mermaid 图可在 GitHub 文档页中查看。
+## 仓库结构
 
-从空库复现 v0.1：在 Windows PowerShell 的仓库根目录运行 `powershell.exe -NoProfile -File .\scripts\Run-Week4.ps1`。已有同名数据库时使用 `-Database DataBaseLab_Week4_自定义后缀` 选择新库；完整顺序和结果见[第四周说明](docs/Week4.md)。
+| 路径 | 内容 |
+| --- | --- |
+| [`sql/week3/`](sql/week3/) | 建库、建表、样例数据、CRUD、数据核对和非法写入测试 |
+| [`sql/week4/`](sql/week4/) | 连接与统计查询、三个视图、补充约束和角色授权 |
+| [`scripts/`](scripts/) | 本地环境初始化、SQL 执行器及一键复现脚本 |
+| [`docs/`](docs/) | 各周任务、设计说明和阶段报告 |
+| [`result/`](result/) | 已完成运行的日志和截图 |
+
+## 从空库复现 v0.1
+
+**环境：** Windows PowerShell、SQL Server 2022 Express LocalDB。请在运行 LocalDB 实例的同一个 Windows 账户下操作。首次安装与初始化见[本地 SQL 环境说明](docs/本地SQL环境.md)；正常运行不需要 SSMS 或 `sqlcmd`。
+
+在仓库根目录打开普通 PowerShell。若当前账户尚未初始化实例，先运行：
+
+```powershell
+powershell.exe -NoProfile -File .\scripts\Initialize-LocalDB.ps1
+```
+
+随后运行完整的第四周复现脚本：
+
+```powershell
+powershell.exe -NoProfile -File .\scripts\Run-Week4.ps1
+```
+
+默认目标数据库为 `DataBaseLab_Week4`。如果该库已经有业务表，脚本不会清空或覆盖它；请为本次运行选择一个新名字。`-Database` 只接受 `DataBaseLab_Week4`，或在其后加下划线、英文字母和数字：
+
+```powershell
+$db = 'DataBaseLab_Week4_' + (Get-Date -Format 'yyyyMMddHHmmss')
+powershell.exe -NoProfile -File .\scripts\Run-Week4.ps1 -Database $db
+```
+
+脚本先创建目标数据库，然后按以下顺序执行仓库中的 SQL：
+
+| 顺序 | 文件 | 用途 |
+| ---: | --- | --- |
+| 1 | `week3/01-schema.sql`、`02-seed.sql`、`04-verify.sql` | 建立 15 张表、装入 46 行样例并核对 |
+| 2 | `week3/03-crud.sql`、`04-verify.sql` | 演示商品、库存、订单 CRUD，回滚后再次核对 |
+| 3 | `week4/constraint.sql`、`week3/05-constraint-tests.sql` | 验证新增约束及 12 项非法写入 |
+| 4 | `week4/query.sql`、`view.sql`、`role.sql` | 查询、三个视图和六类角色的权限正反例 |
+| 5 | `week3/04-verify.sql` | 最后检查业务表和样例数据 |
+
+完整运行后，终端应依次出现 `VERIFY_PASS`、`CRUD_PASS`、`CONSTRAINT_PASS`、`CONSTRAINT_TESTS_PASS`、`QUERY_PASS`、`VIEW_PASS`、`ROLE_PASS`，最后输出 `WEEK4_PASS: <本次数据库名>`。重点核对：
+
+| 检查项 | 预期结果 |
+| --- | ---: |
+| 业务表及样例数据 | `VERIFY_PASS 15 46` |
+| 本周约束案例 | `CONSTRAINT_PASS 6` |
+| 第三周非法写入案例 | `CONSTRAINT_TESTS_PASS 12` |
+| 角色权限正反例 | `ROLE_PASS 34` |
+| 已完成订单商品件数、销售额 | 15 件、64.50 元 |
+
+CRUD、合法约束用例和角色写入测试均在事务中回滚，运行结束后仍应有 46 行样例。已支付但待出库的 `ST02` 不计入完成销售额。`query.sql` 用固定日期演示到期批次，而 `vw_InventoryStatus` 按运行当天判断到期；比较两者结果时要注意日期口径。
+
+## 重跑和排错
+
+- `01-schema.sql` 要求空数据库；`02-seed.sql` 不会覆盖已有样例。完整重跑时请使用新数据库名，不要删除现有数据库。
+- 若提示找不到 LocalDB 实例，请在**同一个 Windows 账户和终端**重新运行 `Initialize-LocalDB.ps1`。
+- 若中途失败，应查看出错的 SQL 文件、SQL Server 错误号和该次运行的退出状态；不要只根据此前输出过的 `PASS` 判定整轮成功。
+- 当前脚本验证的是数据库原型。采购审批、整单下单、支付、出入库和赠分等跨表流程，仍需后续用受控事务实现完整的低权限入口；订单总额与明细、库存余额与流水等跨表规则目前由受控脚本和 `04-verify.sql` 核对。
+
+## 文档和结果
+
+- 业务分析与设计：[Week1](docs/Week1.md)、[Week2](docs/Week2.md)；建库与实验：[Week3](docs/Week3.md)、[Week4](docs/Week4.md)
+- 课程任务：[第一周](docs/第一周任务讲解.md)、[第二周](docs/第二周任务讲解.md)、[第三周](docs/第三周任务讲解.md)、[第四周](docs/第四周任务讲解.md)
+- [组内分工与贡献](组内分工.md)、[提交复核清单](复核清单.md)
+- [阶段报告（公开文字版）](docs/阶段报告-v0.1.md)、[AI 使用记录](ai_log.md)、[运行日志和截图](result/README.md)
+
+## 公开版与课程提交包
+
+本仓库使用成员 A/B 记录实际职责；姓名、学号及远程账户截图仅保留在私下课程提交包中。正式署名 PDF 不上传 GitHub，公开材料以文字报告、SQL、运行日志和无个人信息的历史日志图片为准。业务样例中的人物、联系方式均为模拟数据。
