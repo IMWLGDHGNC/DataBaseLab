@@ -33,8 +33,8 @@
 
 15 张表是业务模型；`customer_security.CustomerPrincipal` 是权限辅助表，单独计数。测试用户使用 WITHOUT LOGIN，证明授予范围内的允许/拒绝，应用认证与完整跨表业务事务仍按后续课程阶段实现。
 
-## 第五周审核分支
+## 第五周模型验证
 
-[第五周分支](https://github.com/IMWLGDHGNC/DataBaseLab/tree/codex/week5-er-model)另含 `sql/week5/verify-er.sql`：核对业务 ER 目录并执行 9 项回滚探针，定位现有约束边界。该周尚待审核，图源、规则和问题清单见分支中的 `docs/week5/`。
+第五周包含 [week5/verify-er.sql](week5/verify-er.sql)：逐项核对业务 ER 字段、主码、候选码、外码及过滤唯一索引，并执行 9 项回滚探针，定位现有约束边界。该周已按用户授权修复 review 问题并合入 main，设计与执行说明见 [Week5](../docs/Week5.md)，图源、规则和问题清单见 [docs/week5](../docs/week5/er-model.md)。
 
 课程指定的 `query.sql`、`view.sql`、`constraint.sql`、`role.sql` 保留在 `week4/`，对应要求见[第四周任务讲解](../docs/第四周任务讲解.md)。

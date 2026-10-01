@@ -1,0 +1,311 @@
+DIAGRAM_PASS er-purchase.mmd: 47 attributes
+DIAGRAM_PASS er-sales.mmd: 44 attributes
+DIAGRAM_PASS er-stock.mmd: 68 attributes
+DIAGRAM_PASS er-v0.1.mmd: 107 attributes
+MODEL_SOURCE_PASS: DDL, committed catalog and diagram attribute/key definitions agree.
+
+Result       DatabaseName                          TableCount AttributeCount ForeignKeyCount SecurityTableCount
+------       ------------                          ---------- -------------- --------------- ------------------
+CATALOG_PASS DataBaseLab_Week4_W5Fix20261001143250         15            107              25                  1
+
+
+
+TableName            column_id ColumnName        SqlType   max_length precision scale is_nullable
+---------            --------- ----------        -------   ---------- --------- ----- -----------
+Customer                     1 CustomerID        varchar           12         0     0       False
+Customer                     2 AccountName       nvarchar          80         0     0       False
+Customer                     3 CustomerName      nvarchar          80         0     0       False
+Customer                     4 ContactPhone      varchar           20         0     0        True
+Customer                     5 IsMember          bit                1         1     0       False
+Customer                     6 JoinedAt          datetime2          6        19     0        True
+Customer                     7 PointsBalance     int                4        10     0       False
+Customer                     8 ActiveStatus      nvarchar          20         0     0       False
+Employee                     1 EmployeeID        varchar           12         0     0       False
+Employee                     2 EmployeeName      nvarchar          80         0     0       False
+Employee                     3 Position          nvarchar          40         0     0       False
+Employee                     4 HireDate          date               3        10     0       False
+Employee                     5 MonthlySalary     decimal            9        10     2       False
+Employee                     6 ContactPhone      varchar           20         0     0        True
+Employee                     7 ActiveStatus      nvarchar          20         0     0       False
+InventoryBatch               1 BatchID           varchar           12         0     0       False
+InventoryBatch               2 PurchaseItemID    varchar           12         0     0       False
+InventoryBatch               3 SupplierBatchNo   varchar           40         0     0       False
+InventoryBatch               4 ProductionDate    date               3        10     0       False
+InventoryBatch               5 ExpiryDate        date               3        10     0       False
+InventoryBatch               6 ReceivedAt        datetime2          6        19     0       False
+InventoryBatch               7 OnHandQty         int                4        10     0       False
+InventoryBatch               8 BatchStatus       nvarchar          20         0     0       False
+InventoryMovement            1 MovementID        varchar           12         0     0       False
+InventoryMovement            2 BatchID           varchar           12         0     0       False
+InventoryMovement            3 MovementType      nvarchar          20         0     0       False
+InventoryMovement            4 QuantityDelta     int                4        10     0       False
+InventoryMovement            5 PurchaseItemID    varchar           12         0     0        True
+InventoryMovement            6 SalesItemID       varchar           12         0     0        True
+InventoryMovement            7 Reason            nvarchar         400         0     0       False
+InventoryMovement            8 OperatorID        varchar           12         0     0       False
+InventoryMovement            9 OccurredAt        datetime2          6        19     0       False
+InventoryReservation         1 ReservationID     varchar           12         0     0       False
+InventoryReservation         2 SalesItemID       varchar           12         0     0       False
+InventoryReservation         3 BatchID           varchar           12         0     0       False
+InventoryReservation         4 ReservedQty       int                4        10     0       False
+InventoryReservation         5 ReservationStatus nvarchar          20         0     0       False
+InventoryReservation         6 ReservedAt        datetime2          6        19     0       False
+InventoryReservation         7 EndedAt           datetime2          6        19     0        True
+OrderException               1 ExceptionID       varchar           12         0     0       False
+OrderException               2 SalesOrderID      varchar           12         0     0       False
+OrderException               3 BatchID           varchar           12         0     0        True
+OrderException               4 ReasonCode        nvarchar          40         0     0       False
+OrderException               5 Description       nvarchar         400         0     0       False
+OrderException               6 HandlingStatus    nvarchar          20         0     0       False
+OrderException               7 HandlingNote      nvarchar         400         0     0        True
+OrderException               8 HandledBy         varchar           12         0     0       False
+OrderException               9 RecordedAt        datetime2          6        19     0       False
+PaymentRecord                1 PaymentID         varchar           12         0     0       False
+PaymentRecord                2 SalesOrderID      varchar           12         0     0       False
+PaymentRecord                3 MockTransactionNo varchar           40         0     0       False
+PaymentRecord                4 Amount            decimal            9        10     2       False
+PaymentRecord                5 PaymentStatus     nvarchar          20         0     0       False
+PaymentRecord                6 ResultAt          datetime2          6        19     0       False
+PointsMovement               1 PointsMovementID  varchar           12         0     0       False
+PointsMovement               2 CustomerID        varchar           12         0     0       False
+PointsMovement               3 SalesOrderID      varchar           12         0     0       False
+PointsMovement               4 PointsDelta       int                4        10     0       False
+PointsMovement               5 BasedAmount       decimal            9        10     2       False
+PointsMovement               6 Reason            nvarchar          40         0     0       False
+PointsMovement               7 OccurredAt        datetime2          6        19     0       False
+Product                      1 ProductID         varchar           12         0     0       False
+Product                      2 CategoryID        varchar           12         0     0       False
+Product                      3 ProductName       nvarchar         200         0     0       False
+Product                      4 Brand             nvarchar         120         0     0       False
+Product                      5 Specification     nvarchar         120         0     0       False
+Product                      6 SaleUnit          nvarchar          20         0     0       False
+Product                      7 CurrentPrice      decimal            9        10     2       False
+Product                      8 SaleStatus        nvarchar          20         0     0       False
+Product                      9 ReorderLevel      int                4        10     0       False
+ProductCategory              1 CategoryID        varchar           12         0     0       False
+ProductCategory              2 CategoryName      nvarchar          80         0     0       False
+ProductCategory              3 Description       nvarchar         400         0     0        True
+PurchaseOrder                1 PurchaseOrderID   varchar           12         0     0       False
+PurchaseOrder                2 SupplierID        varchar           12         0     0       False
+PurchaseOrder                3 CreatedBy         varchar           12         0     0       False
+PurchaseOrder                4 CreatedAt         datetime2          6        19     0       False
+PurchaseOrder                5 ApprovedBy        varchar           12         0     0        True
+PurchaseOrder                6 ApprovedAt        datetime2          6        19     0        True
+PurchaseOrder                7 ReceivedBy        varchar           12         0     0        True
+PurchaseOrder                8 ReceivedAt        datetime2          6        19     0        True
+PurchaseOrder                9 OrderStatus       nvarchar          20         0     0       False
+PurchaseOrder               10 RejectionReason   nvarchar         400         0     0        True
+PurchaseOrderItem            1 PurchaseItemID    varchar           12         0     0       False
+PurchaseOrderItem            2 PurchaseOrderID   varchar           12         0     0       False
+PurchaseOrderItem            3 ProductID         varchar           12         0     0       False
+PurchaseOrderItem            4 OrderedQty        int                4        10     0       False
+PurchaseOrderItem            5 UnitCost          decimal            9        10     2       False
+SalesOrder                   1 SalesOrderID      varchar           12         0     0       False
+SalesOrder                   2 CustomerID        varchar           12         0     0       False
+SalesOrder                   3 CreatedAt         datetime2          6        19     0       False
+SalesOrder                   4 OrderStatus       nvarchar          20         0     0       False
+SalesOrder                   5 CompletedAt       datetime2          6        19     0        True
+SalesOrder                   6 RecipientName     nvarchar          80         0     0       False
+SalesOrder                   7 RecipientPhone    varchar           20         0     0       False
+SalesOrder                   8 ShippingAddress   nvarchar         400         0     0       False
+SalesOrder                   9 TotalAmount       decimal            9        10     2       False
+SalesOrderItem               1 SalesItemID       varchar           12         0     0       False
+SalesOrderItem               2 SalesOrderID      varchar           12         0     0       False
+SalesOrderItem               3 ProductID         varchar           12         0     0       False
+SalesOrderItem               4 Quantity          int                4        10     0       False
+SalesOrderItem               5 DealUnitPrice     decimal            9        10     2       False
+Supplier                     1 SupplierID        varchar           12         0     0       False
+Supplier                     2 SupplierName      nvarchar         200         0     0       False
+Supplier                     3 ContactName       nvarchar          80         0     0        True
+Supplier                     4 ContactPhone      varchar           20         0     0        True
+Supplier                     5 CooperationStatus nvarchar          20         0     0       False
+
+
+
+ForeignKeyName                       ChildTable           ChildColumn     ParentTable       ParentColumn    PairOrder i
+                                                                                                                      s
+                                                                                                                      _
+                                                                                                                      n
+                                                                                                                      u
+                                                                                                                      l
+                                                                                                                      l
+                                                                                                                      a
+                                                                                                                      b
+                                                                                                                      l
+                                                                                                                      e
+--------------                       ----------           -----------     -----------       ------------    --------- -
+FK_InventoryBatch_PurchaseItemID     InventoryBatch       PurchaseItemID  PurchaseOrderItem PurchaseItemID          1 F
+                                                                                                                      a
+                                                                                                                      l
+                                                                                                                      s
+                                                                                                                      e
+FK_InventoryMovement_BatchID         InventoryMovement    BatchID         InventoryBatch    BatchID                 1 F
+                                                                                                                      a
+                                                                                                                      l
+                                                                                                                      s
+                                                                                                                      e
+FK_InventoryMovement_OperatorID      InventoryMovement    OperatorID      Employee          EmployeeID              1 F
+                                                                                                                      a
+                                                                                                                      l
+                                                                                                                      s
+                                                                                                                      e
+FK_InventoryMovement_PurchaseItemID  InventoryMovement    PurchaseItemID  PurchaseOrderItem PurchaseItemID          1 T
+                                                                                                                      r
+                                                                                                                      u
+                                                                                                                      e
+FK_InventoryMovement_SalesItemID     InventoryMovement    SalesItemID     SalesOrderItem    SalesItemID             1 T
+                                                                                                                      r
+                                                                                                                      u
+                                                                                                                      e
+FK_InventoryReservation_BatchID      InventoryReservation BatchID         InventoryBatch    BatchID                 1 F
+                                                                                                                      a
+                                                                                                                      l
+                                                                                                                      s
+                                                                                                                      e
+FK_InventoryReservation_SalesItemID  InventoryReservation SalesItemID     SalesOrderItem    SalesItemID             1 F
+                                                                                                                      a
+                                                                                                                      l
+                                                                                                                      s
+                                                                                                                      e
+FK_Movement_BatchPurchase            InventoryMovement    BatchID         InventoryBatch    BatchID                 1 F
+                                                                                                                      a
+                                                                                                                      l
+                                                                                                                      s
+                                                                                                                      e
+FK_Movement_BatchPurchase            InventoryMovement    PurchaseItemID  InventoryBatch    PurchaseItemID          2 T
+                                                                                                                      r
+                                                                                                                      u
+                                                                                                                      e
+FK_OrderException_BatchID            OrderException       BatchID         InventoryBatch    BatchID                 1 T
+                                                                                                                      r
+                                                                                                                      u
+                                                                                                                      e
+FK_OrderException_HandledBy          OrderException       HandledBy       Employee          EmployeeID              1 F
+                                                                                                                      a
+                                                                                                                      l
+                                                                                                                      s
+                                                                                                                      e
+FK_OrderException_SalesOrderID       OrderException       SalesOrderID    SalesOrder        SalesOrderID            1 F
+                                                                                                                      a
+                                                                                                                      l
+                                                                                                                      s
+                                                                                                                      e
+FK_PaymentRecord_SalesOrderID        PaymentRecord        SalesOrderID    SalesOrder        SalesOrderID            1 F
+                                                                                                                      a
+                                                                                                                      l
+                                                                                                                      s
+                                                                                                                      e
+FK_Points_OrderCustomer              PointsMovement       SalesOrderID    SalesOrder        SalesOrderID            1 F
+                                                                                                                      a
+                                                                                                                      l
+                                                                                                                      s
+                                                                                                                      e
+FK_Points_OrderCustomer              PointsMovement       CustomerID      SalesOrder        CustomerID              2 F
+                                                                                                                      a
+                                                                                                                      l
+                                                                                                                      s
+                                                                                                                      e
+FK_PointsMovement_CustomerID         PointsMovement       CustomerID      Customer          CustomerID              1 F
+                                                                                                                      a
+                                                                                                                      l
+                                                                                                                      s
+                                                                                                                      e
+FK_PointsMovement_SalesOrderID       PointsMovement       SalesOrderID    SalesOrder        SalesOrderID            1 F
+                                                                                                                      a
+                                                                                                                      l
+                                                                                                                      s
+                                                                                                                      e
+FK_Product_CategoryID                Product              CategoryID      ProductCategory   CategoryID              1 F
+                                                                                                                      a
+                                                                                                                      l
+                                                                                                                      s
+                                                                                                                      e
+FK_PurchaseOrder_ApprovedBy          PurchaseOrder        ApprovedBy      Employee          EmployeeID              1 T
+                                                                                                                      r
+                                                                                                                      u
+                                                                                                                      e
+FK_PurchaseOrder_CreatedBy           PurchaseOrder        CreatedBy       Employee          EmployeeID              1 F
+                                                                                                                      a
+                                                                                                                      l
+                                                                                                                      s
+                                                                                                                      e
+FK_PurchaseOrder_ReceivedBy          PurchaseOrder        ReceivedBy      Employee          EmployeeID              1 T
+                                                                                                                      r
+                                                                                                                      u
+                                                                                                                      e
+FK_PurchaseOrder_SupplierID          PurchaseOrder        SupplierID      Supplier          SupplierID              1 F
+                                                                                                                      a
+                                                                                                                      l
+                                                                                                                      s
+                                                                                                                      e
+FK_PurchaseOrderItem_ProductID       PurchaseOrderItem    ProductID       Product           ProductID               1 F
+                                                                                                                      a
+                                                                                                                      l
+                                                                                                                      s
+                                                                                                                      e
+FK_PurchaseOrderItem_PurchaseOrderID PurchaseOrderItem    PurchaseOrderID PurchaseOrder     PurchaseOrderID         1 F
+                                                                                                                      a
+                                                                                                                      l
+                                                                                                                      s
+                                                                                                                      e
+FK_SalesOrder_CustomerID             SalesOrder           CustomerID      Customer          CustomerID              1 F
+                                                                                                                      a
+                                                                                                                      l
+                                                                                                                      s
+                                                                                                                      e
+FK_SalesOrderItem_ProductID          SalesOrderItem       ProductID       Product           ProductID               1 F
+                                                                                                                      a
+                                                                                                                      l
+                                                                                                                      s
+                                                                                                                      e
+FK_SalesOrderItem_SalesOrderID       SalesOrderItem       SalesOrderID    SalesOrder        SalesOrderID            1 F
+                                                                                                                      a
+                                                                                                                      l
+                                                                                                                      s
+                                                                                                                      e
+
+
+
+SalesOrderID CustomerID IsMember SalesItemID ProductID Quantity DealUnitPrice OrderStatus TotalAmount PointsDelta
+------------ ---------- -------- ----------- --------- -------- ------------- ----------- ----------- -----------
+ST00         C00            True SI00        S01             10          4.40 已完成               48.00          48
+ST00         C00            True SI01        S00              2          2.00 已完成               48.00          48
+ST01         C01            True SI02        S02              3          5.50 已完成               16.50          16
+ST02         C02           False SI03        S02              2          5.50 待出库               11.00
+
+
+
+BatchID ProductID PurchaseOrderID SupplierID OnHandQty ActiveReservedQty AvailableQty
+------- --------- --------------- ---------- --------- ----------------- ------------
+B00     S01       PO00            SUP00            290                 0          290
+B01     S02       PO00            SUP00             37                 2            0
+B02     S00       PO01            SUP01            498                 0          498
+
+
+
+CaseName                               ExpectedError ActualError Result
+--------                               ------------- ----------- ------
+Q01_empty_purchase_order_accepted                  0           0 PASS
+Q01_empty_sales_order_accepted                     0           0 PASS
+Q02_duplicate_order_product_rejected            2627        2627 PASS
+Q03_stock_balance_mismatch_accepted                0           0 PASS
+Q04_cross_product_reservation_accepted             0           0 PASS
+Q05_payment_amount_mismatch_accepted               0           0 PASS
+R12_repeat_reservation_event_accepted              0           0 PASS
+R18_multiple_failed_payments_accepted              0           0 PASS
+R31_second_successful_payment_rejected          2601        2601 PASS
+
+
+
+Result           CaseCount
+------           ---------
+ER_BOUNDARY_PASS         9
+
+
+
+Result
+------
+WEEK5_ER_PASS
+
+
+MODEL_DATABASE_PASS: DataBaseLab_Week4_W5Fix20261001143250

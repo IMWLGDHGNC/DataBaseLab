@@ -1,0 +1,104 @@
+erDiagram
+    %% Business cardinality: || 1..1; o| 0..1; o{ 0..N; |{ 1..N.
+    %% Dashed links: parent identifier is not part of child PK.
+    %% Conditional participation and composite keys: see business-rules.md.
+    direction LR
+    Product ||..o{ PurchaseOrderItem : "被采购"
+    PurchaseOrderItem ||..o{ InventoryBatch : "形成批次"
+    SalesOrder ||..|{ SalesOrderItem : "包含"
+    Product ||..o{ SalesOrderItem : "被购买"
+    SalesOrderItem ||..|{ InventoryReservation : "分配批次"
+    InventoryBatch ||..o{ InventoryReservation : "被锁定"
+    InventoryBatch ||..|{ InventoryMovement : "发生变动"
+    PurchaseOrderItem |o..o{ InventoryMovement : "采购入库来源"
+    SalesOrderItem |o..o{ InventoryMovement : "销售出库来源"
+    Employee ||..o{ InventoryMovement : "确认变动"
+    SalesOrder ||..o{ OrderException : "发生异常"
+    InventoryBatch |o..o{ OrderException : "关联异常"
+    Employee ||..o{ OrderException : "登记或处理"
+    Product {
+        VARCHAR(12) ProductID PK "NOT_NULL; 独立销售 SKU 标识"
+        VARCHAR(12) CategoryID FK "NOT_NULL; 商品类别"
+        NVARCHAR(100) ProductName "NOT_NULL; 商品销售名称"
+        NVARCHAR(60) Brand "NOT_NULL; 商品品牌"
+        NVARCHAR(60) Specification "NOT_NULL; 最小销售单位对应的净含量或包装规格"
+        NVARCHAR(10) SaleUnit "NOT_NULL; 库存和订单数量的计量单位"
+        DECIMAL(10_2) CurrentPrice "NOT_NULL; 当前售价；历史成交价另存于销售明细"
+        NVARCHAR(10) SaleStatus "NOT_NULL; 能否接受新订单"
+        INT ReorderLevel "NOT_NULL; 人工补货预警阈值，按最小销售单位计"
+    }
+    PurchaseOrderItem {
+        VARCHAR(12) PurchaseItemID PK "NOT_NULL; 采购明细标识"
+        VARCHAR(12) PurchaseOrderID FK "NOT_NULL; 所属采购订单"
+        VARCHAR(12) ProductID FK "NOT_NULL; 采购的商品"
+        INT OrderedQty "NOT_NULL; 本单计划并整单验收的数量"
+        DECIMAL(10_2) UnitCost "NOT_NULL; 本次采购成交单价，供历史成本核对"
+    }
+    SalesOrderItem {
+        VARCHAR(12) SalesItemID PK "NOT_NULL; 一条订单明细的标识"
+        VARCHAR(12) SalesOrderID FK "NOT_NULL; 所属销售订单"
+        VARCHAR(12) ProductID FK "NOT_NULL; 购买商品"
+        INT Quantity "NOT_NULL; 本明细购买数量"
+        DECIMAL(10_2) DealUnitPrice "NOT_NULL; 下单时锁定的历史成交单价"
+    }
+    InventoryBatch {
+        VARCHAR(12) BatchID PK "NOT_NULL; 仓库批次标识"
+        VARCHAR(12) PurchaseItemID FK "NOT_NULL; 批次的采购来源；商品可由采购明细追溯"
+        VARCHAR(40) SupplierBatchNo "NOT_NULL; 包装上或供应商提供的批号"
+        DATE ProductionDate "NOT_NULL; 生产日期"
+        DATE ExpiryDate "NOT_NULL; 到期日期；当天起不可售"
+        DATETIME2(0) ReceivedAt "NOT_NULL; 该批验收入库的时间"
+        INT OnHandQty "NOT_NULL; 当前账面现存量，随库存变动同步更新"
+        NVARCHAR(10) BatchStatus "NOT_NULL; 人工质量状态；即使为合格，到期后仍不可售"
+    }
+    InventoryReservation {
+        VARCHAR(12) ReservationID PK "NOT_NULL; 一次批次锁定的标识"
+        VARCHAR(12) SalesItemID FK "NOT_NULL; 被锁定库存对应的订单明细"
+        VARCHAR(12) BatchID FK "NOT_NULL; 实际占用的库存批次"
+        INT ReservedQty "NOT_NULL; 该批为本明细预留的数量"
+        NVARCHAR(10) ReservationStatus "NOT_NULL; 锁定当前处理结果"
+        DATETIME2(0) ReservedAt "NOT_NULL; 锁定建立时间"
+        DATETIME2(0) EndedAt "NULL; 锁定结束时间"
+    }
+    InventoryMovement {
+        VARCHAR(12) MovementID PK "NOT_NULL; 一次现存量变化的标识"
+        VARCHAR(12) BatchID FK "NOT_NULL; 受影响库存批次"
+        NVARCHAR(10) MovementType "NOT_NULL; 库存变化业务类型"
+        INT QuantityDelta "NOT_NULL; 现存数量的有符号变化"
+        VARCHAR(12) PurchaseItemID FK "NULL; 入库的采购来源"
+        VARCHAR(12) SalesItemID FK "NULL; 出库的销售来源"
+        NVARCHAR(200) Reason "NOT_NULL; 变动原因或操作说明"
+        VARCHAR(12) OperatorID FK "NOT_NULL; 确认库存变动的员工"
+        DATETIME2(0) OccurredAt "NOT_NULL; 实际确认现存变化的时间"
+    }
+    Employee {
+        VARCHAR(12) EmployeeID PK "NOT_NULL; 员工稳定标识"
+        NVARCHAR(40) EmployeeName "NOT_NULL; 员工显示名"
+        NVARCHAR(20) Position "NOT_NULL; 当前主要岗位"
+        DATE HireDate "NOT_NULL; 入职日期"
+        DECIMAL(10_2) MonthlySalary "NOT_NULL; 样例中的约定月薪"
+        VARCHAR(20) ContactPhone "NULL; 员工联系方式"
+        NVARCHAR(10) ActiveStatus "NOT_NULL; 历史业务保留员工引用，离职不删行"
+    }
+    OrderException {
+        VARCHAR(12) ExceptionID PK "NOT_NULL; 一次异常发现或处理记录的标识"
+        VARCHAR(12) SalesOrderID FK "NOT_NULL; 受影响订单"
+        VARCHAR(12) BatchID FK "NULL; 异常关联批次"
+        NVARCHAR(20) ReasonCode "NOT_NULL; 标准化异常原因"
+        NVARCHAR(200) Description "NOT_NULL; 发现了什么问题"
+        NVARCHAR(10) HandlingStatus "NOT_NULL; 本条异常的处理状态；不等于订单状态"
+        NVARCHAR(200) HandlingNote "NULL; 已采取的核实或临时处置"
+        VARCHAR(12) HandledBy FK "NOT_NULL; 登记或处理的员工"
+        DATETIME2(0) RecordedAt "NOT_NULL; 异常记录时间"
+    }
+    SalesOrder {
+        VARCHAR(12) SalesOrderID PK "NOT_NULL; 一张销售单的标识"
+        VARCHAR(12) CustomerID FK "NOT_NULL; 下单顾客"
+        DATETIME2(0) CreatedAt "NOT_NULL; 整单锁定成功并成单的时间"
+        NVARCHAR(10) OrderStatus "NOT_NULL; 当前销售订单状态"
+        DATETIME2(0) CompletedAt "NULL; 确认出库的完成时间"
+        NVARCHAR(40) RecipientName "NOT_NULL; 下单时的收货人快照"
+        VARCHAR(20) RecipientPhone "NOT_NULL; 下单时的收货联系方式快照"
+        NVARCHAR(200) ShippingAddress "NOT_NULL; 人工配送交接所需地址快照"
+        DECIMAL(10_2) TotalAmount "NOT_NULL; 订单应付金额；与明细同步维护"
+    }

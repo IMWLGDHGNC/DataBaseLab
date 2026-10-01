@@ -10,7 +10,7 @@
 | 第 2 周：关系模式 | [第二周任务讲解](第二周任务讲解.md) | [Week2](Week2.md)：表、字段、主码/候选码/外码与关联样例 | 已实现，已确认人工复核 |
 | 第 3 周：建库与 CRUD | [第三周任务讲解](第三周任务讲解.md) | [Week3](Week3.md)：建库、样例、CRUD、约束与复现 | 已实现，已确认人工复核；运行证据见 [result](../result/README.md) |
 | 第 4 周：查询与授权 | [第四周任务讲解](第四周任务讲解.md) | [Week4](Week4.md)：查询、视图、约束、六角色与 v0.1 | 已实现，已确认人工复核；最新验证含 34 项权限案例 |
-| 第 5 周：ER 模型 | [第五周分支](https://github.com/IMWLGDHGNC/DataBaseLab/tree/codex/week5-er-model)中的 `docs/第五周任务讲解.md` | 该分支的 `docs/Week5.md`、`docs/week5/` 及 `result/week5/README.md` | 自动验证通过，仍待人工审核，未合入 main |
+| 第 5 周：ER 模型 | [第五周任务讲解](第五周任务讲解.md) | [Week5](Week5.md)、[实体字典](week5/er-model.md)、[验证结果](../result/week5/README.md) | review 修复并通过自动验证，按用户授权合入 main；未新增学生逐项验收记录 |
 
 状态依据 [AI 使用记录](../ai_log.md)和用户已确认的审核结论。第一周任务原文包含全学期四阶段安排；本页只索引已有交付，后续周次要求以相应课程讲解为准。
 
@@ -40,3 +40,7 @@
 | 提交前复核 | [复核清单](../复核清单.md) |
 
 `docs/verification/` 是第三周复现脚本的历史输出目录，脚本仍会写入这个路径；历史日志与当前版本证据通过 [result 索引](../result/README.md)和各周说明区分。课程原文保留原路径和内容，实际实现与解释写在 `WeekN.md` 或相应周目录中。
+
+## 第五周材料
+
+可直接阅读[第五周任务原文](第五周任务讲解.md)、[Week5 设计与验证说明](Week5.md)、[实体字典](week5/er-model.md)、[业务规则](week5/business-rules.md)、[问题清单](week5/v0.1-issues.md)及[图与结果](../result/week5/README.md)。这些材料已修复 review 问题并通过自动验证，按用户授权合入 main。

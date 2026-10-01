@@ -1,0 +1,67 @@
+erDiagram
+    %% Business cardinality: || 1..1; o| 0..1; o{ 0..N; |{ 1..N.
+    %% Dashed links: parent identifier is not part of child PK.
+    %% Conditional participation and composite keys: see business-rules.md.
+    direction LR
+    Customer ||..o{ SalesOrder : "下单"
+    SalesOrder ||..|{ SalesOrderItem : "包含"
+    Product ||..o{ SalesOrderItem : "被购买"
+    SalesOrder ||..o{ PaymentRecord : "支付尝试"
+    Customer ||..o{ PointsMovement : "获得积分"
+    SalesOrder ||..o| PointsMovement : "赠分"
+    Customer {
+        VARCHAR(12) CustomerID PK "NOT_NULL; 顾客稳定标识"
+        NVARCHAR(40) AccountName UK "NOT_NULL; 登录账号，不是姓名"
+        NVARCHAR(40) CustomerName "NOT_NULL; 顾客称呼"
+        VARCHAR(20) ContactPhone "NULL; 顾客当前联系方式；不代替订单收货快照"
+        BIT IsMember "NOT_NULL; 当前会员身份"
+        DATETIME2(0) JoinedAt "NULL; 成为会员的时间"
+        INT PointsBalance "NOT_NULL; 当前积分余额，须与积分变动合计一致"
+        NVARCHAR(10) ActiveStatus "NOT_NULL; 停用账号但保留历史订单"
+    }
+    Product {
+        VARCHAR(12) ProductID PK "NOT_NULL; 独立销售 SKU 标识"
+        VARCHAR(12) CategoryID FK "NOT_NULL; 商品类别"
+        NVARCHAR(100) ProductName "NOT_NULL; 商品销售名称"
+        NVARCHAR(60) Brand "NOT_NULL; 商品品牌"
+        NVARCHAR(60) Specification "NOT_NULL; 最小销售单位对应的净含量或包装规格"
+        NVARCHAR(10) SaleUnit "NOT_NULL; 库存和订单数量的计量单位"
+        DECIMAL(10_2) CurrentPrice "NOT_NULL; 当前售价；历史成交价另存于销售明细"
+        NVARCHAR(10) SaleStatus "NOT_NULL; 能否接受新订单"
+        INT ReorderLevel "NOT_NULL; 人工补货预警阈值，按最小销售单位计"
+    }
+    SalesOrder {
+        VARCHAR(12) SalesOrderID PK "NOT_NULL; 一张销售单的标识"
+        VARCHAR(12) CustomerID FK "NOT_NULL; 下单顾客"
+        DATETIME2(0) CreatedAt "NOT_NULL; 整单锁定成功并成单的时间"
+        NVARCHAR(10) OrderStatus "NOT_NULL; 当前销售订单状态"
+        DATETIME2(0) CompletedAt "NULL; 确认出库的完成时间"
+        NVARCHAR(40) RecipientName "NOT_NULL; 下单时的收货人快照"
+        VARCHAR(20) RecipientPhone "NOT_NULL; 下单时的收货联系方式快照"
+        NVARCHAR(200) ShippingAddress "NOT_NULL; 人工配送交接所需地址快照"
+        DECIMAL(10_2) TotalAmount "NOT_NULL; 订单应付金额；与明细同步维护"
+    }
+    SalesOrderItem {
+        VARCHAR(12) SalesItemID PK "NOT_NULL; 一条订单明细的标识"
+        VARCHAR(12) SalesOrderID FK "NOT_NULL; 所属销售订单"
+        VARCHAR(12) ProductID FK "NOT_NULL; 购买商品"
+        INT Quantity "NOT_NULL; 本明细购买数量"
+        DECIMAL(10_2) DealUnitPrice "NOT_NULL; 下单时锁定的历史成交单价"
+    }
+    PaymentRecord {
+        VARCHAR(12) PaymentID PK "NOT_NULL; 一次模拟支付尝试的标识"
+        VARCHAR(12) SalesOrderID FK "NOT_NULL; 对应销售订单"
+        VARCHAR(40) MockTransactionNo UK "NOT_NULL; 模拟交易流水号，用于识别重复回报"
+        DECIMAL(10_2) Amount "NOT_NULL; 本次支付尝试金额"
+        NVARCHAR(10) PaymentStatus "NOT_NULL; 模拟支付结果"
+        DATETIME2(0) ResultAt "NOT_NULL; 支付结果确认时间"
+    }
+    PointsMovement {
+        VARCHAR(12) PointsMovementID PK "NOT_NULL; 一次积分赠送的标识"
+        VARCHAR(12) CustomerID FK "NOT_NULL; 获得积分的顾客"
+        VARCHAR(12) SalesOrderID FK, UK "NOT_NULL; 积分来源订单"
+        INT PointsDelta "NOT_NULL; 本次增加的积分"
+        DECIMAL(10_2) BasedAmount "NOT_NULL; 计算本次积分所依据的实付金额"
+        NVARCHAR(20) Reason "NOT_NULL; 变动原因"
+        DATETIME2(0) OccurredAt "NOT_NULL; 完成订单并赠分的时间"
+    }

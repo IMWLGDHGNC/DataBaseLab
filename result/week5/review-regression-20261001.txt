@@ -1,0 +1,8 @@
+REJECTION_PASS missing_candidate_key: 51511
+REJECTION_PASS wrong_column_type: 51510
+REJECTION_PASS wrong_nullability: 51510
+REJECTION_PASS wrong_fk_pairing: 51512
+REJECTION_PASS missing_filtered_unique_index: 51513
+REJECTION_PASS missing_diagram_pk
+REJECTION_PASS wrong_history_cardinality
+VALIDATOR_REGRESSION_PASS: 5 database mutations and 2 diagram mutations rejected; definitions restored.
