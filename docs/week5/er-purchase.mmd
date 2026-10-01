@@ -1,0 +1,74 @@
+erDiagram
+    %% Business cardinality: || 1..1; o| 0..1; o{ 0..N; |{ 1..N.
+    %% Dashed links: parent identifier is not part of child PK.
+    %% Conditional participation and composite keys: see business-rules.md.
+    direction LR
+    ProductCategory ||..o{ Product : "分类"
+    Supplier ||..o{ PurchaseOrder : "供货"
+    Employee ||..o{ PurchaseOrder : "创建"
+    Employee |o..o{ PurchaseOrder : "审批"
+    Employee |o..o{ PurchaseOrder : "验收"
+    PurchaseOrder ||..|{ PurchaseOrderItem : "包含"
+    Product ||..o{ PurchaseOrderItem : "被采购"
+    PurchaseOrderItem ||..o{ InventoryBatch : "形成批次"
+    ProductCategory {
+        VARCHAR(12) CategoryID PK "NOT_NULL; 类别标识"
+        NVARCHAR(40) CategoryName UK "NOT_NULL; 展示与统计用类别名称"
+        NVARCHAR(200) Description "NULL; 类别边界说明"
+    }
+    Product {
+        VARCHAR(12) ProductID PK "NOT_NULL; 独立销售 SKU 标识"
+        VARCHAR(12) CategoryID FK "NOT_NULL; 商品类别"
+        NVARCHAR(100) ProductName "NOT_NULL; 商品销售名称"
+        NVARCHAR(60) Brand "NOT_NULL; 商品品牌"
+        NVARCHAR(60) Specification "NOT_NULL; 最小销售单位对应的净含量或包装规格"
+        NVARCHAR(10) SaleUnit "NOT_NULL; 库存和订单数量的计量单位"
+        DECIMAL(10_2) CurrentPrice "NOT_NULL; 当前售价；历史成交价另存于销售明细"
+        NVARCHAR(10) SaleStatus "NOT_NULL; 能否接受新订单"
+        INT ReorderLevel "NOT_NULL; 人工补货预警阈值，按最小销售单位计"
+    }
+    Supplier {
+        VARCHAR(12) SupplierID PK "NOT_NULL; 供应商稳定标识"
+        NVARCHAR(100) SupplierName "NOT_NULL; 供货方名称"
+        NVARCHAR(40) ContactName "NULL; 采购沟通联系人"
+        VARCHAR(20) ContactPhone "NULL; 联系方式，不参与数值计算"
+        NVARCHAR(10) CooperationStatus "NOT_NULL; 能否新建采购订单"
+    }
+    Employee {
+        VARCHAR(12) EmployeeID PK "NOT_NULL; 员工稳定标识"
+        NVARCHAR(40) EmployeeName "NOT_NULL; 员工显示名"
+        NVARCHAR(20) Position "NOT_NULL; 当前主要岗位"
+        DATE HireDate "NOT_NULL; 入职日期"
+        DECIMAL(10_2) MonthlySalary "NOT_NULL; 样例中的约定月薪"
+        VARCHAR(20) ContactPhone "NULL; 员工联系方式"
+        NVARCHAR(10) ActiveStatus "NOT_NULL; 历史业务保留员工引用，离职不删行"
+    }
+    PurchaseOrder {
+        VARCHAR(12) PurchaseOrderID PK "NOT_NULL; 一张采购单的标识"
+        VARCHAR(12) SupplierID FK "NOT_NULL; 唯一供货方"
+        VARCHAR(12) CreatedBy FK "NOT_NULL; 创建采购单的员工"
+        DATETIME2(0) CreatedAt "NOT_NULL; 提交采购需求的时间"
+        VARCHAR(12) ApprovedBy FK "NULL; 审批员工；未审批时为空"
+        DATETIME2(0) ApprovedAt "NULL; 审批时间"
+        VARCHAR(12) ReceivedBy FK "NULL; 验收并确认入库的员工"
+        DATETIME2(0) ReceivedAt "NULL; 整单验收合格并入库的时间"
+        NVARCHAR(10) OrderStatus "NOT_NULL; 采购单当前状态"
+        NVARCHAR(200) RejectionReason "NULL; 审批或验收被拒绝的原因"
+    }
+    PurchaseOrderItem {
+        VARCHAR(12) PurchaseItemID PK "NOT_NULL; 采购明细标识"
+        VARCHAR(12) PurchaseOrderID FK "NOT_NULL; 所属采购订单"
+        VARCHAR(12) ProductID FK "NOT_NULL; 采购的商品"
+        INT OrderedQty "NOT_NULL; 本单计划并整单验收的数量"
+        DECIMAL(10_2) UnitCost "NOT_NULL; 本次采购成交单价，供历史成本核对"
+    }
+    InventoryBatch {
+        VARCHAR(12) BatchID PK "NOT_NULL; 仓库批次标识"
+        VARCHAR(12) PurchaseItemID FK "NOT_NULL; 批次的采购来源；商品可由采购明细追溯"
+        VARCHAR(40) SupplierBatchNo "NOT_NULL; 包装上或供应商提供的批号"
+        DATE ProductionDate "NOT_NULL; 生产日期"
+        DATE ExpiryDate "NOT_NULL; 到期日期；当天起不可售"
+        DATETIME2(0) ReceivedAt "NOT_NULL; 该批验收入库的时间"
+        INT OnHandQty "NOT_NULL; 当前账面现存量，随库存变动同步更新"
+        NVARCHAR(10) BatchStatus "NOT_NULL; 人工质量状态；即使为合格，到期后仍不可售"
+    }

@@ -30,8 +30,8 @@ powershell.exe -NoProfile -File .\scripts\Invoke-LabSql.ps1 -Database $db -Input
 
 完整复现需使用空库；建表和样例脚本会拒绝覆盖已有业务数据。默认库名和更完整的顺序见[根 README](../README.md)，环境问题见[本地 SQL 环境](../docs/本地SQL环境.md)。
 
-## 第五周审核分支
+## 第五周模型验证
 
-[第五周分支](https://github.com/IMWLGDHGNC/DataBaseLab/tree/codex/week5-er-model)另有 `Render-Week5Er.cjs`，将该分支的 Mermaid ER 源导出为 SVG/PNG。其依赖、参数与复验步骤见该分支 `docs/Week5.md`；第五周尚待人工审核。
+第五周提供 [Render-Week5Er.cjs](Render-Week5Er.cjs)，将 Mermaid ER 源导出为 SVG/PNG。其依赖、参数与复验步骤见 [Week5](../docs/Week5.md)；可复现的 [Test-Week5Model.ps1](Test-Week5Model.ps1) 核对 DDL、图源、具体目录定义并执行9项业务探针；[Test-Week5Validation.ps1](Test-Week5Validation.ps1) 在独立测试库中验证5项目录变化和2项图源变化确实被拒绝。
 
 生成日志或图后，按[公开材料规则](../docs/公开材料与敏感信息规则.md)检查实际内容和元数据再提交。

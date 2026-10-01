@@ -37,6 +37,6 @@
 
 课程私下提交包另保留了 2026-09-30 的六张 VS Code 现场截图；原图含远程账户信息，仅在私下材料中提供。公开材料的处理规则见[敏感信息规则](../docs/公开材料与敏感信息规则.md)。
 
-## 第五周（待人工审核）
+## 第五周 ER 模型
 
-[第五周分支](https://github.com/IMWLGDHGNC/DataBaseLab/tree/codex/week5-er-model)的 `result/week5/README.md` 索引完整/分区 ER 图、原始验证及同步 main 后的复验。图源和设计说明分别在该分支 `docs/week5/`、`docs/Week5.md`；第五周尚未合入 main。
+[第五周结果](week5/README.md)索引完整/分区 ER 图、原始验证及[同步 main 后的复验](week5/sync-validation-20261001.md)。设计说明见 [Week5](../docs/Week5.md)，图源与字典见 [docs/week5](../docs/week5/er-model.md)。review 修复后的最新证据见 [2026-10-01 修复验证](week5/review-validation-20261001.md)，包含7项检查器反例及数据摘要一致性。第五周按用户授权合入 main。

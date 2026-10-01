@@ -1,0 +1,5 @@
+MODEL_CATALOG_PASS: all 107 column types/nullabilities, 15 primary keys, 10 UNIQUE constraints, 25 foreign keys (27 column pairs) match v0.1 DDL.
+MODEL_SOURCE_PASS: 15 entities / 107 attributes / 23 semantic relationships match Mermaid source.
+DOCX_CONVERSION_PASS: every source paragraph and table cell retained.
+DATA_HASH_PASS: all 15 table SHA-256 values unchanged after probes.
+LINKS_PASS: all local links in Week5 deliverables resolve.
