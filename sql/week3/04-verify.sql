@@ -1,7 +1,9 @@
 -- Snapshot verification, not triggers or a concurrent business workflow.
 SET NOCOUNT ON;
-IF (SELECT COUNT(*) FROM sys.tables WHERE is_ms_shipped=0)<>15
-    THROW 51200, '15 business tables', 1;
+IF (SELECT COUNT(*) FROM sys.tables WHERE schema_id=SCHEMA_ID(N'dbo') AND is_ms_shipped=0)<>15
+   OR (SELECT COUNT(*) FROM sys.tables WHERE is_ms_shipped=0)<>
+      15+CASE WHEN OBJECT_ID(N'customer_security.CustomerPrincipal',N'U') IS NULL THEN 0 ELSE 1 END
+    THROW 51200, '15 business tables and optional customer security map', 1;
 IF EXISTS(SELECT 1 FROM sys.foreign_keys WHERE is_disabled=1 OR is_not_trusted=1) OR EXISTS(SELECT 1 FROM sys.check_constraints WHERE is_disabled=1 OR is_not_trusted=1)
     THROW 51201, 'Constraints enabled and trusted', 1;
 IF EXISTS(SELECT 1 FROM dbo.SalesOrder o OUTER APPLY(SELECT SUM(Quantity*DealUnitPrice) Total FROM dbo.SalesOrderItem i WHERE i.SalesOrderID=o.SalesOrderID) x WHERE x.Total IS NULL OR x.Total<>o.TotalAmount)

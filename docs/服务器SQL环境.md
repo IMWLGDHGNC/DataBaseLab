@@ -1,6 +1,6 @@
 # 服务器 SQL Server 环境
 
-本项目的第三周数据库已于 2026-09-21 部署到课程服务器，第四周 v0.1 已于 2026-09-23 部署。远端环境用于小组共享、演示和服务器端验证；本机开发环境仍见[本地 SQL Server 环境](本地SQL环境.md)。
+本项目的第三周数据库已于 2026-09-21 部署到课程服务器，第四周 v0.1 已于 2026-09-23 部署，并于 2026-09-30 补充顾客、会员权限及订单详情视图修正。远端环境用于小组共享、演示和服务器端验证；本机开发环境仍见[本地 SQL Server 环境](本地SQL环境.md)。
 
 ## 当前部署
 
@@ -103,7 +103,7 @@ unset DBPASS
 VERIFY_PASS          15          46
 ```
 
-`15` 是业务表数，`46` 是样例数据总行数。2026-09-21 的第三周部署通过了 `CRUD_PASS` 和 `CONSTRAINT_TESTS_PASS`（12 项约束测试），并在重启容器后再次得到 `VERIFY_PASS`。2026-09-23 的第四周部署还通过 `CONSTRAINT_PASS`（6 项）、`QUERY_PASS`、`VIEW_PASS` 和 `ROLE_PASS`（17 项），正式日志位于服务器的 `database-lab-deploy/logs/week4-deploy-20260923.log`，仓库副本见[第四周服务器部署日志](../result/week4-server-deploy.txt)。
+`15` 是业务表数，`46` 是样例数据总行数。2026-09-21 的第三周部署通过了 `CRUD_PASS` 和 `CONSTRAINT_TESTS_PASS`（12 项约束测试），并在重启容器后再次得到 `VERIFY_PASS`。2026-09-23 的第四周部署还通过 `CONSTRAINT_PASS`（6 项）、`QUERY_PASS`、`VIEW_PASS` 和 `ROLE_PASS`（17 项），正式日志位于服务器的 `database-lab-deploy/logs/week4-deploy-20260923.log`，仓库副本见[第四周服务器部署日志](../result/week4-server-deploy.txt)。2026-09-30 在独立空库完整复现顾客、会员权限更新后，正式库升级通过 `VIEW_PASS`、`ROLE_PASS`（34 项）、`VERIFY_PASS` 和 `DEPLOY_OBJECTS_PASS`；日志见[权限升级部署结果](../result/week4-customer-access-deploy-20260930.txt)。升级前备份位于容器持久卷的 `/var/opt/mssql/data/DataBaseLab_Week4_pre_customer_access_20260930.bak`，已通过 `RESTORE VERIFYONLY`。
 
 ## 重新导入时的注意事项
 
