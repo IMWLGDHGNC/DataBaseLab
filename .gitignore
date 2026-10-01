@@ -24,6 +24,23 @@ Desktop.ini
 .env.*
 !.env.example
 
+# Private submissions and original material: never add with --force.
+private/
+local-only/
+output/
+*.zip
+*.7z
+*.rar
+
+# Authentication and certificate secrets.
+*.key
+*.pem
+*.pfx
+*.p12
+id_rsa
+id_ed25519
+sa-password
+
 # SQL Server database files remain local; commit SQL scripts and text evidence.
 *.mdf
 *.ndf
