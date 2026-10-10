@@ -12,6 +12,8 @@
 | [Run-Week3.ps1](Run-Week3.ps1) | 单独检查第三周交付 | 建库、建表、样例、CRUD、数据核对及 12 项非法写入案例；最终 WEEK3_PASS |
 | [Invoke-LabSql.ps1](Invoke-LabSql.ps1) | 在指定实验库执行一个 SQL 文件 | 使用 LocalDB 集成身份验证，支持独立 GO 分隔符；输出 SQL 返回结果 |
 | [Test-Week3Reproduction.ps1](Test-Week3Reproduction.ps1) | 复验第三周两个独立空库的一致性 | 创建并保留两个新实验库，更新 `docs/verification/` 的历史复现文件；执行后检查 Git 差异 |
+| [Run-Week6.ps1](Run-Week6.ps1) | Windows LocalDB 的第六周隔离复现 | 新建库，从 v0.1 和第五周核对运行到迁移与回归；原始日志保存在被忽略的 `output/week6/` |
+| [Run-Week6-Server.sh](Run-Week6-Server.sh) | 授权的 Linux SQL Server 容器环境 | 私下设置 `DB_CONTAINER` 后新建测试库，使用 `sqlcmd -I` 执行同一顺序；原始日志保存在被忽略的 `output/week6/` |
 
 ## 常用入口
 
@@ -35,3 +37,5 @@ powershell.exe -NoProfile -File .\scripts\Invoke-LabSql.ps1 -Database $db -Input
 第五周提供 [Render-Week5Er.cjs](Render-Week5Er.cjs)，将 Mermaid ER 源导出为 SVG/PNG。其依赖、参数与复验步骤见 [Week5](../docs/Week5.md)；可复现的 [Test-Week5Model.ps1](Test-Week5Model.ps1) 核对 DDL、图源、具体目录定义并执行9项业务探针；[Test-Week5Validation.ps1](Test-Week5Validation.ps1) 在独立测试库中验证5项目录变化和2项图源变化确实被拒绝。
 
 生成日志或图后，按[公开材料规则](../docs/公开材料与敏感信息规则.md)检查实际内容和元数据再提交。
+
+第六周的 [Render-Week6Er.cjs](Render-Week6Er.cjs) 从完整目标 [Mermaid 源](../docs/week6/er-v1.0.mmd) 导出 SVG/PNG；[Week6](../docs/Week6.md)记录迁移顺序及服务器实际结果。服务器脚本每次创建新测试库，不删除已有库或正式库。
