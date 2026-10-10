@@ -1,0 +1,316 @@
+{
+    "Database":  "DataBaseLab_Week6_Fix20261010B",
+    "Cases":  [
+                  {
+                      "CaseName":  "missing_movement_check",
+                      "ExpectedError":  51727,
+                      "ActualError":  51727,
+                      "Result":  "PASS"
+                  },
+                  {
+                      "CaseName":  "disabled_movement_check",
+                      "ExpectedError":  51727,
+                      "ActualError":  51727,
+                      "Result":  "PASS"
+                  },
+                  {
+                      "CaseName":  "untrusted_movement_check",
+                      "ExpectedError":  51727,
+                      "ActualError":  51727,
+                      "Result":  "PASS"
+                  },
+                  {
+                      "CaseName":  "zero_adjustment_allowed",
+                      "ExpectedError":  51733,
+                      "ActualError":  51733,
+                      "Result":  "PASS"
+                  },
+                  {
+                      "CaseName":  "sales_view_all_zero",
+                      "ExpectedError":  51731,
+                      "ActualError":  51731,
+                      "Result":  "PASS"
+                  },
+                  {
+                      "CaseName":  "pending_detail_same_total",
+                      "ExpectedError":  51731,
+                      "ActualError":  51731,
+                      "Result":  "PASS"
+                  },
+                  {
+                      "CaseName":  "inventory_view_wrong_available",
+                      "ExpectedError":  51731,
+                      "ActualError":  51731,
+                      "Result":  "PASS"
+                  },
+                  {
+                      "CaseName":  "order_view_wrong_quantity",
+                      "ExpectedError":  51731,
+                      "ActualError":  51731,
+                      "Result":  "PASS"
+                  },
+                  {
+                      "CaseName":  "missing_business_snapshot",
+                      "ExpectedError":  51729,
+                      "ActualError":  51729,
+                      "Result":  "PASS"
+                  }
+              ],
+    "Comparison":  [
+                       {
+                           "Dataset":  "InventoryAtFixedDate",
+                           "BeforeRows":  3,
+                           "ExpectedRows":  3,
+                           "ActualRows":  3,
+                           "RemovedOrChangedRows":  0,
+                           "AddedOrChangedRows":  0,
+                           "Result":  "PASS"
+                       },
+                       {
+                           "Dataset":  "InventoryStatus",
+                           "BeforeRows":  3,
+                           "ExpectedRows":  3,
+                           "ActualRows":  3,
+                           "RemovedOrChangedRows":  0,
+                           "AddedOrChangedRows":  0,
+                           "Result":  "PASS"
+                       },
+                       {
+                           "Dataset":  "OrderDetail",
+                           "BeforeRows":  4,
+                           "ExpectedRows":  4,
+                           "ActualRows":  4,
+                           "RemovedOrChangedRows":  0,
+                           "AddedOrChangedRows":  0,
+                           "Result":  "PASS"
+                       },
+                       {
+                           "Dataset":  "ProductSales",
+                           "BeforeRows":  3,
+                           "ExpectedRows":  3,
+                           "ActualRows":  3,
+                           "RemovedOrChangedRows":  0,
+                           "AddedOrChangedRows":  0,
+                           "Result":  "PASS"
+                       }
+                   ],
+    "BeforeExpectedActual":  [
+                                 {
+                                     "Dataset":  "OrderDetail",
+                                     "BeforeValue":  "{\"SalesOrderID\":\"ST00\",\"OrderStatus\":\"已完成\",\"CreatedAt\":\"2026-09-16T10:00:00\",\"CustomerID\":\"C00\",\"CustomerName\":\"示例顾客甲\",\"SalesItemID\":\"SI00\",\"ProductID\":\"S01\",\"ProductName\":\"百事可乐罐装\",\"Quantity\":10,\"DealUnitPrice\":4.40,\"LineAmount\":44.00}",
+                                     "ExpectedValue":  "{\"SalesOrderID\":\"ST00\",\"OrderStatus\":\"已完成\",\"CreatedAt\":\"2026-09-16T10:00:00\",\"CustomerID\":\"C00\",\"CustomerName\":\"示例顾客甲\",\"SalesItemID\":\"SI00\",\"ProductID\":\"S01\",\"ProductName\":\"百事可乐罐装\",\"Quantity\":10,\"DealUnitPrice\":4.40,\"LineAmount\":44.00}",
+                                     "ActualValue":  "{\"SalesOrderID\":\"ST00\",\"OrderStatus\":\"已完成\",\"CreatedAt\":\"2026-09-16T10:00:00\",\"CustomerID\":\"C00\",\"CustomerName\":\"示例顾客甲\",\"SalesItemID\":\"SI00\",\"ProductID\":\"S01\",\"ProductName\":\"百事可乐罐装\",\"Quantity\":10,\"DealUnitPrice\":4.40,\"LineAmount\":44.00}"
+                                 },
+                                 {
+                                     "Dataset":  "OrderDetail",
+                                     "BeforeValue":  "{\"SalesOrderID\":\"ST00\",\"OrderStatus\":\"已完成\",\"CreatedAt\":\"2026-09-16T10:00:00\",\"CustomerID\":\"C00\",\"CustomerName\":\"示例顾客甲\",\"SalesItemID\":\"SI01\",\"ProductID\":\"S00\",\"ProductName\":\"卫龙大面筋\",\"Quantity\":2,\"DealUnitPrice\":2.00,\"LineAmount\":4.00}",
+                                     "ExpectedValue":  "{\"SalesOrderID\":\"ST00\",\"OrderStatus\":\"已完成\",\"CreatedAt\":\"2026-09-16T10:00:00\",\"CustomerID\":\"C00\",\"CustomerName\":\"示例顾客甲\",\"SalesItemID\":\"SI01\",\"ProductID\":\"S00\",\"ProductName\":\"卫龙大面筋\",\"Quantity\":2,\"DealUnitPrice\":2.00,\"LineAmount\":4.00}",
+                                     "ActualValue":  "{\"SalesOrderID\":\"ST00\",\"OrderStatus\":\"已完成\",\"CreatedAt\":\"2026-09-16T10:00:00\",\"CustomerID\":\"C00\",\"CustomerName\":\"示例顾客甲\",\"SalesItemID\":\"SI01\",\"ProductID\":\"S00\",\"ProductName\":\"卫龙大面筋\",\"Quantity\":2,\"DealUnitPrice\":2.00,\"LineAmount\":4.00}"
+                                 },
+                                 {
+                                     "Dataset":  "OrderDetail",
+                                     "BeforeValue":  "{\"SalesOrderID\":\"ST01\",\"OrderStatus\":\"已完成\",\"CreatedAt\":\"2026-09-16T11:00:00\",\"CustomerID\":\"C01\",\"CustomerName\":\"示例顾客乙\",\"SalesItemID\":\"SI02\",\"ProductID\":\"S02\",\"ProductName\":\"旺旺雪饼\",\"Quantity\":3,\"DealUnitPrice\":5.50,\"LineAmount\":16.50}",
+                                     "ExpectedValue":  "{\"SalesOrderID\":\"ST01\",\"OrderStatus\":\"已完成\",\"CreatedAt\":\"2026-09-16T11:00:00\",\"CustomerID\":\"C01\",\"CustomerName\":\"示例顾客乙\",\"SalesItemID\":\"SI02\",\"ProductID\":\"S02\",\"ProductName\":\"旺旺雪饼\",\"Quantity\":3,\"DealUnitPrice\":5.50,\"LineAmount\":16.50}",
+                                     "ActualValue":  "{\"SalesOrderID\":\"ST01\",\"OrderStatus\":\"已完成\",\"CreatedAt\":\"2026-09-16T11:00:00\",\"CustomerID\":\"C01\",\"CustomerName\":\"示例顾客乙\",\"SalesItemID\":\"SI02\",\"ProductID\":\"S02\",\"ProductName\":\"旺旺雪饼\",\"Quantity\":3,\"DealUnitPrice\":5.50,\"LineAmount\":16.50}"
+                                 },
+                                 {
+                                     "Dataset":  "OrderDetail",
+                                     "BeforeValue":  "{\"SalesOrderID\":\"ST02\",\"OrderStatus\":\"待出库\",\"CreatedAt\":\"2026-09-17T17:00:00\",\"CustomerID\":\"C02\",\"CustomerName\":\"示例顾客丙\",\"SalesItemID\":\"SI03\",\"ProductID\":\"S02\",\"ProductName\":\"旺旺雪饼\",\"Quantity\":2,\"DealUnitPrice\":5.50,\"LineAmount\":11.00}",
+                                     "ExpectedValue":  "{\"SalesOrderID\":\"ST02\",\"OrderStatus\":\"待出库\",\"CreatedAt\":\"2026-09-17T17:00:00\",\"CustomerID\":\"C02\",\"CustomerName\":\"示例顾客丙\",\"SalesItemID\":\"SI03\",\"ProductID\":\"S02\",\"ProductName\":\"旺旺雪饼\",\"Quantity\":2,\"DealUnitPrice\":5.50,\"LineAmount\":11.00}",
+                                     "ActualValue":  "{\"SalesOrderID\":\"ST02\",\"OrderStatus\":\"待出库\",\"CreatedAt\":\"2026-09-17T17:00:00\",\"CustomerID\":\"C02\",\"CustomerName\":\"示例顾客丙\",\"SalesItemID\":\"SI03\",\"ProductID\":\"S02\",\"ProductName\":\"旺旺雪饼\",\"Quantity\":2,\"DealUnitPrice\":5.50,\"LineAmount\":11.00}"
+                                 },
+                                 {
+                                     "Dataset":  "ProductSales",
+                                     "BeforeValue":  "{\"ProductID\":\"S00\",\"ProductName\":\"卫龙大面筋\",\"SoldQty\":2,\"SalesAmount\":4.00}",
+                                     "ExpectedValue":  "{\"ProductID\":\"S00\",\"ProductName\":\"卫龙大面筋\",\"SoldQty\":2,\"SalesAmount\":4.00}",
+                                     "ActualValue":  "{\"ProductID\":\"S00\",\"ProductName\":\"卫龙大面筋\",\"SoldQty\":2,\"SalesAmount\":4.00}"
+                                 },
+                                 {
+                                     "Dataset":  "ProductSales",
+                                     "BeforeValue":  "{\"ProductID\":\"S01\",\"ProductName\":\"百事可乐罐装\",\"SoldQty\":10,\"SalesAmount\":44.00}",
+                                     "ExpectedValue":  "{\"ProductID\":\"S01\",\"ProductName\":\"百事可乐罐装\",\"SoldQty\":10,\"SalesAmount\":44.00}",
+                                     "ActualValue":  "{\"ProductID\":\"S01\",\"ProductName\":\"百事可乐罐装\",\"SoldQty\":10,\"SalesAmount\":44.00}"
+                                 },
+                                 {
+                                     "Dataset":  "ProductSales",
+                                     "BeforeValue":  "{\"ProductID\":\"S02\",\"ProductName\":\"旺旺雪饼\",\"SoldQty\":3,\"SalesAmount\":16.50}",
+                                     "ExpectedValue":  "{\"ProductID\":\"S02\",\"ProductName\":\"旺旺雪饼\",\"SoldQty\":3,\"SalesAmount\":16.50}",
+                                     "ActualValue":  "{\"ProductID\":\"S02\",\"ProductName\":\"旺旺雪饼\",\"SoldQty\":3,\"SalesAmount\":16.50}"
+                                 },
+                                 {
+                                     "Dataset":  "InventoryStatus",
+                                     "BeforeValue":  "{\"BatchID\":\"B00\",\"ProductID\":\"S01\",\"ProductName\":\"百事可乐罐装\",\"ExpiryDate\":\"2027-08-15\",\"BatchStatus\":\"合格\",\"OnHandQty\":290,\"ReservedQty\":0,\"AvailableQty\":290}",
+                                     "ExpectedValue":  "{\"BatchID\":\"B00\",\"ProductID\":\"S01\",\"ProductName\":\"百事可乐罐装\",\"ExpiryDate\":\"2027-08-15\",\"BatchStatus\":\"合格\",\"OnHandQty\":290,\"ReservedQty\":0,\"AvailableQty\":290}",
+                                     "ActualValue":  "{\"BatchID\":\"B00\",\"ProductID\":\"S01\",\"ProductName\":\"百事可乐罐装\",\"ExpiryDate\":\"2027-08-15\",\"BatchStatus\":\"合格\",\"OnHandQty\":290,\"ReservedQty\":0,\"AvailableQty\":290}"
+                                 },
+                                 {
+                                     "Dataset":  "InventoryStatus",
+                                     "BeforeValue":  "{\"BatchID\":\"B01\",\"ProductID\":\"S02\",\"ProductName\":\"旺旺雪饼\",\"ExpiryDate\":\"2026-09-18\",\"BatchStatus\":\"合格\",\"OnHandQty\":37,\"ReservedQty\":2,\"AvailableQty\":0}",
+                                     "ExpectedValue":  "{\"BatchID\":\"B01\",\"ProductID\":\"S02\",\"ProductName\":\"旺旺雪饼\",\"ExpiryDate\":\"2026-09-18\",\"BatchStatus\":\"合格\",\"OnHandQty\":37,\"ReservedQty\":2,\"AvailableQty\":0}",
+                                     "ActualValue":  "{\"BatchID\":\"B01\",\"ProductID\":\"S02\",\"ProductName\":\"旺旺雪饼\",\"ExpiryDate\":\"2026-09-18\",\"BatchStatus\":\"合格\",\"OnHandQty\":37,\"ReservedQty\":2,\"AvailableQty\":0}"
+                                 },
+                                 {
+                                     "Dataset":  "InventoryStatus",
+                                     "BeforeValue":  "{\"BatchID\":\"B02\",\"ProductID\":\"S00\",\"ProductName\":\"卫龙大面筋\",\"ExpiryDate\":\"2027-02-01\",\"BatchStatus\":\"合格\",\"OnHandQty\":498,\"ReservedQty\":0,\"AvailableQty\":498}",
+                                     "ExpectedValue":  "{\"BatchID\":\"B02\",\"ProductID\":\"S00\",\"ProductName\":\"卫龙大面筋\",\"ExpiryDate\":\"2027-02-01\",\"BatchStatus\":\"合格\",\"OnHandQty\":498,\"ReservedQty\":0,\"AvailableQty\":498}",
+                                     "ActualValue":  "{\"BatchID\":\"B02\",\"ProductID\":\"S00\",\"ProductName\":\"卫龙大面筋\",\"ExpiryDate\":\"2027-02-01\",\"BatchStatus\":\"合格\",\"OnHandQty\":498,\"ReservedQty\":0,\"AvailableQty\":498}"
+                                 },
+                                 {
+                                     "Dataset":  "InventoryAtFixedDate",
+                                     "BeforeValue":  "{\"BatchID\":\"B00\",\"PurchaseItemID\":\"PDI00\",\"ProductID\":\"S01\",\"OnHandQty\":290,\"MovementNetQty\":290,\"ActiveReservedQty\":0,\"AvailableAtBaselineDate\":290}",
+                                     "ExpectedValue":  "{\"BatchID\":\"B00\",\"PurchaseItemID\":\"PDI00\",\"ProductID\":\"S01\",\"OnHandQty\":290,\"MovementNetQty\":290,\"ActiveReservedQty\":0,\"AvailableAtBaselineDate\":290}",
+                                     "ActualValue":  "{\"BatchID\":\"B00\",\"PurchaseItemID\":\"PDI00\",\"ProductID\":\"S01\",\"OnHandQty\":290,\"MovementNetQty\":290,\"ActiveReservedQty\":0,\"AvailableAtBaselineDate\":290}"
+                                 },
+                                 {
+                                     "Dataset":  "InventoryAtFixedDate",
+                                     "BeforeValue":  "{\"BatchID\":\"B01\",\"PurchaseItemID\":\"PDI01\",\"ProductID\":\"S02\",\"OnHandQty\":37,\"MovementNetQty\":37,\"ActiveReservedQty\":2,\"AvailableAtBaselineDate\":0}",
+                                     "ExpectedValue":  "{\"BatchID\":\"B01\",\"PurchaseItemID\":\"PDI01\",\"ProductID\":\"S02\",\"OnHandQty\":37,\"MovementNetQty\":37,\"ActiveReservedQty\":2,\"AvailableAtBaselineDate\":0}",
+                                     "ActualValue":  "{\"BatchID\":\"B01\",\"PurchaseItemID\":\"PDI01\",\"ProductID\":\"S02\",\"OnHandQty\":37,\"MovementNetQty\":37,\"ActiveReservedQty\":2,\"AvailableAtBaselineDate\":0}"
+                                 },
+                                 {
+                                     "Dataset":  "InventoryAtFixedDate",
+                                     "BeforeValue":  "{\"BatchID\":\"B02\",\"PurchaseItemID\":\"PDI02\",\"ProductID\":\"S00\",\"OnHandQty\":498,\"MovementNetQty\":498,\"ActiveReservedQty\":0,\"AvailableAtBaselineDate\":498}",
+                                     "ExpectedValue":  "{\"BatchID\":\"B02\",\"PurchaseItemID\":\"PDI02\",\"ProductID\":\"S00\",\"OnHandQty\":498,\"MovementNetQty\":498,\"ActiveReservedQty\":0,\"AvailableAtBaselineDate\":498}",
+                                     "ActualValue":  "{\"BatchID\":\"B02\",\"PurchaseItemID\":\"PDI02\",\"ProductID\":\"S00\",\"OnHandQty\":498,\"MovementNetQty\":498,\"ActiveReservedQty\":0,\"AvailableAtBaselineDate\":498}"
+                                 }
+                             ],
+    "WriteAndRoleCases":  [
+                              {
+                                  "CaseName":  "batch_purchase_source_immutable",
+                                  "ExpectedValue":  "51620",
+                                  "ActualValue":  "51620",
+                                  "Result":  "PASS"
+                              },
+                              {
+                                  "CaseName":  "business_query_snapshots",
+                                  "ExpectedValue":  "4 datasets; both EXCEPT directions empty",
+                                  "ActualValue":  "4 datasets; both EXCEPT directions empty",
+                                  "Result":  "PASS"
+                              },
+                              {
+                                  "CaseName":  "customer_cannot_read_baseline",
+                                  "ExpectedValue":  "229",
+                                  "ActualValue":  "229",
+                                  "Result":  "PASS"
+                              },
+                              {
+                                  "CaseName":  "customer_order_scope",
+                                  "ExpectedValue":  "own=1; other=0",
+                                  "ActualValue":  "own=1; other=0",
+                                  "Result":  "PASS"
+                              },
+                              {
+                                  "CaseName":  "invalid_batch_fk",
+                                  "ExpectedValue":  "547",
+                                  "ActualValue":  "547",
+                                  "Result":  "PASS"
+                              },
+                              {
+                                  "CaseName":  "manager_sales_view",
+                                  "ExpectedValue":  "allowed; at least one row",
+                                  "ActualValue":  "allowed; rows=3",
+                                  "Result":  "PASS"
+                              },
+                              {
+                                  "CaseName":  "movement_adjustment_has_sales_source",
+                                  "ExpectedValue":  "547: CK_InventoryMovement_Rule1",
+                                  "ActualValue":  "547: CK_InventoryMovement_Rule1",
+                                  "Result":  "PASS"
+                              },
+                              {
+                                  "CaseName":  "movement_inbound_has_sales_source",
+                                  "ExpectedValue":  "547: CK_InventoryMovement_Rule1",
+                                  "ActualValue":  "547: CK_InventoryMovement_Rule1",
+                                  "Result":  "PASS"
+                              },
+                              {
+                                  "CaseName":  "movement_loss_has_sales_source",
+                                  "ExpectedValue":  "547: CK_InventoryMovement_Rule1",
+                                  "ActualValue":  "547: CK_InventoryMovement_Rule1",
+                                  "Result":  "PASS"
+                              },
+                              {
+                                  "CaseName":  "movement_negative_inbound",
+                                  "ExpectedValue":  "547: CK_InventoryMovement_Rule1",
+                                  "ActualValue":  "547: CK_InventoryMovement_Rule1",
+                                  "Result":  "PASS"
+                              },
+                              {
+                                  "CaseName":  "movement_outbound_missing_sales_source",
+                                  "ExpectedValue":  "547: CK_InventoryMovement_Rule1",
+                                  "ActualValue":  "547: CK_InventoryMovement_Rule1",
+                                  "Result":  "PASS"
+                              },
+                              {
+                                  "CaseName":  "movement_positive_loss",
+                                  "ExpectedValue":  "547: CK_InventoryMovement_Rule1",
+                                  "ActualValue":  "547: CK_InventoryMovement_Rule1",
+                                  "Result":  "PASS"
+                              },
+                              {
+                                  "CaseName":  "movement_positive_outbound",
+                                  "ExpectedValue":  "547: CK_InventoryMovement_Rule1",
+                                  "ActualValue":  "547: CK_InventoryMovement_Rule1",
+                                  "Result":  "PASS"
+                              },
+                              {
+                                  "CaseName":  "movement_zero_adjustment",
+                                  "ExpectedValue":  "547: CK_InventoryMovement_Rule1",
+                                  "ActualValue":  "547: CK_InventoryMovement_Rule1",
+                                  "Result":  "PASS"
+                              },
+                              {
+                                  "CaseName":  "movement_zero_inbound",
+                                  "ExpectedValue":  "547: CK_InventoryMovement_Rule1",
+                                  "ActualValue":  "547: CK_InventoryMovement_Rule1",
+                                  "Result":  "PASS"
+                              },
+                              {
+                                  "CaseName":  "movement_zero_loss",
+                                  "ExpectedValue":  "547: CK_InventoryMovement_Rule1",
+                                  "ActualValue":  "547: CK_InventoryMovement_Rule1",
+                                  "Result":  "PASS"
+                              },
+                              {
+                                  "CaseName":  "movement_zero_outbound",
+                                  "ExpectedValue":  "547: CK_InventoryMovement_Rule1",
+                                  "ActualValue":  "547: CK_InventoryMovement_Rule1",
+                                  "Result":  "PASS"
+                              },
+                              {
+                                  "CaseName":  "orders_cannot_update_stock",
+                                  "ExpectedValue":  "229",
+                                  "ActualValue":  "229",
+                                  "Result":  "PASS"
+                              },
+                              {
+                                  "CaseName":  "valid_movement_types_rollback",
+                                  "ExpectedValue":  "4 accepted; 4 rolled back",
+                                  "ActualValue":  "4 accepted; 4 rolled back",
+                                  "Result":  "PASS"
+                              },
+                              {
+                                  "CaseName":  "valid_write_rollback",
+                                  "ExpectedValue":  "insert accepted; row absent after rollback",
+                                  "ActualValue":  "insert accepted; row absent after rollback",
+                                  "Result":  "PASS"
+                              },
+                              {
+                                  "CaseName":  "zero_reservation_qty",
+                                  "ExpectedValue":  "547",
+                                  "ActualValue":  "547",
+                                  "Result":  "PASS"
+                              }
+                          ],
+    "Final":  [
+                  {
+                      "Result":  "W6_REGRESSION_PASS",
+                      "BusinessTableCount":  15,
+                      "BusinessRows":  46,
+                      "CompletedItemCount":  15,
+                      "CompletedSalesAmount":  64.50,
+                      "Checks":  "Valid insert rolled back; invalid FK/quantity/source update rejected; role boundary checked"
+                  }
+              ],
+    "DataAndBaselineRestored":  true
+}

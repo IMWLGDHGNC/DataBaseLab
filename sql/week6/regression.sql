@@ -32,6 +32,82 @@ IF EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name IN (N'FK_Movement_BatchPurc
 IF NOT EXISTS (SELECT 1 FROM sys.triggers WHERE name=N'TR_InventoryBatch_PurchaseSourceImmutable' AND parent_id=OBJECT_ID(N'dbo.InventoryBatch') AND is_disabled=0)
     THROW 51725, 'Batch purchase source history protection is missing.', 1;
 
+IF NOT EXISTS (SELECT 1 FROM sys.check_constraints
+               WHERE parent_object_id=OBJECT_ID(N'dbo.InventoryMovement')
+                 AND name=N'CK_InventoryMovement_Rule1' AND is_disabled=0 AND is_not_trusted=0)
+    THROW 51727, 'The replacement movement CHECK must exist, be enabled and trusted.', 1;
+IF EXISTS (SELECT 1 FROM sys.foreign_keys WHERE is_disabled=1 OR is_not_trusted=1)
+   OR EXISTS (SELECT 1 FROM sys.check_constraints WHERE is_disabled=1 OR is_not_trusted=1)
+    THROW 51728, 'Target CHECK and FK constraints must be enabled and trusted.', 1;
+
+-- Compare actual views and the fixed-date inventory query to this database's
+-- pre-migration results. Aggregate totals cannot prove detail preservation.
+IF OBJECT_ID(N'week6_baseline.CaptureInfo',N'U') IS NULL
+   OR OBJECT_ID(N'week6_baseline.OrderDetail',N'U') IS NULL
+   OR OBJECT_ID(N'week6_baseline.ProductSales',N'U') IS NULL
+   OR OBJECT_ID(N'week6_baseline.InventoryStatus',N'U') IS NULL
+   OR OBJECT_ID(N'week6_baseline.InventoryAtFixedDate',N'U') IS NULL
+    THROW 51729, 'Pre-migration business query snapshots are missing; use a fresh staging copy.', 1;
+IF (SELECT COUNT(*) FROM week6_baseline.CaptureInfo)<>1
+   OR EXISTS (SELECT 1 FROM week6_baseline.CaptureInfo
+              WHERE AsOfDate<>CONVERT(date,GETDATE()) OR FixedInventoryDate<>'20260918')
+    THROW 51730, 'Inventory view dates differ; rerun the whole migration on a fresh same-day copy.', 1;
+
+SELECT b.BatchID,pi.PurchaseItemID,pi.ProductID,b.OnHandQty,
+       COALESCE(m.NetQty,0) AS MovementNetQty,COALESCE(r.ActiveQty,0) AS ActiveReservedQty,
+       CASE WHEN b.ExpiryDate<='20260918' OR b.BatchStatus<>N'合格' OR p.SaleStatus<>N'在售'
+            THEN 0 ELSE b.OnHandQty-COALESCE(r.ActiveQty,0) END AS AvailableAtBaselineDate
+INTO #Week6InventoryAtFixedDate
+FROM dbo.InventoryBatch AS b
+JOIN dbo.PurchaseOrderItem AS pi ON pi.PurchaseItemID=b.PurchaseItemID
+JOIN dbo.Product AS p ON p.ProductID=pi.ProductID
+OUTER APPLY (SELECT SUM(x.QuantityDelta) AS NetQty FROM dbo.InventoryMovement AS x WHERE x.BatchID=b.BatchID) AS m
+OUTER APPLY (SELECT SUM(x.ReservedQty) AS ActiveQty FROM dbo.InventoryReservation AS x WHERE x.BatchID=b.BatchID AND x.ReservationStatus=N'有效') AS r;
+CREATE TABLE #Week6Comparison(
+    Dataset sysname,BeforeRows int,ExpectedRows int,ActualRows int,
+    RemovedOrChangedRows int,AddedOrChangedRows int,Result varchar(4));
+-- Each key is also used to print before/expected/actual values per business row.
+DECLARE @Datasets TABLE(Dataset sysname,AfterObject nvarchar(128),JoinKeys nvarchar(500));
+INSERT @Datasets VALUES
+    (N'OrderDetail',N'dbo.vw_OrderDetail',
+     N'(b.SalesOrderID=a.SalesOrderID) AND (b.SalesItemID=a.SalesItemID OR (b.SalesItemID IS NULL AND a.SalesItemID IS NULL))'),
+    (N'ProductSales',N'dbo.vw_ProductSales',N'b.ProductID=a.ProductID'),
+    (N'InventoryStatus',N'dbo.vw_InventoryStatus',N'b.BatchID=a.BatchID'),
+    (N'InventoryAtFixedDate',N'#Week6InventoryAtFixedDate',N'b.BatchID=a.BatchID');
+DECLARE @Dataset sysname,@AfterObject nvarchar(128),@JoinKeys nvarchar(500),@CompareSql nvarchar(max);
+DECLARE query_comparisons CURSOR LOCAL FAST_FORWARD FOR SELECT Dataset,AfterObject,JoinKeys FROM @Datasets;
+OPEN query_comparisons;
+FETCH NEXT FROM query_comparisons INTO @Dataset,@AfterObject,@JoinKeys;
+WHILE @@FETCH_STATUS=0
+BEGIN
+    SET @CompareSql=N'
+        DECLARE @Before int=(SELECT COUNT(*) FROM week6_baseline.'+QUOTENAME(@Dataset)+N');
+        DECLARE @After int=(SELECT COUNT(*) FROM '+@AfterObject+N');
+        DECLARE @Removed int=(SELECT COUNT(*) FROM
+            (SELECT * FROM week6_baseline.'+QUOTENAME(@Dataset)+N' EXCEPT SELECT * FROM '+@AfterObject+N') AS x);
+        DECLARE @Added int=(SELECT COUNT(*) FROM
+            (SELECT * FROM '+@AfterObject+N' EXCEPT SELECT * FROM week6_baseline.'+QUOTENAME(@Dataset)+N') AS x);
+        INSERT #Week6Comparison VALUES(@Name,@Before,@Before,@After,@Removed,@Added,
+            CASE WHEN @Before=@After AND @Removed=0 AND @Added=0 THEN ''PASS'' ELSE ''FAIL'' END);
+        SELECT @Name AS Dataset,
+            (SELECT b.* FOR JSON PATH,WITHOUT_ARRAY_WRAPPER,INCLUDE_NULL_VALUES) AS BeforeValue,
+            (SELECT b.* FOR JSON PATH,WITHOUT_ARRAY_WRAPPER,INCLUDE_NULL_VALUES) AS ExpectedValue,
+            (SELECT a.* FOR JSON PATH,WITHOUT_ARRAY_WRAPPER,INCLUDE_NULL_VALUES) AS ActualValue
+        FROM week6_baseline.'+QUOTENAME(@Dataset)+N' AS b
+        FULL OUTER JOIN '+@AfterObject+N' AS a ON '+@JoinKeys+N';';
+    EXEC sys.sp_executesql @CompareSql,N'@Name sysname',@Name=@Dataset;
+    FETCH NEXT FROM query_comparisons INTO @Dataset,@AfterObject,@JoinKeys;
+END;
+CLOSE query_comparisons;
+DEALLOCATE query_comparisons;
+SELECT * FROM #Week6Comparison ORDER BY Dataset;
+IF EXISTS (SELECT 1 FROM #Week6Comparison WHERE Result='FAIL')
+    THROW 51731, 'Business query results differ from the actual pre-migration snapshots.', 1;
+INSERT #Week6Cases VALUES('business_query_snapshots',N'4 datasets; both EXCEPT directions empty',
+                         N'4 datasets; both EXCEPT directions empty','PASS');
+DROP TABLE #Week6Comparison;
+DROP TABLE #Week6InventoryAtFixedDate;
+
 -- Key business results must retain their Week 4 baseline meaning.
 DECLARE @CompletedQty int, @CompletedAmount decimal(12,2);
 SELECT @CompletedQty=COALESCE(SUM(i.Quantity),0),
@@ -158,6 +234,69 @@ IF XACT_STATE()<>0 ROLLBACK TRANSACTION;
 IF @Actual<>547 THROW 51713, 'Zero reservation quantity was not rejected with error 547.', 1;
 INSERT #Week6Cases VALUES('zero_reservation_qty',N'547',CONVERT(nvarchar(100),@Actual),'PASS');
 
+-- Exercise the replacement CHECK itself with all four legal movement types.
+BEGIN TRY
+    BEGIN TRANSACTION;
+    INSERT dbo.InventoryMovement(MovementID,BatchID,MovementType,QuantityDelta,SalesItemID,Reason,OperatorID,OccurredAt)
+    VALUES('W6IN','B00',N'采购入库',1,NULL,N'Week6 rollback probe','P00','20261010 10:00:00'),
+          ('W6OUT','B00',N'销售出库',-1,'SI00',N'Week6 rollback probe','P00','20261010 10:00:00'),
+          ('W6ADJ','B00',N'盘点调整',1,NULL,N'Week6 rollback probe','P00','20261010 10:00:00'),
+          ('W6LOSS','B00',N'报损',-1,NULL,N'Week6 rollback probe','P00','20261010 10:00:00');
+    IF (SELECT COUNT(*) FROM dbo.InventoryMovement WHERE MovementID IN ('W6IN','W6OUT','W6ADJ','W6LOSS'))<>4
+        THROW 51732, 'The replacement movement CHECK rejected a legal movement.', 1;
+    ROLLBACK TRANSACTION;
+END TRY
+BEGIN CATCH
+    IF XACT_STATE()<>0 ROLLBACK TRANSACTION;
+    THROW;
+END CATCH;
+IF EXISTS (SELECT 1 FROM dbo.InventoryMovement WHERE MovementID IN ('W6IN','W6OUT','W6ADJ','W6LOSS'))
+    THROW 51732, 'Legal movement probes were not rolled back.', 1;
+INSERT #Week6Cases VALUES('valid_movement_types_rollback',N'4 accepted; 4 rolled back',N'4 accepted; 4 rolled back','PASS');
+
+-- Every negative row has valid FK targets and must hit this exact CHECK.
+DECLARE @MovementCases TABLE(CaseName varchar(60),MovementType nvarchar(10),QuantityDelta int,SalesItemID varchar(12));
+INSERT @MovementCases VALUES
+    ('movement_zero_adjustment',N'盘点调整',0,NULL),
+    ('movement_zero_inbound',N'采购入库',0,NULL),
+    ('movement_negative_inbound',N'采购入库',-1,NULL),
+    ('movement_positive_outbound',N'销售出库',1,'SI00'),
+    ('movement_zero_outbound',N'销售出库',0,'SI00'),
+    ('movement_positive_loss',N'报损',1,NULL),
+    ('movement_zero_loss',N'报损',0,NULL),
+    ('movement_inbound_has_sales_source',N'采购入库',1,'SI00'),
+    ('movement_outbound_missing_sales_source',N'销售出库',-1,NULL),
+    ('movement_adjustment_has_sales_source',N'盘点调整',1,'SI00'),
+    ('movement_loss_has_sales_source',N'报损',-1,'SI00');
+DECLARE @MovementCaseName varchar(60),@MovementType nvarchar(10),@Delta int,@SalesSource varchar(12);
+DECLARE @MovementError int,@MovementMessage nvarchar(4000);
+DECLARE movement_cases CURSOR LOCAL FAST_FORWARD FOR
+    SELECT CaseName,MovementType,QuantityDelta,SalesItemID FROM @MovementCases;
+OPEN movement_cases;
+FETCH NEXT FROM movement_cases INTO @MovementCaseName,@MovementType,@Delta,@SalesSource;
+WHILE @@FETCH_STATUS=0
+BEGIN
+    SET @MovementError=0;
+    SET @MovementMessage=N'';
+    BEGIN TRANSACTION;
+    BEGIN TRY
+        INSERT dbo.InventoryMovement(MovementID,BatchID,MovementType,QuantityDelta,SalesItemID,Reason,OperatorID,OccurredAt)
+        VALUES('W6BADRULE','B00',@MovementType,@Delta,@SalesSource,N'Week6 negative probe','P00','20261010 10:00:00');
+    END TRY
+    BEGIN CATCH
+        SET @MovementError=ERROR_NUMBER();
+        SET @MovementMessage=ERROR_MESSAGE();
+    END CATCH;
+    IF XACT_STATE()<>0 ROLLBACK TRANSACTION;
+    IF @MovementError<>547 OR CHARINDEX(N'CK_InventoryMovement_Rule1',@MovementMessage)=0
+        THROW 51733, 'A movement negative probe did not hit the replacement movement CHECK.', 1;
+    INSERT #Week6Cases VALUES(@MovementCaseName,N'547: CK_InventoryMovement_Rule1',
+                             N'547: CK_InventoryMovement_Rule1','PASS');
+    FETCH NEXT FROM movement_cases INTO @MovementCaseName,@MovementType,@Delta,@SalesSource;
+END;
+CLOSE movement_cases;
+DEALLOCATE movement_cases;
+
 -- A batch with movement history must not be relabeled to another purchase row.
 SET @Actual=0;
 BEGIN TRANSACTION;
@@ -218,6 +357,20 @@ REVERT;
 IF @OwnOrderRows<>1 OR @OtherOrderRows<>0
     THROW 51717, 'Customer order procedure did not enforce own-order scope.', 1;
 INSERT #Week6Cases VALUES('customer_order_scope',N'own=1; other=0',N'own='+CONVERT(nvarchar(20),@OwnOrderRows)+N'; other='+CONVERT(nvarchar(20),@OtherOrderRows),'PASS');
+
+SET @RoleActual=0;
+SET @Impersonating=0;
+BEGIN TRY
+    EXECUTE AS USER=N'test_customer';
+    SET @Impersonating=1;
+    SELECT @ViewRows=COUNT(*) FROM week6_baseline.OrderDetail;
+END TRY
+BEGIN CATCH
+    SET @RoleActual=ERROR_NUMBER();
+END CATCH;
+IF @Impersonating=1 REVERT;
+IF @RoleActual<>229 THROW 51734, 'Customer must not read the migration audit snapshots.', 1;
+INSERT #Week6Cases VALUES('customer_cannot_read_baseline',N'229',N'229','PASS');
 
 SELECT Metric,ExpectedValue,ActualValue,
        CASE WHEN ExpectedValue=ActualValue THEN N'一致' ELSE N'差异' END AS Comparison

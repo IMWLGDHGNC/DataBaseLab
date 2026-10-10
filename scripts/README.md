@@ -39,3 +39,5 @@ powershell.exe -NoProfile -File .\scripts\Invoke-LabSql.ps1 -Database $db -Input
 生成日志或图后，按[公开材料规则](../docs/公开材料与敏感信息规则.md)检查实际内容和元数据再提交。
 
 第六周的 [Render-Week6Er.cjs](Render-Week6Er.cjs) 从完整目标 [Mermaid 源](../docs/week6/er-v1.0.mmd) 导出 SVG/PNG；[Week6](../docs/Week6.md)记录迁移顺序及服务器实际结果。服务器脚本每次创建新测试库，不删除已有库或正式库。
+
+[Run-Week6.ps1](Run-Week6.ps1) 在 LocalDB 新库重建 v0.1、保存迁移前查询并迁移回归；[Run-Week6-Server.sh](Run-Week6-Server.sh) 使用授权的现有 Linux SQL Server 容器执行同一 SQL 顺序，并用 `sqlcmd -y 0` 保留完整比较值。[Test-Week6Validation.ps1](Test-Week6Validation.ps1) 仅在专用 Fix/Review/Test 样例库执行九项错误注入，确认回归拒绝错误，再恢复定义并核对全部数据摘要。运行命令、同日日期前提和最新验证见 [Week6](../docs/Week6.md)。本次修复已在 LocalDB 验证，历史服务器日志对应初版。
