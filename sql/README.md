@@ -41,4 +41,4 @@
 
 ## 第六周 v1.0 迁移
 
-[week6/migration.sql](week6/migration.sql)仅对新的 `DataBaseLab_Week6_<时间戳>` 样例库执行：核对 v0.1 前提后，在事务中删除 `InventoryMovement.PurchaseItemID` 及相关约束，逐行比较迁移前后库存流水与批次可还原的采购来源。[week6/regression.sql](week6/regression.sql)检查 15 表 46 行、目标目录 106 属性/23 外键/9 项 UNIQUE、完成销售、订单/库存/积分对账、合法与非法写入以及角色边界。第五周 `verify-er.sql` 必须在迁移前运行；迁移后不可再按 v0.1 目录执行它。具体顺序及服务器实测见[Week6](../docs/Week6.md)和[结果](../result/week6/README.md)。
+[week6/migration.sql](week6/migration.sql)仅对新的 `DataBaseLab_Week6_<时间戳>` 样例库执行：核对 v0.1 前提后，在事务中保存业务查询基线、删除 `InventoryMovement.PurchaseItemID` 及相关约束，逐行比较迁移前后库存流水与采购来源。[week6/regression.sql](week6/regression.sql)核对四组实际查询与本库迁移前快照、15 表 46 行、目标目录 106 属性/23 外键/9 项 UNIQUE、业务对账、四种合法流水和十一项命中重建 CHECK 的负例及角色边界。`week6_baseline` 的五张辅助审核表不计入业务表；快照无顾客读取权限，当前日期库存视图要求迁移和回归同日执行。第五周 `verify-er.sql` 和第三周 `04-verify.sql` 必须在迁移前运行；迁移后不再适用 v0.1 字段和全库表数检查。具体顺序及版本对应结果见[Week6](../docs/Week6.md)和[结果](../result/week6/README.md)。

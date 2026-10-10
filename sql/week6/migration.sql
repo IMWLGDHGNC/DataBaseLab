@@ -1,6 +1,6 @@
 -- Week 6: migrate the reproducible Week 4 v0.1 sample database to v1.0.
 -- Run only in the isolated DataBaseLab_Week6 staging database created by Run-Week6.ps1.
--- This migration changes metadata only; it must preserve all 15 business tables and 46 rows.
+-- Preserve all 15 business tables and 46 rows; audit snapshots use a separate schema.
 SET NOCOUNT ON;
 SET XACT_ABORT ON;
 
@@ -89,6 +89,27 @@ IF (SELECT COUNT_BIG(*) FROM #Week6MovementBefore)<>@MovementRowsBefore
 BEGIN TRY
     BEGIN TRANSACTION;
 
+    -- Persist the actual pre-migration query results across executor sessions.
+    -- This audit schema is separate from the 15 dbo business tables.
+    IF SCHEMA_ID(N'week6_baseline') IS NOT NULL
+        THROW 51618, 'A Week 6 baseline already exists; start from a fresh v0.1 copy.', 1;
+    EXEC(N'CREATE SCHEMA week6_baseline AUTHORIZATION dbo');
+    CREATE TABLE week6_baseline.CaptureInfo(AsOfDate date NOT NULL, FixedInventoryDate date NOT NULL);
+    INSERT week6_baseline.CaptureInfo VALUES(CONVERT(date,GETDATE()),'20260918');
+    SELECT * INTO week6_baseline.OrderDetail FROM dbo.vw_OrderDetail;
+    SELECT * INTO week6_baseline.ProductSales FROM dbo.vw_ProductSales;
+    SELECT * INTO week6_baseline.InventoryStatus FROM dbo.vw_InventoryStatus;
+    SELECT b.BatchID,pi.PurchaseItemID,pi.ProductID,b.OnHandQty,
+           COALESCE(m.NetQty,0) AS MovementNetQty,COALESCE(r.ActiveQty,0) AS ActiveReservedQty,
+           CASE WHEN b.ExpiryDate<='20260918' OR b.BatchStatus<>N'合格' OR p.SaleStatus<>N'在售'
+                THEN 0 ELSE b.OnHandQty-COALESCE(r.ActiveQty,0) END AS AvailableAtBaselineDate
+    INTO week6_baseline.InventoryAtFixedDate
+    FROM dbo.InventoryBatch AS b
+    JOIN dbo.PurchaseOrderItem AS pi ON pi.PurchaseItemID=b.PurchaseItemID
+    JOIN dbo.Product AS p ON p.ProductID=pi.ProductID
+    OUTER APPLY (SELECT SUM(x.QuantityDelta) AS NetQty FROM dbo.InventoryMovement AS x WHERE x.BatchID=b.BatchID) AS m
+    OUTER APPLY (SELECT SUM(x.ReservedQty) AS ActiveQty FROM dbo.InventoryReservation AS x WHERE x.BatchID=b.BatchID AND x.ReservationStatus=N'有效') AS r;
+
     -- Remove the direct and composite references to the duplicated purchase source.
     ALTER TABLE dbo.InventoryMovement DROP CONSTRAINT FK_Movement_BatchPurchase;
     ALTER TABLE dbo.InventoryMovement DROP CONSTRAINT FK_InventoryMovement_PurchaseItemID;
@@ -169,6 +190,13 @@ BEGIN TRY
         THROW 51616, 'Movement facts or recovered purchase source changed.', 1;
 
     COMMIT TRANSACTION;
+    SELECT N'W6_BASELINE_SAVED' AS Result,
+           AsOfDate,FixedInventoryDate,
+           (SELECT COUNT(*) FROM week6_baseline.OrderDetail) AS OrderDetailRows,
+           (SELECT COUNT(*) FROM week6_baseline.ProductSales) AS ProductSalesRows,
+           (SELECT COUNT(*) FROM week6_baseline.InventoryStatus) AS InventoryStatusRows,
+           (SELECT COUNT(*) FROM week6_baseline.InventoryAtFixedDate) AS FixedInventoryRows
+    FROM week6_baseline.CaptureInfo;
     SELECT N'W6_MIGRATION_PASS' AS Result, DB_NAME() AS DatabaseName,
            15 AS BusinessTableCount, @RowsBefore AS BusinessRowCount,
            @MovementRowsBefore AS InventoryMovementRows,

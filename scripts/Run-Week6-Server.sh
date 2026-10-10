@@ -16,7 +16,7 @@ run_query() {
 run_file() {
   local db="$1" file="$2"
   printf 'RUN %s\n' "$file"
-  docker exec -i "$DB_CONTAINER" sh -lc 'SQLCMDPASSWORD="$MSSQL_SA_PASSWORD" exec /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -C -I -b -r 1 -d "$1" -i /dev/stdin' sh "$db" < "$file"
+  docker exec -i "$DB_CONTAINER" sh -lc 'SQLCMDPASSWORD="$MSSQL_SA_PASSWORD" exec /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -C -I -b -r 1 -y 0 -d "$1" -i /dev/stdin' sh "$db" < "$file"
 }
 
 printf 'STAGING_DATABASE %s\n' "$DB"

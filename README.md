@@ -14,7 +14,7 @@
 | 核对阶段提交是否齐全 | [复核清单](复核清单.md)、[阶段报告](docs/阶段报告-v0.1.md)、[AI 记录](ai_log.md)、[组内分工](组内分工.md) |
 | 参与修改和公开上传 | [仓库工作规则](AGENTS.md)、[敏感信息规则](docs/公开材料与敏感信息规则.md) |
 
-**当前阶段：** `main` 保存第一至第四周 v0.1 原型、第五周 ER 模型及第六周 v1.0 迁移材料。第六周已在独立 SQL Server 样例库通过自动迁移与回归；正式库未迁移，学生逐项人工验收状态单独记录。
+**当前阶段：** `main` 保存第一至第四周 v0.1 原型、第五周 ER 模型及第六周 v1.0 迁移材料。第六周 review 已补强业务查询快照比较、流水约束回归及逐表异常分析，并在独立 LocalDB 样例库验证；学生逐项人工验收状态单独记录。
 
 ## 项目范围、角色与流程
 
@@ -134,7 +134,7 @@ CRUD、合法约束用例和角色写入测试均在事务中回滚，运行结�
 
 第六周以已核对的[第五周 ER 模型](docs/Week5.md)为起点，逐表分析函数依赖、范式与有意保留的余额缓存；目标模式删除库存流水中可沿批次还原的重复采购明细编号。完整分析、目标 ER 图、字典差异及第二阶段报告素材见[第六周说明](docs/Week6.md)。迁移和回归 SQL 分别为 [migration.sql](sql/week6/migration.sql) 与 [regression.sql](sql/week6/regression.sql)。
 
-2026-10-10 在课程服务器现有 SQL Server 2022 容器的新建独立样例库中，先复核第五周 v0.1，再执行迁移与回归；得到 15 表 46 行、迁移后 106 属性/23 外键、完成销售 15 件/64.50 元、34 项权限回归及 `W6_REGRESSION_PASS`。可查看[脱敏后的原始输出与 ER 图](result/week6/README.md)。正式库未迁移。授权的 Linux 环境使用 [Run-Week6-Server.sh](scripts/Run-Week6-Server.sh) 创建新的测试库；Windows LocalDB 可使用 [Run-Week6.ps1](scripts/Run-Week6.ps1)，该入口本轮未运行。脚本原始日志先写入被忽略的 `output/week6/`，检查后再公开。
+2026-10-10 初版在课程服务器的新建独立样例库通过迁移与回归；后续 review 修复在新的 Windows LocalDB 样例库验证。最新运行得到 15 张业务表、46 行，目标 106 属性/23 外键、完成销售 15 件/64.50 元及 34 项原角色权限；四组业务查询逐行一致，流水四种合法类型和十一项负例通过，九项检查器错误注入均被拒绝并恢复。详见[最新修复证据与历史输出](result/week6/README.md)。正式库未迁移。授权的 Linux 环境使用 [Run-Week6-Server.sh](scripts/Run-Week6-Server.sh)，Windows LocalDB 使用 [Run-Week6.ps1](scripts/Run-Week6.ps1)；检查器回归命令见 [Week6](docs/Week6.md)。迁移创建的 `week6_baseline` 只保存审核快照，不计入业务表与 ER 模型；迁移与回归需在同一天执行。原始日志先写入被忽略的 `output/week6/`，检查后再公开。
 
 ## 公开版与课程提交包
 
