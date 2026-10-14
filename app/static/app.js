@@ -23,6 +23,31 @@ async function action(work, message) {
   try { await work(); notice(message); } catch(error) { notice(error.message,true); }
 }
 
+function confirmAction(message) {
+  return new Promise(resolve=>{
+    const dialog=$("#confirm-dialog");
+    $("#confirm-message").textContent=message;
+    $("#prompt-label").hidden=true;
+    const finish=value=>{dialog.close();$("#confirm-accept").onclick=null;$("#confirm-cancel").onclick=null;dialog.oncancel=null;resolve(value);};
+    $("#confirm-accept").onclick=()=>finish(true);
+    $("#confirm-cancel").onclick=()=>finish(false);
+    dialog.oncancel=event=>{event.preventDefault();finish(false);};
+    dialog.showModal();
+  });
+}
+
+function promptAction(message,initial="") {
+  return new Promise(resolve=>{
+    const dialog=$("#confirm-dialog"),input=$("#prompt-value");
+    $("#confirm-message").textContent=message;$("#prompt-label").hidden=false;input.value=String(initial??"");
+    const finish=value=>{dialog.close();$("#confirm-accept").onclick=null;$("#confirm-cancel").onclick=null;dialog.oncancel=null;resolve(value);};
+    $("#confirm-accept").onclick=()=>finish(input.value);
+    $("#confirm-cancel").onclick=()=>finish(null);
+    dialog.oncancel=event=>{event.preventDefault();finish(null);};
+    dialog.showModal();input.focus();
+  });
+}
+
 function renderAccount() {
   $("#account").innerHTML = user ? `${esc(user.username)} · ${esc({customer:"顾客",staff:"店员",manager:"管理员"}[user.role])} <button type="button" id="logout" class="text-button">退出</button>` : "未登录";
   $("#login-form").hidden=!!user;
@@ -30,6 +55,7 @@ function renderAccount() {
   $("#inventory-panel").hidden=!(user && user.role!=="customer");
   $("#new-order-panel").hidden=!(user && user.role==="customer");
   $("#product-form").hidden=!(user && user.role==="manager");
+  $("#purchase-form").hidden=!(user && user.role==="manager");
   $("#product-action-title").hidden=!(user && user.role==="manager");
   $("#logout")?.addEventListener("click",()=>action(async()=>{await api("/api/logout",{method:"POST"});user=null;cart=[];csrf=(await api("/api/session")).csrf;await refresh();},"已退出"));
 }
@@ -39,12 +65,25 @@ async function refresh() {
   await loadProducts();
   if (user) await loadOrders(); else $("#orders-body").innerHTML="";
   if (user && user.role!=="customer") await loadInventory();
+  if (user && user.role!=="customer") await loadPurchases();
+  if (user?.role==="manager") await loadSuppliers();
 }
 
 async function loadProducts(search="") {
   products=await api("/api/products?q="+encodeURIComponent(search));
   $("#products-body").innerHTML=products.map(p=>`<tr><td>${esc(p.ProductID)}</td><td>${esc(p.ProductName)}<br><small class="muted">${esc(p.Brand)} · ${esc(p.Specification)}</small></td><td>${esc(p.CategoryName)}</td><td>¥${money(p.CurrentPrice)}</td><td>${esc(p.AvailableQty)}</td><td>${esc(p.SaleStatus)}</td><td>${user?.role==="manager"?`<div class="actions"><button data-product-edit="${esc(p.ProductID)}">修改</button><button class="danger" data-product-delete="${esc(p.ProductID)}">删除</button></div>`:""}</td></tr>`).join("") || `<tr><td colspan="7">暂无商品</td></tr>`;
   $("#cart-product").innerHTML=products.filter(p=>p.SaleStatus==="在售").map(p=>`<option value="${esc(p.ProductID)}">${esc(p.ProductName)} · ${esc(p.ProductID)} · ¥${money(p.CurrentPrice)}</option>`).join("");
+  $("#purchase-product").innerHTML=products.map(p=>`<option value="${esc(p.ProductID)}">${esc(p.ProductName)} (${esc(p.ProductID)})</option>`).join("");
+}
+
+async function loadSuppliers() {
+  const rows=await api("/api/suppliers");
+  $("#purchase-supplier").innerHTML=rows.map(s=>`<option value="${esc(s.SupplierID)}">${esc(s.SupplierName)} (${esc(s.SupplierID)})</option>`).join("");
+}
+
+async function loadPurchases() {
+  const rows=await api("/api/purchases");
+  $("#receive-purchase").innerHTML=rows.map(p=>`<option value="${esc(p.PurchaseItemID)}">${esc(p.ProductName)} × ${esc(p.OrderedQty)} · ${esc(p.PurchaseItemID)}</option>`).join("")||'<option value="">暂无待验收采购单</option>';
 }
 
 async function loadCategories() {
@@ -95,6 +134,16 @@ $("#product-form").addEventListener("submit",event=>{event.preventDefault();cons
   element.reset();await loadProducts();
 },"商品已创建");});
 
+$("#purchase-form").addEventListener("submit",event=>{event.preventDefault();const element=event.currentTarget;action(async()=>{
+  await api("/api/purchases",{method:"POST",body:JSON.stringify(Object.fromEntries(new FormData(element)))});
+  element.reset();await loadPurchases();
+},"采购单已批准，等待店员验收");});
+
+$("#receive-form").addEventListener("submit",event=>{event.preventDefault();const element=event.currentTarget;action(async()=>{
+  await api("/api/inventory",{method:"POST",body:JSON.stringify(Object.fromEntries(new FormData(element)))});
+  element.reset();await loadInventory();await loadProducts();await loadPurchases();
+},"采购已验收入库，库存与入库流水已更新");});
+
 $("#cart-add").addEventListener("click",()=>{
   const product_id=$("#cart-product").value,quantity=Number($("#cart-qty").value);
   if(!product_id||!Number.isInteger(quantity)||quantity<=0){notice("请选择商品并填写正整数数量",true);return;}
@@ -112,7 +161,7 @@ $("#order-form").addEventListener("submit",event=>{event.preventDefault();const 
   if(!cart.length)throw new Error("请先添加商品");
   const data={...Object.fromEntries(new FormData(element)),items:cart};
   const result=await api("/api/orders",{method:"POST",body:JSON.stringify(data)});
-  cart=[];renderCart();element.reset();await loadOrders();
+  cart=[];renderCart();element.reset();await loadOrders();await loadProducts();
   notice(`订单 ${result.order_id} 已创建，可在订单列表中模拟支付`);
 },"订单已创建");});
 
@@ -121,16 +170,16 @@ document.addEventListener("click",event=>{
   if(!button)return;
   action(async()=>{
     const d=button.dataset;
-    if(d.productEdit){const p=products.find(x=>x.ProductID===d.productEdit);const price=prompt("新售价",p.CurrentPrice);if(price===null)return;const status=prompt("状态：在售或停售",p.SaleStatus);if(status===null)return;const reorder_level=prompt("补货阈值",p.ReorderLevel);if(reorder_level===null)return;await api("/api/products/"+encodeURIComponent(p.ProductID),{method:"PATCH",body:JSON.stringify({price,status,reorder_level})});await loadProducts();}
-    else if(d.productDelete){if(!confirm("仅无历史引用的商品可以删除。确定删除？"))return;await api("/api/products/"+encodeURIComponent(d.productDelete),{method:"DELETE"});await loadProducts();}
-    else if(d.adjust){const delta=prompt("盘点调整数量（正数增加，负数减少）");if(delta===null)return;const reason=prompt("调整原因");if(reason===null)return;await api("/api/inventory/adjust",{method:"POST",body:JSON.stringify({batch_id:d.adjust,delta,reason})});await loadInventory();await loadProducts();}
+    if(d.productEdit){const p=products.find(x=>x.ProductID===d.productEdit);const price=await promptAction("新售价",p.CurrentPrice);if(price===null)return;const status=await promptAction("状态：在售或停售",p.SaleStatus);if(status===null)return;const reorder_level=await promptAction("补货阈值",p.ReorderLevel);if(reorder_level===null)return;await api("/api/products/"+encodeURIComponent(p.ProductID),{method:"PATCH",body:JSON.stringify({price,status,reorder_level})});await loadProducts();}
+    else if(d.productDelete){if(!await confirmAction("仅无历史引用的商品可以删除。确定删除？"))return;await api("/api/products/"+encodeURIComponent(d.productDelete),{method:"DELETE"});await loadProducts();}
+    else if(d.adjust){const delta=await promptAction("盘点调整数量（正数增加，负数减少）");if(delta===null)return;const reason=await promptAction("调整原因");if(reason===null)return;await api("/api/inventory/adjust",{method:"POST",body:JSON.stringify({batch_id:d.adjust,delta,reason})});await loadInventory();await loadProducts();}
     else if(d.detail){await showDetail(d.detail);return;}
     else if(d.pay){await api("/api/orders/"+encodeURIComponent(d.pay)+"/pay",{method:"POST"});await loadOrders();}
-    else if(d.cancel){if(!confirm("取消待支付订单并释放库存锁定？"))return;await api("/api/orders/"+encodeURIComponent(d.cancel),{method:"DELETE"});await loadOrders();await loadProducts();}
-    else if(d.fulfill){if(!confirm("确认已付款订单出库并扣减库存？"))return;await api("/api/orders/"+encodeURIComponent(d.fulfill)+"/fulfill",{method:"POST"});await loadOrders();await loadInventory();}
-    else if(d.itemEdit){const quantity=prompt("新的数量",d.qty);if(quantity===null)return;await api(`/api/orders/${encodeURIComponent(d.order)}/items/${encodeURIComponent(d.itemEdit)}`,{method:"PATCH",body:JSON.stringify({quantity})});await showDetail(d.order);await loadOrders();}
-    else if(d.itemDelete){if(!confirm("删除这条待支付明细？"))return;await api(`/api/orders/${encodeURIComponent(d.order)}/items/${encodeURIComponent(d.itemDelete)}`,{method:"DELETE"});await showDetail(d.order);await loadOrders();}
-    else if(d.itemAdd){const product_id=prompt("商品编号");if(product_id===null)return;const quantity=prompt("数量");if(quantity===null)return;await api(`/api/orders/${encodeURIComponent(d.itemAdd)}/items`,{method:"POST",body:JSON.stringify({product_id,quantity})});await showDetail(d.itemAdd);await loadOrders();}
-    else if(d.recipient){const recipient_name=prompt("收货人");if(recipient_name===null)return;const recipient_phone=prompt("联系电话");if(recipient_phone===null)return;const shipping_address=prompt("收货地址");if(shipping_address===null)return;await api(`/api/orders/${encodeURIComponent(d.recipient)}`,{method:"PATCH",body:JSON.stringify({recipient_name,recipient_phone,shipping_address})});await showDetail(d.recipient);}
+    else if(d.cancel){if(!await confirmAction("取消待支付订单并释放库存锁定？"))return;await api("/api/orders/"+encodeURIComponent(d.cancel),{method:"DELETE"});await loadOrders();await loadProducts();}
+    else if(d.fulfill){if(!await confirmAction("确认已付款订单出库并扣减库存？"))return;await api("/api/orders/"+encodeURIComponent(d.fulfill)+"/fulfill",{method:"POST"});await loadOrders();await loadInventory();await loadProducts();}
+    else if(d.itemEdit){const quantity=await promptAction("新的数量",d.qty);if(quantity===null)return;await api(`/api/orders/${encodeURIComponent(d.order)}/items/${encodeURIComponent(d.itemEdit)}`,{method:"PATCH",body:JSON.stringify({quantity})});await showDetail(d.order);await loadOrders();await loadProducts();}
+    else if(d.itemDelete){if(!await confirmAction("删除这条待支付明细？"))return;await api(`/api/orders/${encodeURIComponent(d.order)}/items/${encodeURIComponent(d.itemDelete)}`,{method:"DELETE"});await showDetail(d.order);await loadOrders();await loadProducts();}
+    else if(d.itemAdd){const product_id=await promptAction("商品编号");if(product_id===null)return;const quantity=await promptAction("数量");if(quantity===null)return;await api(`/api/orders/${encodeURIComponent(d.itemAdd)}/items`,{method:"POST",body:JSON.stringify({product_id,quantity})});await showDetail(d.itemAdd);await loadOrders();await loadProducts();}
+    else if(d.recipient){const recipient_name=await promptAction("收货人");if(recipient_name===null)return;const recipient_phone=await promptAction("联系电话");if(recipient_phone===null)return;const shipping_address=await promptAction("收货地址");if(shipping_address===null)return;await api(`/api/orders/${encodeURIComponent(d.recipient)}`,{method:"PATCH",body:JSON.stringify({recipient_name,recipient_phone,shipping_address})});await showDetail(d.recipient);}
   },"操作完成");
 });

@@ -76,10 +76,19 @@ def create_app(config=None):
 
     @app.errorhandler(pymssql.DatabaseError)
     def handle_db_error(exc):
-        number = exc.args[0] if exc.args and isinstance(exc.args[0], int) else None
+        details = exc.args
+        while details and isinstance(details[0], (tuple, list)):
+            details = details[0]
+        number = details[0] if details and isinstance(details[0], int) else None
         app.logger.exception("request_id=%s code=DB_%s role=%s", g.request_id, number, g.role)
         if number in (2601, 2627, 547, 515, 50000):
             return failure("CONSTRAINT_CONFLICT", "操作与现有数据或约束冲突，请检查输入", 409)
+        if number in (8115, 8152, 2628):
+            return failure("INVALID_INPUT", "输入的数值或文本超出允许范围", 400)
+        if number in (1205, 1222, 51701):
+            return failure("TRANSACTION_CONFLICT", "操作与另一笔事务冲突，请稍后重试", 409)
+        if number not in (20002, 20003, 20004, 20006, 20009, 18456, 4060, 53, 17):
+            return failure("TRANSACTION_FAILED", "本次操作未能完成，请稍后重试", 500)
         return failure("DATABASE_UNAVAILABLE", "数据库暂时无法完成操作，请稍后重试", 503)
 
     @app.errorhandler(HTTPException)
@@ -145,6 +154,22 @@ def create_app(config=None):
     @app.get("/api/inventory")
     def inventory():
         return success(service.inventory(current_user()))
+
+    @app.get("/api/suppliers")
+    def suppliers():
+        return success(service.suppliers(current_user()))
+
+    @app.get("/api/purchases")
+    def purchases():
+        return success(service.purchases(current_user()))
+
+    @app.post("/api/purchases")
+    def create_purchase():
+        return success(service.create_purchase(current_user(), body()), 201)
+
+    @app.post("/api/inventory")
+    def receive_inventory():
+        return success(service.receive_inventory(current_user(), body()), 201)
 
     @app.post("/api/inventory/adjust")
     def adjust_inventory():

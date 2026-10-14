@@ -37,6 +37,9 @@ GRANT DELETE ON dbo.InventoryReservation TO app_web_customer;
 GRANT SELECT ON dbo.Product TO app_web_staff,app_web_manager;
 GRANT SELECT ON dbo.ProductCategory TO app_web_staff,app_web_manager;
 GRANT SELECT ON dbo.PurchaseOrderItem TO app_web_staff,app_web_manager;
+GRANT SELECT ON dbo.PurchaseOrder TO app_web_staff,app_web_manager;
+GRANT SELECT (SupplierID,SupplierName,CooperationStatus) ON dbo.Supplier TO app_web_staff,app_web_manager;
+GRANT SELECT (EmployeeID,ActiveStatus) ON dbo.Employee TO app_web_staff,app_web_manager;
 GRANT SELECT ON dbo.InventoryBatch TO app_web_staff,app_web_manager;
 GRANT SELECT ON dbo.InventoryReservation TO app_web_staff,app_web_manager;
 GRANT SELECT ON dbo.SalesOrder TO app_web_staff,app_web_manager;
@@ -51,6 +54,10 @@ GRANT UPDATE (OrderStatus,CompletedAt) ON dbo.SalesOrder TO app_web_staff,app_we
 GRANT UPDATE (PointsBalance) ON dbo.Customer TO app_web_staff,app_web_manager;
 GRANT INSERT ON dbo.InventoryMovement TO app_web_staff,app_web_manager;
 GRANT INSERT ON dbo.PointsMovement TO app_web_staff,app_web_manager;
+GRANT INSERT ON dbo.InventoryBatch TO app_web_staff,app_web_manager;
+GRANT UPDATE (ReceivedBy,ReceivedAt,OrderStatus) ON dbo.PurchaseOrder TO app_web_staff,app_web_manager;
+GRANT INSERT ON dbo.PurchaseOrder TO app_web_manager;
+GRANT INSERT ON dbo.PurchaseOrderItem TO app_web_manager;
 
 GRANT INSERT ON dbo.Product TO app_web_manager;
 GRANT UPDATE (CurrentPrice,SaleStatus,ReorderLevel) ON dbo.Product TO app_web_manager;

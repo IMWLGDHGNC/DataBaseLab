@@ -18,6 +18,9 @@ Desktop.ini
 *.tmp
 *.temp
 *.log
+__pycache__/
+*.py[cod]
+.venv/
 
 # Local environment and secrets
 .env
