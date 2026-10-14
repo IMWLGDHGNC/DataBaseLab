@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>零食网店数据库实验</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <script defer src="{{ url_for('static', filename='app.js') }}"></script>
+</head>
+<body>
+  <header class="topbar">
+    <div><strong>零食网店</strong><span class="subtitle">数据库应用实验 · v1.0</span></div>
+    <div id="account" class="account">未登录</div>
+  </header>
+  <main>
+    <section class="hero">
+      <div>
+        <p class="eyebrow">单店 · 单仓 · 模拟支付</p>
+        <h1>商品、库存与订单</h1>
+        <p>在一个界面中查看商品并完成角色允许的业务操作。</p>
+      </div>
+      <form id="login-form" class="login-card">
+        <h2>登录</h2>
+        <label>账号<input name="username" autocomplete="username" required></label>
+        <label>密码<input name="password" type="password" autocomplete="current-password" required></label>
+        <button type="submit">登录</button>
+      </form>
+    </section>
+
+    <div id="notice" class="notice" role="status" aria-live="polite"></div>
+
+    <section class="panel" id="products-panel">
+      <div class="section-head"><div><p class="eyebrow">商品目录</p><h2>商品</h2></div>
+        <form id="search-form" class="inline"><input name="q" placeholder="编号或名称"><button type="submit">搜索</button></form>
+      </div>
+      <div class="table-wrap"><table><thead><tr><th>编号</th><th>商品</th><th>类别</th><th>现价</th><th>可售量</th><th>状态</th><th id="product-action-title">操作</th></tr></thead><tbody id="products-body"></tbody></table></div>
+      <form id="product-form" class="grid-form role-manager" hidden>
+        <h3>新增商品</h3>
+        <label>商品编号<input name="product_id" maxlength="12" required></label>
+        <label>类别编号<select name="category_id" required></select></label>
+        <label>名称<input name="name" maxlength="100" required></label>
+        <label>品牌<input name="brand" maxlength="60" required></label>
+        <label>规格<input name="specification" maxlength="60" required></label>
+        <label>销售单位<input name="unit" maxlength="10" value="包" required></label>
+        <label>售价<input name="price" type="number" min="0.01" step="0.01" required></label>
+        <label>补货阈值<input name="reorder_level" type="number" min="0" step="1" value="0" required></label>
+        <button type="submit">创建商品</button>
+      </form>
+    </section>
+
+    <section class="panel role-staff" id="inventory-panel" hidden>
+      <div class="section-head"><div><p class="eyebrow">仓库</p><h2>批次库存</h2></div><button id="reload-inventory" type="button">刷新</button></div>
+      <div class="table-wrap"><table><thead><tr><th>批次</th><th>商品</th><th>到期日</th><th>质量</th><th>现存</th><th>有效锁定</th><th>未锁定</th><th>操作</th></tr></thead><tbody id="inventory-body"></tbody></table></div>
+      <p class="hint">盘点调整会同时写入库存流水。已锁定的库存不能被调整为负数。</p>
+    </section>
+
+    <section class="panel role-customer" id="new-order-panel" hidden>
+      <div class="section-head"><div><p class="eyebrow">顾客</p><h2>创建订单</h2></div></div>
+      <p class="hint">下单先锁定可售库存；模拟支付后，需由店员确认出库。</p>
+      <div class="inline form-row"><select id="cart-product"></select><input id="cart-qty" type="number" min="1" step="1" value="1" aria-label="数量"><button id="cart-add" type="button">加入订单</button></div>
+      <ul id="cart-list" class="cart-list"></ul>
+      <form id="order-form" class="grid-form">
+        <label>收货人<input name="recipient_name" maxlength="40" required></label>
+        <label>联系电话<input name="recipient_phone" maxlength="20" required></label>
+        <label class="wide">收货地址<input name="shipping_address" maxlength="200" required></label>
+        <button type="submit">提交订单</button>
+      </form>
+    </section>
+
+    <section class="panel" id="orders-panel" hidden>
+      <div class="section-head"><div><p class="eyebrow">业务记录</p><h2>订单</h2></div><button id="reload-orders" type="button">刷新</button></div>
+      <div class="table-wrap"><table><thead><tr><th>订单号</th><th>顾客</th><th>创建时间</th><th>状态</th><th>金额</th><th>操作</th></tr></thead><tbody id="orders-body"></tbody></table></div>
+    </section>
+  </main>
+  <dialog id="detail-dialog"><div class="dialog-head"><h2>订单详情</h2><button id="close-detail" type="button" class="text-button">关闭</button></div><div id="detail-content"></div></dialog>
+</body>
+</html>

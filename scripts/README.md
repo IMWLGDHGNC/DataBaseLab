@@ -14,6 +14,8 @@
 | [Test-Week3Reproduction.ps1](Test-Week3Reproduction.ps1) | 复验第三周两个独立空库的一致性 | 创建并保留两个新实验库，更新 `docs/verification/` 的历史复现文件；执行后检查 Git 差异 |
 | [Run-Week6.ps1](Run-Week6.ps1) | Windows LocalDB 的第六周隔离复现 | 新建库，从 v0.1 和第五周核对运行到迁移与回归；原始日志保存在被忽略的 `output/week6/` |
 | [Run-Week6-Server.sh](Run-Week6-Server.sh) | 授权的 Linux SQL Server 容器环境 | 私下设置 `DB_CONTAINER` 后新建测试库，使用 `sqlcmd -I` 执行同一顺序；原始日志保存在被忽略的 `output/week6/` |
+| [Run-Week7-Server.sh](Run-Week7-Server.sh) | 授权服务器上部署 Web 应用 | 先重跑第六周独立样例库，再建立受限登录、私有配置和 Python 环境；输出 `WEEK7_DEPLOY_PREP_PASS` |
+| [Start-Week7-Web.sh](Start-Week7-Web.sh) | 第七周部署准备通过后 | 以私有配置启动只监听环回地址的 Web 服务；说明见[应用手册](../app/README.md) |
 
 ## 常用入口
 
