@@ -4,7 +4,11 @@ import json
 import os
 from pathlib import Path
 import secrets
+import sys
 from concurrent.futures import ThreadPoolExecutor
+
+# Direct script execution puts tests/ on sys.path, so include the repository.
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from app.db import Database
 from app.web import create_app
@@ -197,4 +201,6 @@ offline_client = offline_app.test_client()
 status = offline_client.get("/api/products").status_code
 check("database_failure_friendly", status == 503)
 
+from week7_review import run_review_checks
+run_review_checks(app, config, passwords, check)
 print(f"WEEK7_WEB_PASS {len(checks)}")

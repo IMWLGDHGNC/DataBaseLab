@@ -1,6 +1,7 @@
 """The only application layer that sends SQL to SQL Server."""
 
 from contextlib import contextmanager
+from datetime import date
 
 import pymssql
 
@@ -26,7 +27,16 @@ class Database:
         try:
             if write:
                 cur = conn.cursor()
-                cur.execute("SET XACT_ABORT ON; SET TRANSACTION ISOLATION LEVEL SERIALIZABLE")
+                # All business writes take this transaction-owned lock first.
+                # It prevents cross-role/customer row-lock cycles in the small
+                # course application; commit/rollback releases it automatically.
+                cur.execute("""SET XACT_ABORT ON; SET TRANSACTION ISOLATION LEVEL SERIALIZABLE;
+                    IF @@TRANCOUNT=0 BEGIN TRANSACTION;
+                    DECLARE @result int;
+                    EXEC @result=sys.sp_getapplock @Resource=N'DataBaseLab.WebWrite',
+                        @LockMode='Exclusive',@LockOwner='Transaction',
+                        @DbPrincipal='public',@LockTimeout=10000;
+                    IF @result<0 THROW 51701, 'Business transaction lock unavailable.', 1;""")
                 cur.close()
             yield Repository(conn)
             conn.commit()
@@ -125,6 +135,53 @@ class Repository:
                  WHERE BatchID=b.BatchID AND ReservationStatus=N'有效'
                ) r ORDER BY b.BatchID"""
         )
+
+    def suppliers(self):
+        return self.all("SELECT SupplierID,SupplierName FROM dbo.Supplier WHERE CooperationStatus=N'合作中' ORDER BY SupplierID")
+
+    def supplier(self, supplier_id):
+        return self.one("SELECT SupplierID FROM dbo.Supplier WHERE SupplierID=%s AND CooperationStatus=N'合作中'", (supplier_id,))
+
+    def employee(self, employee_id):
+        return self.one("SELECT EmployeeID,ActiveStatus FROM dbo.Employee WHERE EmployeeID=%s", (employee_id,))
+
+    def today(self):
+        value = self.one("SELECT CONVERT(date,GETDATE()) AS Today")["Today"]
+        return date.fromisoformat(str(value)[:10])
+
+    def purchases(self):
+        return self.all("""SELECT i.PurchaseItemID,i.ProductID,p.ProductName,i.OrderedQty,i.UnitCost,
+                    o.PurchaseOrderID,o.OrderStatus,s.SupplierName
+                FROM dbo.PurchaseOrderItem i JOIN dbo.PurchaseOrder o ON o.PurchaseOrderID=i.PurchaseOrderID
+                JOIN dbo.Product p ON p.ProductID=i.ProductID JOIN dbo.Supplier s ON s.SupplierID=o.SupplierID
+                WHERE o.OrderStatus=N'已批准'
+                  AND (SELECT COUNT(*) FROM dbo.PurchaseOrderItem x WHERE x.PurchaseOrderID=o.PurchaseOrderID)=1
+                ORDER BY o.CreatedAt,i.PurchaseItemID""")
+
+    def purchase_item(self, item_id):
+        return self.one("""SELECT i.PurchaseItemID,i.ProductID,i.OrderedQty,o.PurchaseOrderID,o.OrderStatus,
+                    (SELECT COUNT(*) FROM dbo.PurchaseOrderItem x WHERE x.PurchaseOrderID=o.PurchaseOrderID) AS ItemCount
+                FROM dbo.PurchaseOrderItem i WITH (UPDLOCK,HOLDLOCK)
+                JOIN dbo.PurchaseOrder o WITH (UPDLOCK,HOLDLOCK) ON o.PurchaseOrderID=i.PurchaseOrderID
+                WHERE i.PurchaseItemID=%s""", (item_id,))
+
+    def insert_purchase(self, purchase_id, item_id, product_id, supplier_id, quantity, cost, operator_id):
+        self.run("""DECLARE @now datetime2(0)=SYSDATETIME();
+            INSERT dbo.PurchaseOrder(PurchaseOrderID,SupplierID,CreatedBy,CreatedAt,ApprovedBy,ApprovedAt,OrderStatus)
+            VALUES (%s,%s,%s,@now,%s,@now,N'已批准');""",
+            (purchase_id,supplier_id,operator_id,operator_id))
+        self.run("INSERT dbo.PurchaseOrderItem(PurchaseItemID,PurchaseOrderID,ProductID,OrderedQty,UnitCost) VALUES (%s,%s,%s,%s,%s)",
+                 (item_id,purchase_id,product_id,quantity,cost))
+
+    def receive_purchase(self, purchase, batch_id, batch_no, production, expiry, movement_id, operator_id, reason):
+        self.run("""INSERT dbo.InventoryBatch(BatchID,PurchaseItemID,SupplierBatchNo,ProductionDate,ExpiryDate,ReceivedAt,OnHandQty,BatchStatus)
+                    VALUES (%s,%s,%s,%s,%s,SYSDATETIME(),%s,N'合格')""",
+                 (batch_id,purchase["PurchaseItemID"],batch_no,production,expiry,purchase["OrderedQty"]))
+        self.run("""INSERT dbo.InventoryMovement(MovementID,BatchID,MovementType,QuantityDelta,SalesItemID,Reason,OperatorID,OccurredAt)
+                    VALUES (%s,%s,N'采购入库',%s,NULL,%s,%s,SYSDATETIME())""",
+                 (movement_id,batch_id,purchase["OrderedQty"],reason,operator_id))
+        self.run("""UPDATE dbo.PurchaseOrder SET ReceivedBy=%s,ReceivedAt=SYSDATETIME(),OrderStatus=N'已收货'
+                    WHERE PurchaseOrderID=%s""", (operator_id,purchase["PurchaseOrderID"]))
 
     def batches_for_product(self, product_id):
         return self.all(

@@ -2,7 +2,11 @@
 
 from collections import defaultdict
 from decimal import Decimal, InvalidOperation
+from datetime import date
 import secrets
+
+INT_MAX = 2147483647
+MAX_AMOUNT = Decimal("99999999.99")
 
 
 class AppError(Exception):
@@ -24,9 +28,9 @@ def positive_int(value, label):
         raise AppError("INVALID_INPUT", f"{label}必须为正整数")
     try:
         number = int(value)
-    except (ValueError, TypeError):
+    except (ValueError, TypeError, OverflowError):
         raise AppError("INVALID_INPUT", f"{label}必须为正整数") from None
-    if number <= 0 or str(number) != str(value):
+    if number <= 0 or number > INT_MAX or str(number) != str(value):
         raise AppError("INVALID_INPUT", f"{label}必须为正整数")
     return number
 
@@ -36,9 +40,9 @@ def nonnegative_int(value, label):
         raise AppError("INVALID_INPUT", f"{label}不能为负数")
     try:
         number = int(value)
-    except (ValueError, TypeError):
+    except (ValueError, TypeError, OverflowError):
         raise AppError("INVALID_INPUT", f"{label}必须为整数") from None
-    if number < 0 or str(number) != str(value):
+    if number < 0 or number > INT_MAX or str(number) != str(value):
         raise AppError("INVALID_INPUT", f"{label}不能为负数")
     return number
 
@@ -57,6 +61,21 @@ def money(value):
 
 def new_id(prefix):
     return prefix + secrets.token_hex(5).upper()
+
+
+def checked_total(amount):
+    if amount is None or amount <= 0 or amount > MAX_AMOUNT:
+        raise AppError("INVALID_INPUT", "订单金额超出允许范围")
+    return amount
+
+
+def input_date(value, label):
+    try:
+        if not isinstance(value, str) or len(value) != 10:
+            raise ValueError()
+        return date.fromisoformat(value)
+    except ValueError:
+        raise AppError("INVALID_INPUT", f"{label}必须为有效的 YYYY-MM-DD 日期") from None
 
 
 def require_role(user, *roles):
@@ -186,6 +205,70 @@ class ShopService:
         with self.db.session(user["role"]) as repo:
             return repo.inventory()
 
+    def suppliers(self, user):
+        require_role(user, "manager")
+        with self.db.session("manager") as repo:
+            return repo.suppliers()
+
+    def purchases(self, user):
+        require_role(user, "staff", "manager")
+        with self.db.session(user["role"]) as repo:
+            return repo.purchases()
+
+    def create_purchase(self, user, payload):
+        require_role(user, "manager")
+        if not isinstance(payload, dict):
+            raise AppError("INVALID_INPUT", "采购信息格式不正确")
+        product_id = required_text(payload.get("product_id"), "商品编号", 12)
+        supplier_id = required_text(payload.get("supplier_id"), "供应商编号", 12)
+        quantity = positive_int(payload.get("quantity"), "采购数量")
+        if quantity > 100000:
+            raise AppError("INVALID_INPUT", "单次采购数量不能超过 100000")
+        cost = money(payload.get("unit_cost"))
+        with self.db.session("manager", write=True) as repo:
+            if repo.product(product_id, lock=True) is None:
+                raise AppError("NOT_FOUND", "商品不存在", 404)
+            if not repo.supplier(supplier_id):
+                raise AppError("BUSINESS_CONFLICT", "供应商不存在或已停止合作", 409)
+            self._operator(repo, user)
+            purchase_id, item_id = new_id("PO"), new_id("PI")
+            repo.insert_purchase(purchase_id, item_id, product_id, supplier_id,
+                                 quantity, cost, user["employee_id"])
+        return {"purchase_id": purchase_id, "purchase_item_id": item_id, "status": "已批准"}
+
+    @staticmethod
+    def _operator(repo, user):
+        employee = repo.employee(user["employee_id"])
+        if employee is None or employee["ActiveStatus"] != "在职":
+            raise AppError("FORBIDDEN", "员工账号不可执行业务操作", 403)
+
+    def receive_inventory(self, user, payload):
+        require_role(user, "staff", "manager")
+        if not isinstance(payload, dict):
+            raise AppError("INVALID_INPUT", "验收入库信息格式不正确")
+        item_id = required_text(payload.get("purchase_item_id"), "采购明细编号", 12)
+        batch_no = required_text(payload.get("supplier_batch_no"), "供应商批号", 40)
+        if not batch_no.isascii():
+            raise AppError("INVALID_INPUT", "供应商批号请使用英文字母、数字或符号")
+        production = input_date(payload.get("production_date"), "生产日期")
+        expiry = input_date(payload.get("expiry_date"), "到期日期")
+        reason = required_text(payload.get("reason"), "验收说明", 200)
+        with self.db.session(user["role"], write=True) as repo:
+            self._operator(repo, user)
+            purchase = repo.purchase_item(item_id)
+            if purchase is None:
+                raise AppError("NOT_FOUND", "采购明细不存在", 404)
+            if purchase["OrderStatus"] != "已批准" or purchase["ItemCount"] != 1:
+                raise AppError("BUSINESS_CONFLICT", "本入口只验收已批准的单商品采购单", 409)
+            today = repo.today()
+            if production > today or expiry <= today or expiry <= production:
+                raise AppError("INVALID_INPUT", "生产日期不能晚于今天，到期日期须晚于今天及生产日期")
+            batch_id = new_id("BT")
+            repo.receive_purchase(purchase, batch_id, batch_no, production, expiry,
+                                  new_id("IM"), user["employee_id"], reason)
+        return {"batch_id": batch_id, "product_id": purchase["ProductID"],
+                "quantity": purchase["OrderedQty"], "status": "已收货"}
+
     def adjust_inventory(self, user, payload):
         require_role(user, "staff", "manager")
         if not isinstance(payload, dict):
@@ -194,7 +277,7 @@ class ShopService:
         reason = required_text(payload.get("reason"), "调整原因", 200)
         try:
             delta = int(payload.get("delta"))
-        except (TypeError, ValueError):
+        except (TypeError, ValueError, OverflowError):
             raise AppError("INVALID_INPUT", "调整数量必须为非零整数") from None
         if isinstance(payload.get("delta"), bool) or delta == 0 or abs(delta) > 100000 or str(delta) != str(payload.get("delta")):
             raise AppError("INVALID_INPUT", "调整数量必须为非零整数")
@@ -202,9 +285,12 @@ class ShopService:
             batch = repo.batch(batch_id, lock=True)
             if batch is None:
                 raise AppError("NOT_FOUND", "批次不存在", 404)
+            self._operator(repo, user)
             reserved = repo.reserved_in_batch(batch_id)
             if int(batch["OnHandQty"]) + delta < reserved:
                 raise AppError("BUSINESS_CONFLICT", "调整后库存不能低于有效锁定量", 409)
+            if int(batch["OnHandQty"]) + delta > INT_MAX:
+                raise AppError("INVALID_INPUT", "调整后库存超出允许范围")
             repo.change_stock(batch_id, delta, new_id("IM"), user["employee_id"], reason)
         return {"batch_id": batch_id, "delta": delta}
 
@@ -235,8 +321,7 @@ class ShopService:
                 product, allocations = self._allocate(repo, product_id, quantity)
                 total += product["CurrentPrice"] * quantity
                 planned.append((product_id, quantity, product["CurrentPrice"], allocations))
-            if total > Decimal("99999999.99"):
-                raise AppError("INVALID_INPUT", "订单金额超出允许范围")
+            checked_total(total)
             order_id = new_id("SO")
             repo.insert_order(order_id, user["customer_id"], recipient, total)
             for product_id, quantity, price, allocations in planned:
@@ -271,7 +356,7 @@ class ShopService:
             repo.insert_item(item_id, order_id, product_id, quantity, product["CurrentPrice"])
             for batch_id, take in allocations:
                 repo.insert_reservation(new_id("RS"), item_id, batch_id, take)
-            total = repo.order_total(order_id)
+            total = checked_total(repo.order_total(order_id))
             repo.update_order_total(order_id, total)
         return {"order_id": order_id, "item_id": item_id, "total_amount": total}
 
@@ -291,7 +376,7 @@ class ShopService:
             repo.update_item_quantity(item_id, quantity)
             for batch_id, take in allocations:
                 repo.insert_reservation(new_id("RS"), item_id, batch_id, take)
-            total = repo.order_total(order_id)
+            total = checked_total(repo.order_total(order_id))
             repo.update_order_total(order_id, total)
         return {"order_id": order_id, "item_id": item_id, "total_amount": total}
 
@@ -306,7 +391,7 @@ class ShopService:
             if len(items) == 1:
                 raise AppError("BUSINESS_CONFLICT", "最后一条明细请通过取消订单处理", 409)
             repo.delete_item(item_id)
-            total = repo.order_total(order_id)
+            total = checked_total(repo.order_total(order_id))
             repo.update_order_total(order_id, total)
         return {"order_id": order_id, "item_id": item_id, "total_amount": total}
 
@@ -338,6 +423,7 @@ class ShopService:
         require_role(user, "staff", "manager")
         with self.db.session(user["role"], write=True) as repo:
             order = repo.order(order_id, lock=True)
+            self._operator(repo, user)
             if order is None:
                 raise AppError("NOT_FOUND", "订单不存在", 404)
             if order["OrderStatus"] != "待出库" or not repo.successful_payment(order_id):
