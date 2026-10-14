@@ -1,5 +1,24 @@
 # 第 7–9 周 Web 应用运行结果
 
+## 最新课程服务器复验：2026-10-14
+
+从最新 `main` 提交 `7ea2c31` 在课程服务器另建独立样例库，完整执行第六周建库、迁移和回归，得到 `W6_REGRESSION_PASS 15 46 15 64.50`、`WEEK6_SERVER_PASS`；新建三类受限登录和应用配置，得到 `WEEK7_LOGINS_PASS`、`WEEK7_PERMISSIONS_PASS`、`WEEK7_DEPLOY_PREP_PASS`。旧部署和正式演示库未修改。
+
+修复版在 Linux、真实 pymssql、SQL Server 2022 容器和 Gunicorn 下运行 [103 项集成检查](server-validation-20261014.txt)，结果为 `WEEK7_WEB_PASS 103`。[安全流程摘要](server-review-evidence-20261014.json)保留自动测试中的模拟编号、金额、回滚及错误响应。另用 Firefox 页面逐步操作管理员、店员和顾客，得到 [21 项三角色核对](server-flow-summary-20261014.json)与 `WEEK7_SERVER_FLOW_PASS 21`：管理员建商品并审批 10 件采购，店员验收入库，顾客遇到缺货提示后下单、修改为 3 件、模拟支付，店员确认出库。最终该批次现存 7、有效锁定 0、订单金额 7.50 元、会员增加 7 分，成功支付及出库流水各 1 条。店员改商品、顾客查库存和重复支付均被后端拒绝。
+
+| 服务器页面截图 | 核对内容 |
+| --- | --- |
+| [管理员新增商品](server-01-manager-product.png) | 新商品进入目录 |
+| [管理员审批采购](server-02-approved-purchase.png) | 单商品采购已批准 |
+| [店员验收入库](server-03-staff-received.png) | 批次现存 10 件 |
+| [顾客缺货提示](server-04-insufficient-stock.png) | 超额下单收到友好错误 |
+| [顾客创建订单](server-05-customer-order.png) | 订单进入待支付 |
+| [顾客修改明细](server-06-customer-edited.png) | 数量和金额重算 |
+| [顾客支付](server-07-customer-paid.png) | 订单进入待出库 |
+| [店员确认出库](server-08-staff-fulfilled.png) | 本次订单已完成，现存 7、锁定 0 |
+
+截图使用模拟身份与模拟收货资料；逐张检查可见内容，PNG 仅有图像常规数据块。私有配置、演示密码和原始异常日志均保留在服务器被忽略的目录。上述是实际运行和自动化页面操作结果，组员逐项人工审核仍待确认。
+
 ## 最新 review 修复验证：2026-10-14
 
 修复版在新建独立 SQL Server 2022 LocalDB 样例库中通过 **103 项 Web 集成检查**，并在浏览器完成同一商品、同一订单的管理员采购审批 → 店员验收入库 → 顾客下单/明细修改/支付 → 店员出库。详细环境、六项修复、回滚与并发结果见[验证报告](review-validation-20261014.md)；[安全检查输出](review-validation-20261014.txt)保留实际 PASS；[响应与流程 JSON](review-evidence-20261014.json)记录 49 个后端响应、7 个流程步骤及回滚核对表范围。
@@ -13,7 +32,7 @@
 | [顾客模拟支付](fix-05-order-paid.jpg) | 同一订单变为待出库 |
 | [店员出库及库存余额](fix-06-fulfilled-and-stock.jpg) | 同一订单已完成，现存 7 件、有效锁定 0 |
 
-截图使用模拟身份和收货资料，逐张核对可见内容；六个 JPG 无 EXIF，元数据只有常规 JFIF 信息。103 项检查通过采用私有 ODBC 适配访问实际 LocalDB，并以受限数据库用户执行；真实 pymssql 的连接失败分类另经实测。修复版没有重部署课程 Linux/Gunicorn 服务器，正式库未修改，学生逐项人工验收仍待确认。
+截图使用模拟身份和收货资料，逐张核对可见内容；六个 JPG 无 EXIF，元数据只有常规 JFIF 信息。此处 103 项结果来自先前独立 LocalDB 和私有 ODBC 适配；上方为随后完成的真实课程服务器复验。正式库未修改，学生逐项人工验收仍待确认。
 
 ## 历史服务器部署与 39 项检查
 

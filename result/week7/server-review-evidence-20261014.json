@@ -1,0 +1,574 @@
+{
+  "environment": "isolated sample database; simulated users",
+  "flow": [
+    {
+      "step": "manager_create_product",
+      "product_id": "W9DD6C09CC",
+      "category_id": "CAT00",
+      "name": "完整流程模拟商品",
+      "brand": "W9DD6C09CC",
+      "specification": "单包",
+      "unit": "包",
+      "price": "2.50",
+      "reorder_level": 0
+    },
+    {
+      "step": "manager_approve_purchase",
+      "purchase_id": "PO8DBB408FFC",
+      "purchase_item_id": "PICAD4629DCC",
+      "status": "已批准"
+    },
+    {
+      "step": "staff_receive",
+      "batch_id": "BT551D4D5CAF",
+      "product_id": "W9DD6C09CC",
+      "quantity": 20,
+      "status": "已收货"
+    },
+    {
+      "step": "customer_create_order",
+      "order_id": "SOD3C6CCF9D2",
+      "total_amount": "5.00",
+      "on_hand": 20,
+      "reserved": 2
+    },
+    {
+      "step": "customer_change_quantity",
+      "order_id": "SOD3C6CCF9D2",
+      "quantity": 3,
+      "total_amount": "7.50",
+      "on_hand": 20,
+      "reserved": 3
+    },
+    {
+      "step": "customer_pay",
+      "order_id": "SOD3C6CCF9D2",
+      "status": "待出库",
+      "on_hand": 20,
+      "reserved": 3
+    },
+    {
+      "step": "staff_fulfill",
+      "order_id": "SOD3C6CCF9D2",
+      "status": "已完成",
+      "on_hand": 17,
+      "reserved": 0,
+      "points_added": 7
+    }
+  ],
+  "responses": [
+    {
+      "case": "review_categories",
+      "role": "manager",
+      "method": "GET",
+      "status": 200,
+      "request_id": "754cee162476",
+      "ok": true
+    },
+    {
+      "case": "review_suppliers",
+      "role": "manager",
+      "method": "GET",
+      "status": 200,
+      "request_id": "4e99166f82db",
+      "ok": true
+    },
+    {
+      "case": "new_product",
+      "role": "manager",
+      "method": "POST",
+      "status": 201,
+      "request_id": "09d9e7d16f33",
+      "ok": true
+    },
+    {
+      "case": "create_approved_purchase",
+      "role": "manager",
+      "method": "POST",
+      "status": 201,
+      "request_id": "2e5915574f9c",
+      "ok": true
+    },
+    {
+      "case": "customer_cannot_purchase",
+      "role": "customer",
+      "method": "POST",
+      "status": 403,
+      "request_id": "e6b928fdf76b",
+      "ok": false,
+      "error": {
+        "code": "FORBIDDEN",
+        "message": "当前账号无权执行此操作"
+      }
+    },
+    {
+      "case": "staff_cannot_approve_purchase",
+      "role": "staff",
+      "method": "POST",
+      "status": 403,
+      "request_id": "cd9964c0b35c",
+      "ok": false,
+      "error": {
+        "code": "FORBIDDEN",
+        "message": "当前账号无权执行此操作"
+      }
+    },
+    {
+      "case": "customer_cannot_receive",
+      "role": "customer",
+      "method": "POST",
+      "status": 403,
+      "request_id": "7e18d011bb97",
+      "ok": false,
+      "error": {
+        "code": "FORBIDDEN",
+        "message": "当前账号无权执行此操作"
+      }
+    },
+    {
+      "case": "expired_receipt_rejected",
+      "role": "staff",
+      "method": "POST",
+      "status": 400,
+      "request_id": "ea6c1a1850e6",
+      "ok": false,
+      "error": {
+        "code": "INVALID_INPUT",
+        "message": "生产日期不能晚于今天，到期日期须晚于今天及生产日期"
+      }
+    },
+    {
+      "case": "receipt_failure_after_writes",
+      "role": "staff",
+      "method": "POST",
+      "status": 500,
+      "request_id": "f09e5f9c0bda",
+      "ok": false,
+      "error": {
+        "code": "TRANSACTION_FAILED",
+        "message": "本次操作未能完成，请稍后重试"
+      }
+    },
+    {
+      "case": "receive_new_product",
+      "role": "staff",
+      "method": "POST",
+      "status": 201,
+      "request_id": "861a2dd02f67",
+      "ok": true
+    },
+    {
+      "case": "duplicate_receipt_rejected",
+      "role": "staff",
+      "method": "POST",
+      "status": 409,
+      "request_id": "0ab2a2cd61ba",
+      "ok": false,
+      "error": {
+        "code": "BUSINESS_CONFLICT",
+        "message": "本入口只验收已批准的单商品采购单"
+      }
+    },
+    {
+      "case": "order_failure_after_reservation",
+      "role": "customer",
+      "method": "POST",
+      "status": 500,
+      "request_id": "70c1a9d94f90",
+      "ok": false,
+      "error": {
+        "code": "TRANSACTION_FAILED",
+        "message": "本次操作未能完成，请稍后重试"
+      }
+    },
+    {
+      "case": "new_product_order",
+      "role": "customer",
+      "method": "POST",
+      "status": 201,
+      "request_id": "e07606a1c993",
+      "ok": true
+    },
+    {
+      "case": "ownership_GET_SOD3C6CCF9D2",
+      "role": "other",
+      "method": "GET",
+      "status": 404,
+      "request_id": "31d3fbbb0405",
+      "ok": false,
+      "error": {
+        "code": "NOT_FOUND",
+        "message": "订单不存在"
+      }
+    },
+    {
+      "case": "ownership_PATCH_SOD3C6CCF9D2",
+      "role": "other",
+      "method": "PATCH",
+      "status": 404,
+      "request_id": "700afac7b3bc",
+      "ok": false,
+      "error": {
+        "code": "NOT_FOUND",
+        "message": "订单不存在"
+      }
+    },
+    {
+      "case": "ownership_POST_items",
+      "role": "other",
+      "method": "POST",
+      "status": 404,
+      "request_id": "532de54cbd74",
+      "ok": false,
+      "error": {
+        "code": "NOT_FOUND",
+        "message": "订单不存在"
+      }
+    },
+    {
+      "case": "ownership_PATCH_SI3C79E38420",
+      "role": "other",
+      "method": "PATCH",
+      "status": 404,
+      "request_id": "09a63a62c022",
+      "ok": false,
+      "error": {
+        "code": "NOT_FOUND",
+        "message": "订单不存在"
+      }
+    },
+    {
+      "case": "ownership_DELETE_SI3C79E38420",
+      "role": "other",
+      "method": "DELETE",
+      "status": 404,
+      "request_id": "ef4e770d958e",
+      "ok": false,
+      "error": {
+        "code": "NOT_FOUND",
+        "message": "订单不存在"
+      }
+    },
+    {
+      "case": "ownership_DELETE_SOD3C6CCF9D2",
+      "role": "other",
+      "method": "DELETE",
+      "status": 404,
+      "request_id": "17a267f2df7e",
+      "ok": false,
+      "error": {
+        "code": "NOT_FOUND",
+        "message": "订单不存在"
+      }
+    },
+    {
+      "case": "ownership_POST_pay",
+      "role": "other",
+      "method": "POST",
+      "status": 404,
+      "request_id": "ce49587d112a",
+      "ok": false,
+      "error": {
+        "code": "NOT_FOUND",
+        "message": "订单不存在"
+      }
+    },
+    {
+      "case": "manager_order_creation_matches_matrix",
+      "role": "manager",
+      "method": "POST",
+      "status": 403,
+      "request_id": "bec53557cd54",
+      "ok": false,
+      "error": {
+        "code": "FORBIDDEN",
+        "message": "当前账号无权执行此操作"
+      }
+    },
+    {
+      "case": "invalid_quantity_2147483648",
+      "role": "customer",
+      "method": "PATCH",
+      "status": 400,
+      "request_id": "f50262e320b5",
+      "ok": false,
+      "error": {
+        "code": "INVALID_INPUT",
+        "message": "数量必须为正整数"
+      }
+    },
+    {
+      "case": "invalid_quantity_inf",
+      "role": "customer",
+      "method": "PATCH",
+      "status": 400,
+      "request_id": "c23e5dea8955",
+      "ok": false,
+      "error": {
+        "code": "INVALID_INPUT",
+        "message": "数量必须为正整数"
+      }
+    },
+    {
+      "case": "invalid_quantity_nan",
+      "role": "customer",
+      "method": "PATCH",
+      "status": 400,
+      "request_id": "51f63ec3dba4",
+      "ok": false,
+      "error": {
+        "code": "INVALID_INPUT",
+        "message": "数量必须为正整数"
+      }
+    },
+    {
+      "case": "integer_reorder_limit",
+      "role": "manager",
+      "method": "PATCH",
+      "status": 400,
+      "request_id": "d08065b199ac",
+      "ok": false,
+      "error": {
+        "code": "INVALID_INPUT",
+        "message": "补货阈值不能为负数"
+      }
+    },
+    {
+      "case": "nonfinite_inventory_adjustment",
+      "role": "staff",
+      "method": "POST",
+      "status": 400,
+      "request_id": "7a941e4b4dd8",
+      "ok": false,
+      "error": {
+        "code": "INVALID_INPUT",
+        "message": "调整数量必须为非零整数"
+      }
+    },
+    {
+      "case": "change_quantity",
+      "role": "customer",
+      "method": "PATCH",
+      "status": 200,
+      "request_id": "e89597141eb7",
+      "ok": true
+    },
+    {
+      "case": "pay_new_product_order",
+      "role": "customer",
+      "method": "POST",
+      "status": 200,
+      "request_id": "d9c59d5814d7",
+      "ok": true
+    },
+    {
+      "case": "paid_item_change_denied",
+      "role": "customer",
+      "method": "PATCH",
+      "status": 409,
+      "request_id": "8b5580b69ef7",
+      "ok": false,
+      "error": {
+        "code": "BUSINESS_CONFLICT",
+        "message": "只有待支付订单可以修改"
+      }
+    },
+    {
+      "case": "fulfillment_failure_after_points",
+      "role": "staff",
+      "method": "POST",
+      "status": 500,
+      "request_id": "32b610917dd6",
+      "ok": false,
+      "error": {
+        "code": "TRANSACTION_FAILED",
+        "message": "本次操作未能完成，请稍后重试"
+      }
+    },
+    {
+      "case": "fulfill_new_product_order",
+      "role": "staff",
+      "method": "POST",
+      "status": 200,
+      "request_id": "2c0fed020da6",
+      "ok": true
+    },
+    {
+      "case": "expired_existing_batch_denied",
+      "role": "staff",
+      "method": "POST",
+      "status": 409,
+      "request_id": "9814e53630ef",
+      "ok": false,
+      "error": {
+        "code": "BUSINESS_CONFLICT",
+        "message": "锁定批次已到期，暂停出库"
+      }
+    },
+    {
+      "case": "stock_failure_after_movement",
+      "role": "staff",
+      "method": "POST",
+      "status": 500,
+      "request_id": "da809eff5395",
+      "ok": false,
+      "error": {
+        "code": "TRANSACTION_FAILED",
+        "message": "本次操作未能完成，请稍后重试"
+      }
+    },
+    {
+      "case": "high_price_allowed",
+      "role": "manager",
+      "method": "PATCH",
+      "status": 200,
+      "request_id": "bbd8c2ab8f11",
+      "ok": true
+    },
+    {
+      "case": "bounded_initial_order",
+      "role": "customer",
+      "method": "POST",
+      "status": 201,
+      "request_id": "37c9e7329a4d",
+      "ok": true
+    },
+    {
+      "case": "edited_total_overflow",
+      "role": "customer",
+      "method": "PATCH",
+      "status": 400,
+      "request_id": "6b31261c02bb",
+      "ok": false,
+      "error": {
+        "code": "INVALID_INPUT",
+        "message": "订单金额超出允许范围"
+      }
+    },
+    {
+      "case": "second_high_price_product",
+      "role": "manager",
+      "method": "PATCH",
+      "status": 200,
+      "request_id": "14ae3dfe2691",
+      "ok": true
+    },
+    {
+      "case": "added_total_overflow",
+      "role": "customer",
+      "method": "POST",
+      "status": 400,
+      "request_id": "5a9d436f4b3e",
+      "ok": false,
+      "error": {
+        "code": "INVALID_INPUT",
+        "message": "订单金额超出允许范围"
+      }
+    },
+    {
+      "case": "cancel_boundary_order",
+      "role": "customer",
+      "method": "DELETE",
+      "status": 200,
+      "request_id": "7ccb2e8b9437",
+      "ok": true
+    },
+    {
+      "case": "restore_new_product_price",
+      "role": "manager",
+      "method": "PATCH",
+      "status": 200,
+      "request_id": "ffb07924b896",
+      "ok": true
+    },
+    {
+      "case": "restore_sample_price",
+      "role": "manager",
+      "method": "PATCH",
+      "status": 200,
+      "request_id": "5a323b951157",
+      "ok": true
+    },
+    {
+      "case": "concurrency_order",
+      "role": "customer",
+      "method": "POST",
+      "status": 201,
+      "request_id": "cd4fbcba9253",
+      "ok": true
+    },
+    {
+      "case": "concurrency_order_pay",
+      "role": "customer",
+      "method": "POST",
+      "status": 200,
+      "request_id": "de1b0cbd15e3",
+      "ok": true
+    },
+    {
+      "case": "concurrency_cleanup",
+      "role": "customer",
+      "method": "DELETE",
+      "status": 200,
+      "request_id": "1c903bc937fe",
+      "ok": true
+    },
+    {
+      "case": "different_customer_cleanup",
+      "role": "customer",
+      "method": "DELETE",
+      "status": 200,
+      "request_id": "4c4c02edfabb",
+      "ok": true
+    },
+    {
+      "case": "nonmember_order",
+      "role": "nonmember",
+      "method": "POST",
+      "status": 201,
+      "request_id": "804105fb7909",
+      "ok": true
+    },
+    {
+      "case": "nonmember_fulfill",
+      "role": "staff",
+      "method": "POST",
+      "status": 200,
+      "request_id": "724eda5a7657",
+      "ok": true
+    },
+    {
+      "case": "zero_inventory_with_audit",
+      "role": "staff",
+      "method": "POST",
+      "status": 200,
+      "request_id": "ebf36adf0dcd",
+      "ok": true
+    },
+    {
+      "case": "database_connection_failure",
+      "role": "anonymous",
+      "method": "GET",
+      "status": 503,
+      "ok": false,
+      "request_id": "50fb7492d42e",
+      "error": {
+        "code": "DATABASE_UNAVAILABLE",
+        "message": "数据库暂时无法完成操作，请稍后重试"
+      }
+    }
+  ],
+  "rollback_tables": [
+    "Product",
+    "PurchaseOrder",
+    "PurchaseOrderItem",
+    "InventoryBatch",
+    "InventoryMovement",
+    "SalesOrder",
+    "SalesOrderItem",
+    "InventoryReservation",
+    "PaymentRecord",
+    "Customer",
+    "PointsMovement"
+  ]
+}

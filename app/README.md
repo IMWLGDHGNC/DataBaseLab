@@ -25,7 +25,7 @@ export APP_CONFIG_FILE="$(cat output/week7/config-path.txt)"
 scripts/Start-Week7-Web.sh
 ```
 
-默认只监听服务器的 `127.0.0.1:8767`。保持进程运行；要从自己的电脑查看，请由授权人员建立 SSH 本地端口转发后在浏览器打开对应的本机地址。不要把课程服务器地址、账号或密码写入仓库。部署脚本打印私有演示口令文件的位置；文件权限为 `600`，仅在服务器受控终端查看。
+默认只监听服务器的 `127.0.0.1:8767`；若同时保留旧演示进程，可在启动前设置未占用的 `APP_PORT`。保持进程运行；要从自己的电脑查看，请由授权人员建立本地端口转发后在浏览器打开对应的本机地址。部署脚本打印私有演示口令文件的位置；文件权限为 `600`，仅在服务器受控终端查看。
 
 停止 Web 服务时，在运行终端按 `Ctrl+C`。若后台启动，请读取 `output/week7/web.pid` 并向该进程发送 `TERM`；不要停止 SQL Server 容器。原始部署日志和访问日志留在被忽略的 `output/week7/`。
 
@@ -45,7 +45,7 @@ scripts/Start-Week7-Web.sh
 
 可运行 `APP_CONFIG_FILE=<私有配置路径> output/week7/.venv/bin/python tests/Test-Week7-Web.py` 验证登录、角色差异、商品维护、订单明细变更、支付、出库、库存调整、缺货回滚和数据库故障提示。**测试会写入当前配置指向的数据库，只能对本次新建的独立样例库执行。**
 
-该命令从仓库根目录直接运行，无需额外设置 PYTHONPATH。修复版共 103 项检查，还覆盖新增商品采购入库至销售出库的完整角色流程、整数/金额上限、写入中途失败后回滚、两个不同顾客争抢、同时支付，以及下单/出库交叉锁定的回归。安全的响应与流程摘要写入 `output/week7/review-evidence.json`，不包含口令、连接配置或内部堆栈；检查后可整理到 result。本轮实际 103 项通过环境为独立 SQL Server 2022 LocalDB，测试过程用私有 ODBC 适配连接，生产驱动的断连分类另用真实 pymssql 验证；原 Linux/pymssql/Gunicorn 修复版尚待重部署，详见[验证边界](../result/week7/review-validation-20261014.md)。
+该命令从仓库根目录直接运行，无需额外设置 PYTHONPATH。修复版共 103 项检查，还覆盖新增商品采购入库至销售出库的完整角色流程、整数/金额上限、写入中途失败后回滚、两个不同顾客争抢、同时支付，以及下单/出库交叉锁定的回归。安全的响应与流程摘要写入 `output/week7/review-evidence.json`，不包含口令、连接配置或内部堆栈；检查后可整理到 result。修复版先在独立 SQL Server 2022 LocalDB 通过，随后在课程服务器的 Linux、真实 pymssql、SQL Server 2022 容器和 Gunicorn 下再次通过 103 项，见[服务器验证结果](../result/week7/README.md)。
 
 API 补充 `/api/suppliers`、`/api/purchases`（查询待验收及管理员建立审批）、`POST /api/inventory`（店员/管理员验收）。新版本部署时必须运行更新后的授权脚本；新样例库的部署脚本会自动应用。所有业务写入先获取事务级共同锁，十秒超时或死锁返回 `TRANSACTION_CONFLICT`；其他事务失败返回 `TRANSACTION_FAILED`，连接失败返回 `DATABASE_UNAVAILABLE`，数值超限返回 `INVALID_INPUT`。
 
@@ -60,3 +60,12 @@ output/week7/.venv/bin/python tests/Capture-Week7-Ui.py
 ```
 
 脚本在服务器本地读取私有演示身份，默认写入被忽略的 `output/week7/screenshots/`。如果 Firefox 位于非标准路径，可通过 `FIREFOX_BINARY` 指定。发布前逐张检查页面可见内容和元数据；不要复制演示口令或私有配置。
+
+需要复现管理员采购、店员入库、顾客下单改明细和支付、店员出库的同一条完整流程时，在上述依赖安装与页面启动后执行：
+
+```bash
+export APP_BASE_URL="http://127.0.0.1:${APP_PORT:-8767}"
+output/week7/.venv/bin/python tests/Capture-Week7-Server-Flow.py
+```
+
+该脚本会创建新的模拟商品和订单，读取服务器私有演示身份，默认把 8 张页面截图及 21 项核对摘要写入 `output/week7/server-flow/`。必须只对本次新建的独立样例库运行；公开发布前检查摘要和截图。课程服务器实际结果见[第七至九周结果](../result/week7/README.md)。
