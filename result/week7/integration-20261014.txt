@@ -1,0 +1,48 @@
+Week7 Web integration, SQL Server 2022 isolated sample database, 2026-10-14
+W6_REGRESSION_PASS 15 46 15 64.50
+WEEK6_SERVER_PASS
+WEEK7_LOGINS_PASS
+WEEK7_PERMISSIONS_PASS
+WEEK7_DEPLOY_PREP_PASS
+PASS web_page
+PASS anonymous_products
+PASS anonymous_inventory_denied
+PASS customer_login
+PASS csrf_denied
+PASS customer_inventory_denied
+PASS other_customer_order_hidden
+PASS invalid_quantity
+PASS insufficient_stock
+PASS failed_order_rolled_back
+PASS create_order
+PASS two_order_items
+PASS change_item_quantity
+PASS delete_draft_item
+PASS add_draft_item
+PASS change_recipient
+PASS pay_order
+PASS duplicate_payment_denied
+PASS paid_order_cannot_cancel
+PASS cancel_releases_reservation
+PASS logout
+PASS staff_login
+PASS staff_product_write_denied
+PASS stock_adjustment
+PASS fulfill_order
+PASS duplicate_fulfillment_denied
+PASS stock_and_reservation_accounting
+PASS completed_order_persisted
+PASS member_points_awarded_once
+PASS logout
+PASS manager_login
+PASS manager_create_product
+PASS manager_update_product
+PASS manager_delete_unused_product
+PASS duplicate_product_constraint_feedback
+PASS logout
+PASS concurrent_stock_limit
+PASS concurrent_order_cleanup
+PASS database_failure_friendly
+WEEK7_WEB_PASS 39
+
+This is a public PASS-only summary of actual runs. Original private logs remain on the server.

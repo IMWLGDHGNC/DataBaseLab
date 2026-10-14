@@ -42,3 +42,7 @@
 ## 第六周 v1.0 迁移
 
 [week6/migration.sql](week6/migration.sql)仅对新的 `DataBaseLab_Week6_<时间戳>` 样例库执行：核对 v0.1 前提后，在事务中保存业务查询基线、删除 `InventoryMovement.PurchaseItemID` 及相关约束，逐行比较迁移前后库存流水与采购来源。[week6/regression.sql](week6/regression.sql)核对四组实际查询与本库迁移前快照、15 表 46 行、目标目录 106 属性/23 外键/9 项 UNIQUE、业务对账、四种合法流水和十一项命中重建 CHECK 的负例及角色边界。`week6_baseline` 的五张辅助审核表不计入业务表；快照无顾客读取权限，当前日期库存视图要求迁移和回归同日执行。第五周 `verify-er.sql` 和第三周 `04-verify.sql` 必须在迁移前运行；迁移后不再适用 v0.1 字段和全库表数检查。具体顺序及版本对应结果见[Week6](../docs/Week6.md)和[结果](../result/week6/README.md)。
+
+## 第七至九周 Web 授权
+
+[week7/permissions.sql](week7/permissions.sql)在第六周独立 v1.0 样例库中创建顾客、店员、管理员三个应用数据库角色，给新建的随机 SQL 登录授予所需表级及列级操作，最后确认登录未进入 `db_owner` 等宽权限角色。该脚本的登录占位符由[部署脚本](../scripts/Run-Week7-Server.sh)在服务器私下替换，不能直接把占位符原样运行。顾客“仅本人”行级限制在 Web 服务层，数据库端目前是表级授权；边界见 [Week7](../docs/Week7.md)。

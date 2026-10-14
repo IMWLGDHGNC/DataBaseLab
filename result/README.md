@@ -2,6 +2,10 @@
 
 本目录保存实际运行证据。完整执行步骤见[根 README](../README.md)，SQL 与脚本用途见 [sql](../sql/README.md)和 [scripts](../scripts/README.md)。核对当前实现时先看最新验证；历史文件保留原版本结果。
 
+## 第七至九周 Web 应用
+
+[Web 运行结果](week7/README.md)包含公开的五张角色/错误页面截图和 39 项集成检查摘要；原始私有日志及演示凭据不在仓库。对应设计与操作见 [Week7](../docs/Week7.md)和[应用手册](../app/README.md)。
+
 ## 当前 v0.1 的最新证据
 
 | 证据 | 环境与结果 |
