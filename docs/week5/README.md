@@ -1,17 +1,17 @@
 # Week5 ER 模型与 v0.1 设计审查
 
-依据[第五周任务讲解](第五周任务讲解.md)，最初从 `origin/main` 的 `667259d`（第四周合并及服务器部署说明）创建第五周分支，于 2026-10-01 同步阶段提交修订，并按用户指示修复 review 问题后 squash 合入 `main`。本周把已有零食网店数据库反推为 ER 模型，解释标识、联系和参与条件，并用真实 SQL 核对模型与实现的差异。自动验证和用户合并授权分别记录，不将自动 review 记为学生逐项人工验收。
+依据[第五周任务讲解](../course/第五周任务讲解.md)，最初从 `origin/main` 的 `667259d`（第四周合并及服务器部署说明）创建第五周分支，于 2026-10-01 同步阶段提交修订，并按用户指示修复 review 问题后 squash 合入 `main`。本周把已有零食网店数据库反推为 ER 模型，解释标识、联系和参与条件，并用真实 SQL 核对模型与实现的差异。自动验证和用户合并授权分别记录，不将自动 review 记为学生逐项人工验收。
 
 ## 交付入口
 
 | 交付 | 文件 |
 | --- | --- |
-| 讲解原文转换 | [第五周任务讲解](第五周任务讲解.md)，含第二阶段第5—9周安排 |
-| ER 模型及完整字典 | [实体与数据字典](week5/er-model.md)，15 实体、107 属性、主码／候选码／外码和图例 |
-| 可编辑源与清晰导出图 | [完整 Mermaid 源](week5/er-v0.1.mmd)、[完整 SVG](../result/week5/er-v0.1.svg)、[完整 PNG](../result/week5/er-v0.1.png)，另有采购、销售、库存三张分区图 |
-| 业务规则与映射 | [规则清单](week5/business-rules.md)，23 个联系两端的最小／最大基数、2 条复合外码配对限制和11组业务不变量 |
-| 问题与改进 | [v0.1 问题清单](week5/v0.1-issues.md)，12 项问题、证据、影响、保留理由及后续安排 |
-| 验证与第二阶段报告素材 | 本文设计说明、演示路径、实际验证记录；[原始结果](../result/week5/README.md)及 [verify-er.sql](../sql/week5/verify-er.sql) |
+| 讲解原文转换 | [第五周任务讲解](../course/第五周任务讲解.md)，含第二阶段第5—9周安排 |
+| ER 模型及完整字典 | [实体与数据字典](er-model.md)，15 实体、107 属性、主码／候选码／外码和图例 |
+| 可编辑源与清晰导出图 | [完整 Mermaid 源](er-v0.1.mmd)、[完整 SVG](../../result/week5/er-v0.1.svg)、[完整 PNG](../../result/week5/er-v0.1.png)，另有采购、销售、库存三张分区图 |
+| 业务规则与映射 | [规则清单](business-rules.md)，23 个联系两端的最小／最大基数、2 条复合外码配对限制和11组业务不变量 |
+| 问题与改进 | [v0.1 问题清单](v0.1-issues.md)，12 项问题、证据、影响、保留理由及后续安排 |
+| 验证与第二阶段报告素材 | 本文设计说明、演示路径、实际验证记录；[原始结果](../../result/week5/README.md)及 [verify-er.sql](../../sql/week5/verify-er.sql) |
 
 ## 设计思路
 
@@ -29,7 +29,7 @@
 
 先用完整图说明采购、库存、销售、积分之间的闭环，再打开各分区 SVG 放大字段和乌鸦脚端点。SVG 可缩放，PNG 是同一源的静态导出；图中全部字段可按英文名称查字典。
 
-![销售与会员分区 ER 图](../result/week5/er-sales.png)
+![销售与会员分区 ER 图](../../result/week5/er-sales.png)
 
 | 演示 | 图中的路径与实际数据 | 解释重点 |
 | --- | --- | --- |
@@ -58,37 +58,37 @@ powershell.exe -NoProfile -File .\scripts\Invoke-LabSql.ps1 -Database $db -Input
 
 | 检查 | 实际结果及证据 |
 | --- | --- |
-| 从空库重现最新 v0.1 | `WEEK4_PASS`；CRUD、18 项约束正反例、查询、三个视图和17项权限正反例通过；[基线日志](../result/week5/baseline-run.txt) |
-| 目录与模型核对 | `CATALOG_PASS`：15 表、107 属性、25 FK；另外逐项比较实际目录、DDL 与完整图源的107个属性类型／空值、15个主码、10个 UNIQUE 和25个外码（27列配对），全部一致；[ER 验证日志](../result/week5/er-verification.txt)、[模型核对](../result/week5/model-check.txt) |
+| 从空库重现最新 v0.1 | `WEEK4_PASS`；CRUD、18 项约束正反例、查询、三个视图和17项权限正反例通过；[基线日志](../../result/week5/baseline-run.txt) |
+| 目录与模型核对 | `CATALOG_PASS`：15 表、107 属性、25 FK；另外逐项比较实际目录、DDL 与完整图源的107个属性类型／空值、15个主码、10个 UNIQUE 和25个外码（27列配对），全部一致；[ER 验证日志](../../result/week5/er-verification.txt)、[模型核对](../../result/week5/model-check.txt) |
 | 约束边界探针 | `ER_BOUNDARY_PASS`，9/9 符合现有实现；空销售／采购单、库存合计不一致、跨商品锁定、支付金额不一致均被接受，记录为缺口；重复订单商品 2627、重复成功支付 2601 均被拒绝；多次失败支付和同明细批次再锁定可表示 |
-| 回滚后原样例复核 | `VERIFY_PASS`，15 表、46 行，逐表 SHA-256 与基线最终复核相同；[回滚后日志](../result/week5/after-probes.txt) |
+| 回滚后原样例复核 | `VERIFY_PASS`，15 表、46 行，逐表 SHA-256 与基线最终复核相同；[回滚后日志](../../result/week5/after-probes.txt) |
 | 图源与导出 | 完整图和3张分区图均由 Mermaid 11.12.0 成功渲染；已检查中文、字段、联系和图边界；SVG 保留缩放能力 |
 
-探针中的 PASS 表示“实际约束行为与本报告记录一致”，不是说被接受的非法业务已经满足要求。结构和业务改进计划详见问题清单。上述均为自动核对和真实 SQL 执行；组内职责已在[分工表](../组内分工.md)登记。用户已授权 review 修复后合并，未提供额外学生逐项人工验收记录。
+探针中的 PASS 表示“实际约束行为与本报告记录一致”，不是说被接受的非法业务已经满足要求。结构和业务改进计划详见问题清单。上述均为自动核对和真实 SQL 执行；组内职责已在[分工表](../submission/组内分工.md)登记。用户已授权 review 修复后合并，未提供额外学生逐项人工验收记录。
 
 ### 2026-10-01 同步后的复验
 
 `main` 已包含六类角色、34 项权限案例及本人订单/积分过程。业务 ER 仍对应 `dbo` 下 15 张表、107 个属性、25 个外码；`customer_security.CustomerPrincipal` 是另一个 schema 中的权限辅助表，含 2 列、1 个主键和 1 个外码，单独计数。验证脚本同时检查业务目录和全库总数，不将这张辅助表画成新增业务实体，也不会忽略其他意外表。
 
-本次复验结果见[2026-10-01 同步验证](../result/week5/sync-validation-20261001.md)。历史日志保留原日期和当时的 17 项权限结果，当前权限以 34 项复验为准。
+本次复验结果见[2026-10-01 同步验证](../../result/week5/sync-validation-20261001.md)。历史日志保留原日期和当时的 17 项权限结果，当前权限以 34 项复验为准。
 
 ## 2026-10-01 review 修复与可复现核对
 
-[Test-Week5Model.ps1](../scripts/Test-Week5Model.ps1) 先比较 DDL、已提交的目录基线和四张图的字段类型／空值／PK、FK、单属性 UK 标记，再运行 SQL 目录与边界探针。[verify-er.sql](../sql/week5/verify-er.sql) 即使直接执行，也会双向比较实际字段、15 个主码、10 个 UNIQUE、25 个外码的具体列及顺序，并检查成功支付的过滤唯一索引。删除 `UQ_ProductCategory_1` 会返回 51511，不能再凭数量通过。
+[Test-Week5Model.ps1](../../scripts/Test-Week5Model.ps1) 先比较 DDL、已提交的目录基线和四张图的字段类型／空值／PK、FK、单属性 UK 标记，再运行 SQL 目录与边界探针。[verify-er.sql](../../sql/week5/verify-er.sql) 即使直接执行，也会双向比较实际字段、15 个主码、10 个 UNIQUE、25 个外码的具体列及顺序，并检查成功支付的过滤唯一索引。删除 `UQ_ProductCategory_1` 会返回 51511，不能再凭数量通过。
 
 只核对源文件：`powershell.exe -NoProfile -File .\scripts\Test-Week5Model.ps1 -SourceOnly`。业务模型确实变更时，先复核 DDL 和图，再显式加 `-UpdateCatalog` 更新 SQL 中标记的期望目录，并审阅差异；普通核对不会自动重写基线。跨库排序规则通过 `DATABASE_DEFAULT` 显式统一。
 
-[Test-Week5Validation.ps1](../scripts/Test-Week5Validation.ps1) 验证检查器本身。先用 `Run-Week4.ps1` 创建名为 `DataBaseLab_Week4_W5Test` 加时间戳的独立库，再运行：
+[Test-Week5Validation.ps1](../../scripts/Test-Week5Validation.ps1) 验证检查器本身。先用 `Run-Week4.ps1` 创建名为 `DataBaseLab_Week4_W5Test` 加时间戳的独立库，再运行：
 
 ```powershell
 powershell.exe -NoProfile -File .\scripts\Test-Week5Validation.ps1 -Database $db
 ```
 
-该回归脚本仅接受 `W5Test`、`W5Fix` 或 `W5Review` 后缀的独立测试库；会暂时更改目录定义，在 finally 中恢复，并用临时图源测试错误标识和基数。实际结果为5项目录变化及2项图源变化均被拒绝，恢复后15表46行及数据摘要与基线相同。新证据见 [review 修复验证](../result/week5/review-validation-20261001.md)。历史日志继续保留其原始日期和验证范围。
+该回归脚本仅接受 `W5Test`、`W5Fix` 或 `W5Review` 后缀的独立测试库；会暂时更改目录定义，在 finally 中恢复，并用临时图源测试错误标识和基数。实际结果为5项目录变化及2项图源变化均被拒绝，恢复后15表46行及数据摘要与基线相同。新证据见 [review 修复验证](../../result/week5/review-validation-20261001.md)。历史日志继续保留其原始日期和验证范围。
 
 ## 编辑与重新导出
 
-修改 `docs/week5/*.mmd` 后，可用 [Render-Week5Er.cjs](../scripts/Render-Week5Er.cjs) 重新生成四张 SVG／PNG，脚本会附上统一图例。需要 Node.js、Playwright 和 Edge；使用本次环境已有的 Codex 运行时，无需在仓库安装依赖：
+修改 `docs/week5/*.mmd` 后，可用 [Render-Week5Er.cjs](../../scripts/Render-Week5Er.cjs) 重新生成四张 SVG／PNG，脚本会附上统一图例。需要 Node.js、Playwright 和 Edge；使用本次环境已有的 Codex 运行时，无需在仓库安装依赖：
 
 ```powershell
 $runtimeNode = Join-Path $env:USERPROFILE '.cache\codex-runtimes\codex-primary-runtime\dependencies\node'

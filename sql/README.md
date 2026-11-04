@@ -1,6 +1,6 @@
 # SQL 导航
 
-本目录是课程要求的可执行 SQL 交付。当前 main 的 v0.1 由 `week3/` 和 `week4/` 组成；推荐使用 [Run-Week4.ps1](../scripts/Run-Week4.ps1)按顺序执行，完整命令与预期结果见[根 README](../README.md)。
+本目录保存已完成的v1.0应用所需SQL：`week3/`、`week4/`建立v0.1基线，`week5/`核对ER，`week6/`执行规范化迁移与回归，`week7/`为第7–9周Web应用授权。完整运行入口见[应用手册](../app/README.md)，Windows数据库复现见[LocalDB指南](../docs/guides/本地SQL环境.md)。
 
 ## 文件用途
 
@@ -18,7 +18,7 @@
 | 第四周约束 | [constraint.sql](week4/constraint.sql) | 异常解决说明 CHECK 与 6 项合法/非法写入验证 |
 | 第四周权限 | [role.sql](week4/role.sql) | 六类最小权限角色、本人订单/积分过程、辅助身份映射及 34 项权限正反例 |
 
-## v0.1 执行链路
+## v1.0 执行顺序
 
 ```text
 00-create-database（在 master 中）
@@ -29,22 +29,24 @@
 → 04-verify
 ```
 
-其余 SQL 在本次目标库执行。建表与样例脚本要求空库；视图和角色脚本可在已有第四周库重复执行。Linux 服务器的建库方式与 sqlcmd 参数见[服务器环境](../docs/服务器SQL环境.md)。
+以上是v0.1基线顺序。随后执行 `week5/verify-er.sql` → `week6/migration.sql` → `week4/role.sql` → `week6/regression.sql`；Web部署再创建应用登录并应用 `week7/permissions.sql`。部署脚本封装上述顺序。
 
-15 张表是业务模型；`customer_security.CustomerPrincipal` 是权限辅助表，单独计数。测试用户使用 WITHOUT LOGIN，证明授予范围内的允许/拒绝，应用认证与完整跨表业务事务仍按后续课程阶段实现。
+其余 SQL 在本次目标库执行。建表与样例脚本要求空库；视图和角色脚本可在已有第四周库重复执行。Linux 服务器的建库方式与 sqlcmd 参数见[服务器环境](../docs/guides/服务器SQL环境.md)。
+
+15 张表是业务模型；`customer_security.CustomerPrincipal` 是权限辅助表，单独计数。v0.1角色脚本使用WITHOUT LOGIN测试用户核对授权正反例；v1.0的应用认证与跨表业务事务已由[第7–9周Web应用](../docs/week7-9/README.md)实现。
 
 ## 第五周模型验证
 
-第五周包含 [week5/verify-er.sql](week5/verify-er.sql)：逐项核对业务 ER 字段、主码、候选码、外码及过滤唯一索引，并执行 9 项回滚探针，定位现有约束边界。该周已按用户授权修复 review 问题并合入 main，设计与执行说明见 [Week5](../docs/Week5.md)，图源、规则和问题清单见 [docs/week5](../docs/week5/er-model.md)。
+第五周包含 [week5/verify-er.sql](week5/verify-er.sql)：逐项核对业务 ER 字段、主码、候选码、外码及过滤唯一索引，并执行 9 项回滚探针，定位现有约束边界。该周已按用户授权修复 review 问题并合入 main，设计与执行说明见 [Week5](../docs/week5/README.md)，图源、规则和问题清单见 [docs/week5](../docs/week5/er-model.md)。
 
-课程指定的 `query.sql`、`view.sql`、`constraint.sql`、`role.sql` 保留在 `week4/`，对应要求见[第四周任务讲解](../docs/第四周任务讲解.md)。
+课程指定的 `query.sql`、`view.sql`、`constraint.sql`、`role.sql` 保留在 `week4/`，对应要求见[第四周任务讲解](../docs/course/第四周任务讲解.md)。
 
 ## 第六周 v1.0 迁移
 
-[week6/migration.sql](week6/migration.sql)仅对新的 `DataBaseLab_Week6_<时间戳>` 样例库执行：核对 v0.1 前提后，在事务中保存业务查询基线、删除 `InventoryMovement.PurchaseItemID` 及相关约束，逐行比较迁移前后库存流水与采购来源。[week6/regression.sql](week6/regression.sql)核对四组实际查询与本库迁移前快照、15 表 46 行、目标目录 106 属性/23 外键/9 项 UNIQUE、业务对账、四种合法流水和十一项命中重建 CHECK 的负例及角色边界。`week6_baseline` 的五张辅助审核表不计入业务表；快照无顾客读取权限，当前日期库存视图要求迁移和回归同日执行。第五周 `verify-er.sql` 和第三周 `04-verify.sql` 必须在迁移前运行；迁移后不再适用 v0.1 字段和全库表数检查。具体顺序及版本对应结果见[Week6](../docs/Week6.md)和[结果](../result/week6/README.md)。
+[week6/migration.sql](week6/migration.sql)仅对新的 `DataBaseLab_Week6_<时间戳>` 样例库执行：核对 v0.1 前提后，在事务中保存业务查询基线、删除 `InventoryMovement.PurchaseItemID` 及相关约束，逐行比较迁移前后库存流水与采购来源。[week6/regression.sql](week6/regression.sql)核对四组实际查询与本库迁移前快照、15 表 46 行、目标目录 106 属性/23 外键/9 项 UNIQUE、业务对账、四种合法流水和十一项命中重建 CHECK 的负例及角色边界。`week6_baseline` 的五张辅助审核表不计入业务表；快照无顾客读取权限，当前日期库存视图要求迁移和回归同日执行。第五周 `verify-er.sql` 和第三周 `04-verify.sql` 必须在迁移前运行；迁移后不再适用 v0.1 字段和全库表数检查。具体顺序及版本对应结果见[Week6](../docs/week6/README.md)和[结果](../result/week6/README.md)。
 
 ## 第七至九周 Web 授权
 
 修复版新增管理员采购建立/审批与店员验收入库所需的表级、列级权限，Employee 和 Supplier 仅读取 DAO 所需列；所有业务写入先取得以 public 为共同数据库主体的事务级应用锁。入库仍写 v1.0 的批次和流水，不恢复已迁移删除的冗余采购明细列。
 
-[week7/permissions.sql](week7/permissions.sql)在第六周独立 v1.0 样例库中创建顾客、店员、管理员三个应用数据库角色，给新建的随机 SQL 登录授予所需表级及列级操作，最后确认登录未进入 `db_owner` 等宽权限角色。该脚本的登录占位符由[部署脚本](../scripts/Run-Week7-Server.sh)在服务器私下替换，不能直接把占位符原样运行。顾客“仅本人”行级限制在 Web 服务层，数据库端目前是表级授权；边界见 [Week7](../docs/Week7.md)。
+[week7/permissions.sql](week7/permissions.sql)在第六周独立 v1.0 样例库中创建顾客、店员、管理员三个应用数据库角色，给新建的随机 SQL 登录授予所需表级及列级操作，最后确认登录未进入 `db_owner` 等宽权限角色。该脚本的登录占位符由[部署脚本](../scripts/Run-Week7-Server.sh)在服务器私下替换，不能直接把占位符原样运行。顾客“仅本人”行级限制在 Web 服务层，数据库端目前是表级授权；边界见 [第7–9周](../docs/week7-9/README.md)。

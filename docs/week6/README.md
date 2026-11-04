@@ -1,6 +1,6 @@
 # Week6 - 函数依赖、规范化与 v0.1 迁移分析
 
-依据[第六周任务讲解](第六周任务讲解.md)和[第二阶段周次安排](第五周任务讲解.md)，以[第五周已核对的 ER 模型](Week5.md)、完整字典与问题清单为直接输入。第五周保留的 v0.1 结构是本周迁移来源。
+依据[第六周任务讲解](../course/第六周任务讲解.md)和[第二阶段周次安排](../course/第五周任务讲解.md)，以[第五周已核对的 ER 模型](../week5/README.md)、完整字典与问题清单为直接输入。第五周保留的 v0.1 结构是本周迁移来源。
 
 ## 1. 本周目标与项目基线
 
@@ -138,32 +138,32 @@
 
 ## 9. 脚本与结果状态
 
-- 迁移脚本：[`sql/week6/migration.sql`](../sql/week6/migration.sql)。仅接受本周隔离基线库名，检查表数、行数、来源一致性和余额缓存后，在一个事务中做字段与约束调整。
-- 回归脚本：[`sql/week6/regression.sql`](../sql/week6/regression.sql)。核对 15 表 46 行、已完成销售 15 件/64.50 元、订单金额、库存和积分对账、合法写入回滚、非法外键/数量/来源改写拒绝及角色边界。
-- 自动执行入口：Windows LocalDB 使用[`Run-Week6.ps1`](../scripts/Run-Week6.ps1)，授权的 Linux 服务器使用[`Run-Week6-Server.sh`](../scripts/Run-Week6-Server.sh)。原始日志先放入被忽略的 `output/week6/`，核查后的实际输出见[`result/week6/`](../result/week6/README.md)。
+- 迁移脚本：[`sql/week6/migration.sql`](../../sql/week6/migration.sql)。仅接受本周隔离基线库名，检查表数、行数、来源一致性和余额缓存后，在一个事务中做字段与约束调整。
+- 回归脚本：[`sql/week6/regression.sql`](../../sql/week6/regression.sql)。核对 15 表 46 行、已完成销售 15 件/64.50 元、订单金额、库存和积分对账、合法写入回滚、非法外键/数量/来源改写拒绝及角色边界。
+- 自动执行入口：Windows LocalDB 使用[`Run-Week6.ps1`](../../scripts/Run-Week6.ps1)，授权的 Linux 服务器使用[`Run-Week6-Server.sh`](../../scripts/Run-Week6-Server.sh)。原始日志先放入被忽略的 `output/week6/`，核查后的实际输出见[`result/week6/`](../../result/week6/README.md)。
 - 2026-10-10 初版已在课程服务器现有 SQL Server 2022 容器中新建独立测试库并实际执行：第五周模型核对、迁移、角色回归和第六周回归均通过；初版未运行 Windows LocalDB。后续 review 修复改用独立 LocalDB 样例库验证，见下文及最新结果索引。
 
 ### 课程服务器执行方式
 
-服务器步骤遵循[`服务器 SQL 环境`](服务器SQL环境.md)：通过私密渠道取得连接方式，不能把地址、用户名或密码写进仓库。将本周文件放入已授权目录，并设置现有 SQL Server 容器的私有 `DB_CONTAINER` 环境变量后，运行[`Run-Week6-Server.sh`](../scripts/Run-Week6-Server.sh)。脚本以 `sqlcmd -I` 新建独立 `DataBaseLab_Week6_<时间戳>` 库，从第三、四周重建原样例；迁移前先运行第四周权限脚本、第五周目录及边界探针和原样例复核，再执行迁移、权限回归及第六周回归。不要运行使用 LocalDB 文件路径的 `week3/00-create-database.sql`，也不要指向正式 `DataBaseLab_Week4`。完整原始输出留在被忽略的 `output/week6/`，经内容检查后才复制可公开版本到 `result/week6/`。
+服务器步骤遵循[`服务器 SQL 环境`](../guides/服务器SQL环境.md)：通过私密渠道取得连接方式，不能把地址、用户名或密码写进仓库。将本周文件放入已授权目录，并设置现有 SQL Server 容器的私有 `DB_CONTAINER` 环境变量后，运行[`Run-Week6-Server.sh`](../../scripts/Run-Week6-Server.sh)。脚本以 `sqlcmd -I` 新建独立 `DataBaseLab_Week6_<时间戳>` 库，从第三、四周重建原样例；迁移前先运行第四周权限脚本、第五周目录及边界探针和原样例复核，再执行迁移、权限回归及第六周回归。不要运行使用 LocalDB 文件路径的 `week3/00-create-database.sql`，也不要指向正式 `DataBaseLab_Week4`。完整原始输出留在被忽略的 `output/week6/`，经内容检查后才复制可公开版本到 `result/week6/`。
 
 ## 10. 当前结论与人工复核
 
 基于 Week2 关系模式和 Week3/Week4 项目说明，15 表整体已经按业务对象拆分，未发现明显的 1NF 问题或普遍的主码部分依赖、传递依赖。建议保留主体结构，不做为规范化而规范化的拆表。优先评估库存流水中可由批次还原的采购明细编号；保留的三个汇总/余额字段通过事务维护并回归对账。此结论是对当前文档和 SQL 定义的设计分析，最终迁移决定应在组员复核业务规则、ER 图和当前数据库结构后确定。
 
-当前分析、目标 ER 图和数据字典修订分别见本文件、[`Week6-ER.md`](Week6-ER.md) 与 [`Week6-数据字典.md`](Week6-数据字典.md)。[实际服务器运行记录](../result/week6/README.md)证明独立样例库迁移及回归通过；这些是自动执行结果，不等于组员逐项人工验收，也不能推断正式库已迁移。
+当前分析、目标 ER 图和数据字典修订分别见本文件、[`Week6-ER.md`](Week6-ER.md) 与 [`Week6-数据字典.md`](Week6-数据字典.md)。[实际服务器运行记录](../../result/week6/README.md)证明独立样例库迁移及回归通过；这些是自动执行结果，不等于组员逐项人工验收，也不能推断正式库已迁移。
 
 ## 11. 2026-10-10 独立服务器实测
 
 在课程服务器现有 SQL Server 2022 Docker 容器里新建 `DataBaseLab_Week6_20261010113646`。按第三、四周原脚本重建后先执行 `role.sql` 和第五周 `verify-er.sql`，得到 `VERIFY_PASS 15 46`、`ROLE_PASS 34`、`CATALOG_PASS`（107 属性、25 外键）、`ER_BOUNDARY_PASS 9`。迁移返回 `W6_MIGRATION_PASS`；逐行快照双向比对确认 6 条库存流水及其采购来源可还原。
 
-迁移后目录为 106 属性、23 外键、9 个 UNIQUE 约束；再次 `ROLE_PASS 34`。回归得到已完成销售 15 件、64.50 元，订单/库存/积分对账和合法、非法、越权写入结果均符合预期；改写已有流水批次的采购来源返回 51620，最终 `W6_REGRESSION_PASS` 与 `WEEK6_SERVER_PASS`。完整输出见[结果目录](../result/week6/README.md)。
+迁移后目录为 106 属性、23 外键、9 个 UNIQUE 约束；再次 `ROLE_PASS 34`。回归得到已完成销售 15 件、64.50 元，订单/库存/积分对账和合法、非法、越权写入结果均符合预期；改写已有流水批次的采购来源返回 51620，最终 `W6_REGRESSION_PASS` 与 `WEEK6_SERVER_PASS`。完整输出见[结果目录](../../result/week6/README.md)。
 
 服务器 `sqlcmd` 建表需要 `-I` 启用 `QUOTED_IDENTIFIER`；首次未带该选项的独立库在建表时停止，随后换全新库完成整轮验证。失败的空库经确认无业务表后已清理；成功测试库保留供复核，正式库没有参与迁移。
 
 ## 12. 2026-10-10 review 修复验证
 
-修复三项审核发现：为迁移重建的流水 CHECK 增加直接正反例；保存迁移前业务查询并在回归中逐行比较；补齐 15 表的插入/修改/删除异常说明。新增 [Test-Week6Validation.ps1](../scripts/Test-Week6Validation.ps1) 检查回归能否拒绝九项故意错误，包括缺失/停用/不受信 CHECK、放宽零盘点数量、全零销量视图、总金额不变但数量/单价变化的待出库明细、错误库存/订单视图和缺失业务快照。
+修复三项审核发现：为迁移重建的流水 CHECK 增加直接正反例；保存迁移前业务查询并在回归中逐行比较；补齐 15 表的插入/修改/删除异常说明。新增 [Test-Week6Validation.ps1](../../scripts/Test-Week6Validation.ps1) 检查回归能否拒绝九项故意错误，包括缺失/停用/不受信 CHECK、放宽零盘点数量、全零销量视图、总金额不变但数量/单价变化的待出库明细、错误库存/订单视图和缺失业务快照。
 
 Windows 复现命令如下，在仓库根目录选择新的测试库名：
 
@@ -173,4 +173,4 @@ powershell.exe -NoProfile -File .\scripts\Run-Week6.ps1 -Database $db
 powershell.exe -NoProfile -File .\scripts\Test-Week6Validation.ps1 -Database $db
 ```
 
-检查器回归只接受带 Fix/Review/Test 前缀的专用 Week6 样例库，每项错误恢复后重新连接，最终比较业务表、审核快照和权限映射的全部数据摘要，并再次运行完整回归。原始 transcript 和结构化证据先保存于被忽略的 `output/week6/`；公开结果见 [review 修复验证](../result/week6/review-validation-20261010.md)。本次结果属于自动验证；组员人工验收和正式库迁移另行记录。旧服务器证据对应修复前版本，不能当作新快照和检查器已在服务器执行的证明。
+检查器回归只接受带 Fix/Review/Test 前缀的专用 Week6 样例库，每项错误恢复后重新连接，最终比较业务表、审核快照和权限映射的全部数据摘要，并再次运行完整回归。原始 transcript 和结构化证据先保存于被忽略的 `output/week6/`；公开结果见 [review 修复验证](../../result/week6/review-validation-20261010.md)。本次结果属于自动验证；组员人工验收和正式库迁移另行记录。旧服务器证据对应修复前版本，不能当作新快照和检查器已在服务器执行的证明。

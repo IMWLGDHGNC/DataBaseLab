@@ -58,4 +58,4 @@ R25：`FK_Points_OrderCustomer` 将赠分订单与该订单顾客配对，防止
 | R35 | 按岗位操作，顾客只访问自己的订单 | 第四周六个数据库角色按表／列／视图及受控过程授权；34 个正反例。CustomerPrincipal 绑定数据库用户与顾客，本人订单和会员积分按 USER_NAME() 过滤 | Employee.Position 不自动等于数据库角色；已有本人只读入口，应用认证、实际登录账号及顾客下单/支付写入入口仍待后续实现 |
 | R36 | 历史成交价、收货信息保持当时事实 | DealUnitPrice、UnitCost 和订单收货字段分别保存历史快照 | 低权限角色受限，但管理员仍能改历史；后续应用封闭历史更新入口 |
 
-数据库 CHECK 能检查本行表达式，FK 能检查引用与配对；跨行聚合、父实体必须有子行和状态迁移不会仅凭这些约束自动成立。SQL Server 约束语义参考 [Microsoft 文档](https://learn.microsoft.com/en-us/sql/relational-databases/tables/unique-constraints-and-check-constraints?view=sql-server-ver17)。实际验证见 [Week5](../Week5.md)。
+数据库 CHECK 能检查本行表达式，FK 能检查引用与配对；跨行聚合、父实体必须有子行和状态迁移不会仅凭这些约束自动成立。SQL Server 约束语义参考 [Microsoft 文档](https://learn.microsoft.com/en-us/sql/relational-databases/tables/unique-constraints-and-check-constraints?view=sql-server-ver17)。实际验证见 [Week5](README.md)。

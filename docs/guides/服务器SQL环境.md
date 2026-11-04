@@ -103,11 +103,11 @@ unset DBPASS
 VERIFY_PASS          15          46
 ```
 
-`15` 是业务表数，`46` 是样例数据总行数。2026-09-21 的第三周部署通过了 `CRUD_PASS` 和 `CONSTRAINT_TESTS_PASS`（12 项约束测试），并在重启容器后再次得到 `VERIFY_PASS`。2026-09-23 的第四周部署还通过 `CONSTRAINT_PASS`（6 项）、`QUERY_PASS`、`VIEW_PASS` 和 `ROLE_PASS`（17 项），正式日志位于服务器的 `database-lab-deploy/logs/week4-deploy-20260923.log`，仓库副本见[第四周服务器部署日志](../result/week4-server-deploy.txt)。2026-09-30 在独立空库完整复现顾客、会员权限更新后，正式库升级通过 `VIEW_PASS`、`ROLE_PASS`（34 项）、`VERIFY_PASS` 和 `DEPLOY_OBJECTS_PASS`；日志见[权限升级部署结果](../result/week4-customer-access-deploy-20260930.txt)。升级前备份位于容器持久卷的 `/var/opt/mssql/data/DataBaseLab_Week4_pre_customer_access_20260930.bak`，已通过 `RESTORE VERIFYONLY`。
+`15` 是业务表数，`46` 是样例数据总行数。2026-09-21 的第三周部署通过了 `CRUD_PASS` 和 `CONSTRAINT_TESTS_PASS`（12 项约束测试），并在重启容器后再次得到 `VERIFY_PASS`。2026-09-23 的第四周部署还通过 `CONSTRAINT_PASS`（6 项）、`QUERY_PASS`、`VIEW_PASS` 和 `ROLE_PASS`（17 项），正式日志位于服务器的 `database-lab-deploy/logs/week4-deploy-20260923.log`，仓库副本见[第四周服务器部署日志](../../result/week4-server-deploy.txt)。2026-09-30 在独立空库完整复现顾客、会员权限更新后，正式库升级通过 `VIEW_PASS`、`ROLE_PASS`（34 项）、`VERIFY_PASS` 和 `DEPLOY_OBJECTS_PASS`；日志见[权限升级部署结果](../../result/week4-customer-access-deploy-20260930.txt)。升级前备份位于容器持久卷的 `/var/opt/mssql/data/DataBaseLab_Week4_pre_customer_access_20260930.bak`，已通过 `RESTORE VERIFYONLY`。
 
 ## 重新导入时的注意事项
 
-仓库的 [`00-create-database.sql`](../sql/week3/00-create-database.sql) 为 Windows LocalDB 编写，会解析反斜杠文件路径，不能直接用于 Linux 容器。服务器上新建空库时使用普通的 `CREATE DATABASE [数据库名]`，然后按以下顺序执行：
+仓库的 [`00-create-database.sql`](../../sql/week3/00-create-database.sql) 为 Windows LocalDB 编写，会解析反斜杠文件路径，不能直接用于 Linux 容器。服务器上新建空库时使用普通的 `CREATE DATABASE [数据库名]`，然后按以下顺序执行：
 
 ```text
 01-schema.sql
@@ -137,4 +137,4 @@ Linux 容器内执行 SQL 文件必须使用 `sqlcmd -I -f 65001`：
 - SSH 服务偶尔返回 `Exceeded MaxStartups`，表现为输入密码前连接就被关闭。这是服务器未认证连接数限流，不是密码错误；降低重试频率，稍后重新连接。
 - 当前只配置了 Docker 卷持久化，尚未配置定时 `.bak` 备份和异机备份。存入不可重新生成的数据前，应先补充备份方案。
 - 当前使用 `sa` 便于课程实验。若用于长期共享或接入应用，应创建最小权限账号，不应让应用使用 `sa`。
-- 第三、第四周数据库用于实验和演示，跨表业务规则、并发事务和生产级权限边界仍以 [Week3](Week3.md) 与 [Week4](Week4.md) 的说明为准。
+- 第三、第四周数据库用于实验和演示，跨表业务规则、并发事务和生产级权限边界仍以 [Week3](../week3/README.md) 与 [Week4](../week4/README.md) 的说明为准。

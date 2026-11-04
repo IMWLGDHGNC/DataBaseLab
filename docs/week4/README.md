@@ -1,16 +1,16 @@
 # Week4 - 连接查询、统计视图、约束与角色权限
 
-依据[第四周任务讲解](第四周任务讲解.md)，在第三周 15 表、46 行样例数据上完成四类 SQL 交付，并把第一阶段 v0.1 从空库复现串成一个命令。业务场景、岗位及流程分别见 [Week1](Week1.md) 与 [Week2](Week2.md)。
+依据[第四周任务讲解](../course/第四周任务讲解.md)，在第三周 15 表、46 行样例数据上完成四类 SQL 交付，并把第一阶段 v0.1 从空库复现串成一个命令。业务场景、岗位及流程分别见 [Week1](../week1/README.md) 与 [Week2](../week2/README.md)。
 
 ## 交付与执行顺序
 
 | 文件 | 内容 |
 | --- | --- |
-| [query.sql](../sql/week4/query.sql) | 订单明细多表连接、已完成商品销量与销售额、会员消费、HAVING 与子查询、批次可售量 |
-| [view.sql](../sql/week4/view.sql) | 订单详情、商品已完成销售统计、当前批次库存状态三个视图 |
-| [constraint.sql](../sql/week4/constraint.sql) | 新增异常解决说明 CHECK，验证合法更新、FK、UNIQUE、NOT NULL、DEFAULT 和 CHECK |
-| [role.sql](../sql/week4/role.sql) | 四个员工岗位及普通顾客、会员两个数据库角色；无登录测试用户及正反例 |
-| [Run-Week4.ps1](../scripts/Run-Week4.ps1) | 从空库顺序执行第三周建库、建表、装载、CRUD、验证和本周脚本 |
+| [query.sql](../../sql/week4/query.sql) | 订单明细多表连接、已完成商品销量与销售额、会员消费、HAVING 与子查询、批次可售量 |
+| [view.sql](../../sql/week4/view.sql) | 订单详情、商品已完成销售统计、当前批次库存状态三个视图 |
+| [constraint.sql](../../sql/week4/constraint.sql) | 新增异常解决说明 CHECK，验证合法更新、FK、UNIQUE、NOT NULL、DEFAULT 和 CHECK |
+| [role.sql](../../sql/week4/role.sql) | 四个员工岗位及普通顾客、会员两个数据库角色；无登录测试用户及正反例 |
+| [Run-Week4.ps1](../../scripts/Run-Week4.ps1) | 从空库顺序执行第三周建库、建表、装载、CRUD、验证和本周脚本 |
 
 在 Windows PowerShell、仓库根目录运行：
 
@@ -49,10 +49,10 @@ powershell.exe -NoProfile -File .\scripts\Run-Week4.ps1 -Database $db
 
 ## 实际运行
 
-2026-09-23 在 SQL Server 2022 LocalDB 上，两个独立空库均得到 `WEEK4_PASS`；初版日志包含 13 项角色正反例。补强失败用例事务隔离和异常解决权限后，又在课程服务器 SQL Server 2022 的独立临时库完整执行，得到 15 表、46 行、`CRUD_PASS`、六项本周约束用例、12 项第三周非法数据用例、`QUERY_PASS`、`VIEW_PASS` 和 17 项员工角色正反例。合并推送后，同一实现正式部署为服务器数据库 `DataBaseLab_Week4`，再次得到全部通过标记，并独立复核当时的 3 个视图、4 个角色和已启用且可信的新增检查约束。完整历史输出见 [首次运行](../result/week4-run.txt)、[第二次复现](../result/week4-reproduction.txt)、[服务器合并前验证](../result/week4-server-preflight.txt)与[服务器正式部署](../result/week4-server-deploy.txt)。
+2026-09-23 在 SQL Server 2022 LocalDB 上，两个独立空库均得到 `WEEK4_PASS`；初版日志包含 13 项角色正反例。补强失败用例事务隔离和异常解决权限后，又在课程服务器 SQL Server 2022 的独立临时库完整执行，得到 15 表、46 行、`CRUD_PASS`、六项本周约束用例、12 项第三周非法数据用例、`QUERY_PASS`、`VIEW_PASS` 和 17 项员工角色正反例。合并推送后，同一实现正式部署为服务器数据库 `DataBaseLab_Week4`，再次得到全部通过标记，并独立复核当时的 3 个视图、4 个角色和已启用且可信的新增检查约束。完整历史输出见 [首次运行](../../result/week4-run.txt)、[第二次复现](../../result/week4-reproduction.txt)、[服务器合并前验证](../../result/week4-server-preflight.txt)与[服务器正式部署](../../result/week4-server-deploy.txt)。
 
-2026-09-30 在课程服务器新建独立临时库，从建表到权限脚本完整执行并通过；改成可重复执行后，在该库再次运行 `view.sql` 与 `role.sql` 也通过。升级正式库前创建数据库备份并通过 `RESTORE VERIFYONLY`；正式库运行结果为 `VIEW_PASS`、`ROLE_PASS`（34 例）、`VERIFY_PASS`（15 张业务表、46 行）和 `DEPLOY_OBJECTS_PASS`（3 个视图、6 个角色、3 条顾客身份映射）。升级前后 15 张业务表的 SHA-256 数据摘要一致，服务器部署文件已更新为本轮 SQL。正式库日志见 [2026-09-30 部署结果](../result/week4-customer-access-deploy-20260930.txt)。[结果目录](../result/README.md)还包含旧日志片段的浏览器截图；图片不是 SSMS 界面截图。
+2026-09-30 在课程服务器新建独立临时库，从建表到权限脚本完整执行并通过；改成可重复执行后，在该库再次运行 `view.sql` 与 `role.sql` 也通过。升级正式库前创建数据库备份并通过 `RESTORE VERIFYONLY`；正式库运行结果为 `VIEW_PASS`、`ROLE_PASS`（34 例）、`VERIFY_PASS`（15 张业务表、46 行）和 `DEPLOY_OBJECTS_PASS`（3 个视图、6 个角色、3 条顾客身份映射）。升级前后 15 张业务表的 SHA-256 数据摘要一致，服务器部署文件已更新为本轮 SQL。正式库日志见 [2026-09-30 部署结果](../../result/week4-customer-access-deploy-20260930.txt)。[结果目录](../../result/README.md)还包含旧日志片段的浏览器截图；图片不是 SSMS 界面截图。
 
-根据 2026-10-01 的确认，成员 A已完成本周查询、视图、约束、角色及顾客会员权限修订的人工复核；实际分工见[组内分工](../组内分工.md)。未提供的逐项意见不作推测，自动测试与人工复核分别记录。
+根据 2026-10-01 的确认，成员 A已完成本周查询、视图、约束、角色及顾客会员权限修订的人工复核；实际分工见[组内分工](../submission/组内分工.md)。未提供的逐项意见不作推测，自动测试与人工复核分别记录。
 
-本轮提交前再次在独立 LocalDB 空库复现，结果见[2026-10-01 验证日志](../result/week4-submission-validation-20261001.txt)。
+本轮提交前再次在独立 LocalDB 空库复现，结果见[2026-10-01 验证日志](../../result/week4-submission-validation-20261001.txt)。
