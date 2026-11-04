@@ -1,4 +1,4 @@
--- Exact, related fictional sample tuples from docs/Week2.md.
+-- Exact, related fictional sample tuples from docs/week2/README.md.
 -- A second load fails on primary keys and rolls back; it never overwrites data.
 SET NOCOUNT ON;
 SET XACT_ABORT ON;

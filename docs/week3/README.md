@@ -1,23 +1,23 @@
 # Week3 - 线上零食网店建库与增删改查
 
-根据[第三周任务讲解](第三周任务讲解.md)，本周已将[第二周关系模式](Week2.md)实现为 SQL Server 的 15 张业务表、107 个字段和 46 行关联样例数据。商品、库存、订单的 CRUD 已实际执行，两次独立空库复现、数据核对及 12 项非法数据测试均通过。
+根据[第三周任务讲解](../course/第三周任务讲解.md)，本周已将[第二周关系模式](../week2/README.md)实现为 SQL Server 的 15 张业务表、107 个字段和 46 行关联样例数据。商品、库存、订单的 CRUD 已实际执行，两次独立空库复现、数据核对及 12 项非法数据测试均通过。
 
 ## 1. 交付清单
 
 | 课程要求 | 对应文件 | 实现内容 |
 | --- | --- | --- |
-| 建库 | [00-create-database.sql](../sql/week3/00-create-database.sql) | 默认创建 `DataBaseLab_Week3`，显式指定实例目录中的唯一物理文件名 |
-| 建表和数据类型 | [01-schema.sql](../sql/week3/01-schema.sql) | 15 张表，字段含义注释、PK、UNIQUE、FK、NOT NULL、DEFAULT、CHECK |
-| 样例数据 | [02-seed.sql](../sql/week3/02-seed.sql) | 第二周全部 46 行样例，按父表到子表的顺序插入 |
-| 增删改查 | [03-crud.sql](../sql/week3/03-crud.sql) | 商品、批次库存、销售订单三组操作及前后查询 |
-| 样例一致性检查 | [04-verify.sql](../sql/week3/04-verify.sql) | 数量、金额、库存、锁定、支付、积分、时间及逐表数据哈希 |
-| 约束验证 | [05-constraint-tests.sql](../sql/week3/05-constraint-tests.sql) | 12 项应失败的写操作，核对 SQL Server 错误编号 |
-| 一次执行 | [Run-Week3.ps1](../scripts/Run-Week3.ps1) | 按顺序建库、建表、装载、验证、CRUD、复查和约束测试 |
-| 独立空库复现 | [Test-Week3Reproduction.ps1](../scripts/Test-Week3Reproduction.ps1) | 创建两个新数据库，比对表结构与数据，并保存执行日志 |
+| 建库 | [00-create-database.sql](../../sql/week3/00-create-database.sql) | 默认创建 `DataBaseLab_Week3`，显式指定实例目录中的唯一物理文件名 |
+| 建表和数据类型 | [01-schema.sql](../../sql/week3/01-schema.sql) | 15 张表，字段含义注释、PK、UNIQUE、FK、NOT NULL、DEFAULT、CHECK |
+| 样例数据 | [02-seed.sql](../../sql/week3/02-seed.sql) | 第二周全部 46 行样例，按父表到子表的顺序插入 |
+| 增删改查 | [03-crud.sql](../../sql/week3/03-crud.sql) | 商品、批次库存、销售订单三组操作及前后查询 |
+| 样例一致性检查 | [04-verify.sql](../../sql/week3/04-verify.sql) | 数量、金额、库存、锁定、支付、积分、时间及逐表数据哈希 |
+| 约束验证 | [05-constraint-tests.sql](../../sql/week3/05-constraint-tests.sql) | 12 项应失败的写操作，核对 SQL Server 错误编号 |
+| 一次执行 | [Run-Week3.ps1](../../scripts/Run-Week3.ps1) | 按顺序建库、建表、装载、验证、CRUD、复查和约束测试 |
+| 独立空库复现 | [Test-Week3Reproduction.ps1](../../scripts/Test-Week3Reproduction.ps1) | 创建两个新数据库，比对表结构与数据，并保存执行日志 |
 
 本周使用本地实例 `(localdb)\DataBaseLab`，Windows 身份验证，SQL Server 2022 LocalDB `16.0.1000.6`。`DataBaseLab` 是原环境验证数据库，`DataBaseLab_Week3` 是本周业务数据库，二者用途不同。
 
-2026-09-21，`DataBaseLab_Week3` 另行部署到课程服务器的 SQL Server 2022 CU27 容器，并在容器重启后通过 15 表、46 行数据复验。共享连接、运维命令和 Linux 容器导入差异见[服务器 SQL Server 环境](服务器SQL环境.md)。
+2026-09-21，`DataBaseLab_Week3` 另行部署到课程服务器的 SQL Server 2022 CU27 容器，并在容器重启后通过 15 表、46 行数据复验。共享连接、运维命令和 Linux 容器导入差异见[服务器 SQL Server 环境](../guides/服务器SQL环境.md)。
 
 ## 2. 表结构和约束
 
@@ -65,7 +65,7 @@ powershell.exe -NoProfile -File .\scripts\Run-Week3.ps1 -Database $week3Database
 powershell.exe -NoProfile -File .\scripts\Invoke-LabSql.ps1 -Database DataBaseLab_Week3 -InputFile .\sql\week3\03-crud.sql
 ```
 
-以下为实际执行结果摘要，完整前后查询见[运行日志 1](verification/week3-run-1.txt)。
+以下为实际执行结果摘要，完整前后查询见[运行日志 1](../verification/week3-run-1.txt)。
 
 | 对象 | 操作前 | INSERT 与 SELECT | UPDATE 后 | DELETE 后 |
 | --- | --- | --- | --- | --- |
@@ -79,7 +79,7 @@ powershell.exe -NoProfile -File .\scripts\Invoke-LabSql.ps1 -Database DataBaseLa
 
 ## 5. 实际验证结果
 
-验证日期：2026-09-17。两次完整构建记录保存在[运行日志 1](verification/week3-run-1.txt)、[运行日志 2](verification/week3-run-2.txt)；[复现比对结果](verification/week3-reproduction.txt)记录了数据库名称及每张表的 SHA-256 数据哈希。
+验证日期：2026-09-17。两次完整构建记录保存在[运行日志 1](../verification/week3-run-1.txt)、[运行日志 2](../verification/week3-run-2.txt)；[复现比对结果](../verification/week3-reproduction.txt)记录了数据库名称及每张表的 SHA-256 数据哈希。
 
 | 检查项目 | 结果 |
 | --- | --- |
@@ -91,7 +91,7 @@ powershell.exe -NoProfile -File .\scripts\Invoke-LabSql.ps1 -Database DataBaseLa
 | 商品、库存、订单三组 CRUD | 通过 |
 | 库存流水、锁定量、订单金额、支付、积分及时间等快照检查 | 通过 |
 | 12 项非法写入的实际错误编号与预期一致 | 12/12 通过 |
-| 重复建表、重复装载被拒绝且不覆盖原数据 | 通过，见[重复执行检查](verification/week3-repeat-guards.txt) |
+| 重复建表、重复装载被拒绝且不覆盖原数据 | 通过，见[重复执行检查](../verification/week3-repeat-guards.txt) |
 
 非法数据测试包含负售价、缺失类别外键、重复候选码、必填名称为 NULL、负库存、非法批次日期、完成订单缺少完成时间、重复成功支付、零积分、错误受益顾客、同商品错误采购来源及删除被引用商品。
 
@@ -115,4 +115,4 @@ powershell.exe -NoProfile -File .\scripts\Test-Week3Reproduction.ps1
 
 本周实现 DDL、关联样例数据和基础 CRUD。订单总额等于明细合计、库存现存量等于流水、锁定商品一致、整单锁定、角色职责和历史状态迁移等跨表或跨时规则，目前通过本周受控脚本与验证查询检查，**并非全部由数据库自动拦截任意写操作**。完整业务入口、并发支付/出库事务、权限隔离及更多异常场景留待后续实验；本周不声称已完成可上线的订单系统。
 
-根据 2026-10-01 的确认，成员 A已完成本周新增 SQL、表结构及样例的人工复核；实际分工见[组内分工](../组内分工.md)。AI 实际修改、人工复核及独立的自动运行证据见 [AI 使用记录](AI使用记录.md)。现场讲解不以自动测试代替。
+根据 2026-10-01 的确认，成员 A已完成本周新增 SQL、表结构及样例的人工复核；实际分工见[组内分工](../submission/组内分工.md)。AI 实际修改、人工复核及独立的自动运行证据见 [AI 使用记录](../submission/AI使用记录.md)。现场讲解不以自动测试代替。

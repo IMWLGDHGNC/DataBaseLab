@@ -4,7 +4,7 @@
 
 ## 第七至九周 Web 应用
 
-[Web 运行结果](week7/README.md)先收录最新课程服务器的 103 项检查、八张三角色页面截图与 21 项流程核对，再保留独立 LocalDB 的修复验证及服务器原版 39 项历史检查。原始私有日志及演示凭据不在仓库。对应设计与操作见 [Week7](../docs/Week7.md)和[应用手册](../app/README.md)。
+[Web 运行结果](week7/README.md)先收录最新课程服务器的 103 项检查、八张三角色页面截图与 21 项流程核对，再保留独立 LocalDB 的修复验证及服务器原版 39 项历史检查。原始私有日志及演示凭据不在仓库。对应设计与操作见 [Week7](../docs/week7/README.md)和[应用手册](../app/README.md)。
 
 ## 当前 v0.1 的最新证据
 
@@ -24,7 +24,7 @@
 | [服务器合并前验证](week4-server-preflight.txt) | 课程服务器：补强失败案例事务隔离及权限后完整运行，17 项角色正反例 |
 | [服务器正式部署](week4-server-deploy.txt) | 课程服务器：当时合并后的 main 部署输出，早于顾客会员权限升级 |
 
-第三周双空库复现、比较与重复执行防护日志保留在 [docs/verification](../docs/verification/)，说明见 [Week3](../docs/Week3.md)。
+第三周双空库复现、比较与重复执行防护日志保留在 [docs/verification](../docs/verification/)，说明见 [Week3](../docs/week3/README.md)。
 
 ## 公开日志展示图
 
@@ -39,11 +39,11 @@
 | 三个统计视图 | [views](week4-views.png) |
 | 初版角色权限正反例 | [roles](week4-roles.png) |
 
-课程私下提交包另保留了 2026-09-30 的六张 VS Code 现场截图；原图含远程账户信息，仅在私下材料中提供。公开材料的处理规则见[敏感信息规则](../docs/公开材料与敏感信息规则.md)。
+课程私下提交包另保留了 2026-09-30 的六张 VS Code 现场截图；原图含远程账户信息，仅在私下材料中提供。公开材料的处理规则见[敏感信息规则](../docs/guides/公开材料与敏感信息规则.md)。
 
 ## 第五周 ER 模型
 
-[第五周结果](week5/README.md)索引完整/分区 ER 图、原始验证及[同步 main 后的复验](week5/sync-validation-20261001.md)。设计说明见 [Week5](../docs/Week5.md)，图源与字典见 [docs/week5](../docs/week5/er-model.md)。review 修复后的最新证据见 [2026-10-01 修复验证](week5/review-validation-20261001.md)，包含7项检查器反例及数据摘要一致性。第五周按用户授权合入 main。
+[第五周结果](week5/README.md)索引完整/分区 ER 图、原始验证及[同步 main 后的复验](week5/sync-validation-20261001.md)。设计说明见 [Week5](../docs/week5/README.md)，图源与字典见 [docs/week5](../docs/week5/er-model.md)。review 修复后的最新证据见 [2026-10-01 修复验证](week5/review-validation-20261001.md)，包含7项检查器反例及数据摘要一致性。第五周按用户授权合入 main。
 
 ## 第六周独立库迁移与回归
 
