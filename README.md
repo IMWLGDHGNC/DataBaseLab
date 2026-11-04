@@ -28,12 +28,21 @@ bash scripts/Start-Week7-Web.sh
 
 ## 项目与文档入口
 
+```text
+DataBaseLab/
+├─ app/       Web页面、路由、服务与DAO
+├─ sql/       按周SQL交付
+├─ scripts/   环境与复现脚本
+├─ tests/     应用集成检查
+├─ result/    验证结果与截图
+└─ docs/      课程原文、设计、指南与报告
+```
+
 | 目录或材料 | 内容 |
 | --- | --- |
-| [app/](app/README.md) | 页面、路由、业务服务、DAO与运行手册 |
-| [sql/](sql/README.md) / [scripts/](scripts/README.md) | 按周SQL、环境初始化、迁移与复现顺序 |
-| [tests/](tests/) / [result/](result/README.md) | 集成检查、流程截图和运行证据 |
-| [docs/](docs/README.md) | 课程原文、逐周设计、环境指南及历史材料 |
+| [v1.0 ER图](result/week6/er-v1.0.svg) / [设计分析](docs/week6/README.md) | 函数依赖、更新异常、范式及分解/保留方案 |
+| [Web手册](app/README.md) / [SQL导航](sql/README.md) / [脚本导航](scripts/README.md) | 运行环境、配置、执行顺序与复现 |
+| [文档导航](docs/README.md) / [验证结果](result/README.md) | 逐周材料、测试输出与截图 |
 | [第二阶段报告](docs/reports/第二阶段报告.md) / [提交清单](docs/submission/第5-9周提交核对.md) | 第5–9周v1.0交付 |
 | [组内分工](docs/submission/组内分工.md) / [ai_log.md](ai_log.md) | 实际贡献、AI辅助与审核记录 |
 
