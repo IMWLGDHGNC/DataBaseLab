@@ -4,8 +4,8 @@
 
 开工先读根 README 的项目入口和当前阶段，再用 [docs/README.md](docs/README.md)定位本次课程任务及实际周文档。SQL 和脚本用途分别见 [sql/README.md](sql/README.md)、[scripts/README.md](scripts/README.md)；验证证据见 [result/README.md](result/README.md)。现有课程讲解承担正式阶段计划，周文档和 AI 记录承担实现与审核状态。先从根 README 和文档导航定位本次相关周次，不要求每次通读全部课程原文。
 
-- 根 README 保留课程要求的范围、角色、流程、执行顺序与复现步骤；根 `ai_log.md` 统一维护 AI 记录，`docs/submission/AI使用记录.md` 只作索引。
-- 沿用课程要求的 `sql/`、`result/` 和现有周次目录；保留课程原文、SQL 文件名和历史证据路径，新增周次交付按对应课程标准组织。课程原文归 `docs/course/`，周说明及图源归 `docs/weekN/`，公开报告归 `docs/reports/`，环境与公开规则归 `docs/guides/`，提交清单和分工归 `docs/submission/`。
+- 根 README 保持简洁，说明当前版本、范围、角色、流程及运行入口；详细执行顺序、安装和排错分别放在 SQL 导航、应用手册与环境指南；根 `ai_log.md` 统一维护 AI 记录，`docs/submission/AI使用记录.md` 只作索引。
+- 沿用课程要求的 `sql/`、`result/` 和现有周次目录；保留课程原文、SQL 文件名和历史证据路径，新增周次交付按对应课程标准组织。课程原文归 `docs/course/`，第1–6周说明及图源归 `docs/weekN/`，第7–9周合并任务归 `docs/week7-9/`，公开报告归 `docs/reports/`，环境与公开规则归 `docs/guides/`，提交清单和分工归 `docs/submission/`。
 - 修改导航或目录时同步所有受影响的链接、脚本路径和说明，核对课程材料对应关系。不要为外观整齐而改变业务设计、重排执行顺序或删除历史证据。
 
 ## 个人信息与凭据
