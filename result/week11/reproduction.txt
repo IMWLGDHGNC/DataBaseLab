@@ -1,0 +1,15 @@
+Environment: SQL Server 2022 LocalDB, second new isolated sample database
+Order: v1.0 baseline -> Week10 -> Week11 -> complete Web regression
+W6_REGRESSION_PASS 15 46 15 64.50
+WEEK6_PASS
+WEEK10_INSTALL_PASS
+WEEK10_PASS 87
+WEEK11_INSTALL_PASS
+WEEK11_PASS 72
+WEEK7_WEB_PASS 103
+WEEK11_REINSTALL_PRESERVES_DATA_PASS
+WEEK10_STANDALONE_COMMIT_AND_CONTEXT_PASS
+Standalone +1 was visible to a second connection; -1 restored stock.
+Both adjustments restored the caller's existing employee context.
+Only sample databases changed. Course server was not upgraded.
+Human review remains pending.

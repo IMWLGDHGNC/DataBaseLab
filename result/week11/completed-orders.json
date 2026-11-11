@@ -1,0 +1,50 @@
+[
+  {
+    "SalesOrderID": "SO51C5F4A600",
+    "OrderStatus": "已完成",
+    "TotalAmount": "5.00",
+    "DiscountRate": "0.0000",
+    "DiscountAmount": "0.00",
+    "CompletedAt": "2026-11-11 12:16:04"
+  },
+  {
+    "SalesOrderID": "SOFC11B15CEF",
+    "OrderStatus": "已完成",
+    "TotalAmount": "4.74",
+    "DiscountRate": "0.0500",
+    "DiscountAmount": "0.26",
+    "CompletedAt": "2026-11-11 12:16:03"
+  },
+  {
+    "SalesOrderID": "SO6B95CA91B7",
+    "OrderStatus": "已完成",
+    "TotalAmount": "7.11",
+    "DiscountRate": "0.0500",
+    "DiscountAmount": "0.39",
+    "CompletedAt": "2026-11-11 12:16:02"
+  },
+  {
+    "SalesOrderID": "SO12BC97E7B6",
+    "OrderStatus": "已完成",
+    "TotalAmount": "10.26",
+    "DiscountRate": "0.0500",
+    "DiscountAmount": "0.54",
+    "CompletedAt": "2026-11-11 12:15:56"
+  },
+  {
+    "SalesOrderID": "SO7C466400C7",
+    "OrderStatus": "已完成",
+    "TotalAmount": "12.54",
+    "DiscountRate": "0.0500",
+    "DiscountAmount": "0.66",
+    "CompletedAt": "2026-11-11 12:15:54"
+  },
+  {
+    "SalesOrderID": "SOEF06F655DD",
+    "OrderStatus": "已完成",
+    "TotalAmount": "12.54",
+    "DiscountRate": "0.0500",
+    "DiscountAmount": "0.66",
+    "CompletedAt": "2026-11-11 12:15:51"
+  }
+]

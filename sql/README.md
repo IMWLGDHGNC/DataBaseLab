@@ -54,3 +54,7 @@
 ## 第10周 过程、函数与应用集成
 
 v1.0之后执行 [week10/migration.sql](week10/migration.sql) → [function.sql](week10/function.sql) → [procedure.sql](week10/procedure.sql)；第7周授权后执行 [permissions.sql](week10/permissions.sql)。迁移只运行一次，程序对象可重装。[调用示例](week10/call_examples.sql)与[本周说明](../docs/week10/README.md)定义含首尾日的销售口径、批次调整、会员折扣快照、补货选择和订单完成；[87项结果](../result/week10/README.md)包含异常和回滚证据。
+
+## 第11周 触发器与窗口查询
+
+第10周之后执行 [week11/trigger.sql](week11/trigger.sql)，新增库存审计辅助表与两项集合触发器，可重复安装且保留审计数据。[window_query.sql](week11/window_query.sql)提供商品收入排名、逐订单累计收入及最近三笔订单均额。批量正反例与独立计算见[本周说明](../docs/week11/README.md)、[72项结果](../result/week11/README.md)。

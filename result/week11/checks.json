@@ -1,0 +1,578 @@
+[
+  {
+    "case": "audit_single_update",
+    "expected": "+5 / P00 / UPDATE",
+    "actual": [
+      {
+        "BatchID": "B00",
+        "ProductID": "S01",
+        "BeforeQty": 287,
+        "AfterQty": 292,
+        "QuantityDelta": 5,
+        "OperatorID": "P00",
+        "OperationType": "UPDATE"
+      }
+    ],
+    "result": "PASS"
+  },
+  {
+    "case": "audit_multirow_update",
+    "expected": true,
+    "actual": true,
+    "result": "PASS"
+  },
+  {
+    "case": "audit_quality_change_zero_delta",
+    "expected": true,
+    "actual": true,
+    "result": "PASS"
+  },
+  {
+    "case": "audit_noop_and_zero_rows",
+    "expected": true,
+    "actual": true,
+    "result": "PASS"
+  },
+  {
+    "case": "audit_single_insert",
+    "expected": true,
+    "actual": true,
+    "result": "PASS"
+  },
+  {
+    "case": "audit_multirow_insert",
+    "expected": true,
+    "actual": true,
+    "result": "PASS"
+  },
+  {
+    "case": "audit_single_delete",
+    "expected": true,
+    "actual": true,
+    "result": "PASS"
+  },
+  {
+    "case": "audit_multirow_delete_history_retained",
+    "expected": true,
+    "actual": true,
+    "result": "PASS"
+  },
+  {
+    "case": "audit_timestamp_and_before_after",
+    "expected": true,
+    "actual": true,
+    "result": "PASS"
+  },
+  {
+    "case": "audit_rolls_back_with_inventory",
+    "expected": true,
+    "actual": true,
+    "result": "PASS"
+  },
+  {
+    "case": "audit_sql_actor_without_private_login",
+    "expected": true,
+    "actual": true,
+    "result": "PASS"
+  },
+  {
+    "case": "inventory_multirow_invalid_rolls_back_all",
+    "expected": 51811,
+    "actual": 51811,
+    "result": "PASS",
+    "input": {
+      "sql": "UPDATE dbo.InventoryBatch SET OnHandQty=CASE WHEN BatchID='B01' THEN 0 ELSE OnHandQty+1 END WHERE BatchID IN('B00','B01')",
+      "parameters": []
+    }
+  },
+  {
+    "case": "inventory_multirow_invalid_rolls_back_all_no_partial_data",
+    "expected": "all dbo table digests unchanged",
+    "actual": "all dbo table digests unchanged",
+    "result": "PASS"
+  },
+  {
+    "case": "inventory_negative_constraint",
+    "expected": 547,
+    "actual": 547,
+    "result": "PASS",
+    "input": {
+      "sql": "UPDATE dbo.InventoryBatch SET OnHandQty=-1 WHERE BatchID='B00'",
+      "parameters": []
+    }
+  },
+  {
+    "case": "inventory_negative_constraint_no_partial_data",
+    "expected": "all dbo table digests unchanged",
+    "actual": "all dbo table digests unchanged",
+    "result": "PASS"
+  },
+  {
+    "case": "inventory_source_immutable",
+    "expected": 51811,
+    "actual": 51811,
+    "result": "PASS",
+    "input": {
+      "sql": "UPDATE dbo.InventoryBatch SET PurchaseItemID='PDI01' WHERE BatchID='B00'",
+      "parameters": []
+    }
+  },
+  {
+    "case": "inventory_source_immutable_no_partial_data",
+    "expected": "all dbo table digests unchanged",
+    "actual": "all dbo table digests unchanged",
+    "result": "PASS"
+  },
+  {
+    "case": "completed_order_repeat_trigger",
+    "expected": 51812,
+    "actual": 51812,
+    "result": "PASS",
+    "input": {
+      "sql": "UPDATE dbo.SalesOrder SET OrderStatus=N'已完成' WHERE SalesOrderID='ST00'",
+      "parameters": []
+    }
+  },
+  {
+    "case": "completed_order_repeat_trigger_no_partial_data",
+    "expected": "all dbo table digests unchanged",
+    "actual": "all dbo table digests unchanged",
+    "result": "PASS"
+  },
+  {
+    "case": "completed_order_reverse_trigger",
+    "expected": 51812,
+    "actual": 51812,
+    "result": "PASS",
+    "input": {
+      "sql": "UPDATE dbo.SalesOrder SET OrderStatus=N'待出库',CompletedAt=NULL WHERE SalesOrderID='ST00'",
+      "parameters": []
+    }
+  },
+  {
+    "case": "completed_order_reverse_trigger_no_partial_data",
+    "expected": "all dbo table digests unchanged",
+    "actual": "all dbo table digests unchanged",
+    "result": "PASS"
+  },
+  {
+    "case": "completed_amount_immutable",
+    "expected": 51812,
+    "actual": 51812,
+    "result": "PASS",
+    "input": {
+      "sql": "UPDATE dbo.SalesOrder SET TotalAmount=49 WHERE SalesOrderID='ST00'",
+      "parameters": []
+    }
+  },
+  {
+    "case": "completed_amount_immutable_no_partial_data",
+    "expected": "all dbo table digests unchanged",
+    "actual": "all dbo table digests unchanged",
+    "result": "PASS"
+  },
+  {
+    "case": "direct_completion_without_shipment",
+    "expected": 51812,
+    "actual": 51812,
+    "result": "PASS",
+    "input": {
+      "sql": "UPDATE dbo.SalesOrder SET OrderStatus=N'已完成',CompletedAt=SYSDATETIME() WHERE SalesOrderID='ST02'",
+      "parameters": []
+    }
+  },
+  {
+    "case": "direct_completion_without_shipment_no_partial_data",
+    "expected": "all dbo table digests unchanged",
+    "actual": "all dbo table digests unchanged",
+    "result": "PASS"
+  },
+  {
+    "case": "completed_insert_refused",
+    "expected": 51812,
+    "actual": 51812,
+    "result": "PASS",
+    "input": {
+      "sql": "INSERT dbo.SalesOrder(SalesOrderID,CustomerID,CreatedAt,OrderStatus,CompletedAt,RecipientName,RecipientPhone,ShippingAddress,TotalAmount)\n    VALUES('W11INVALID','C00',SYSDATETIME(),N'已完成',SYSDATETIME(),N'模拟','10000000000',N'模拟',1)",
+      "parameters": []
+    }
+  },
+  {
+    "case": "completed_insert_refused_no_partial_data",
+    "expected": "all dbo table digests unchanged",
+    "actual": "all dbo table digests unchanged",
+    "result": "PASS"
+  },
+  {
+    "case": "valid_multirow_completion",
+    "expected": true,
+    "actual": true,
+    "result": "PASS"
+  },
+  {
+    "case": "valid_bulk_demo_rolled_back",
+    "expected": true,
+    "actual": true,
+    "result": "PASS"
+  },
+  {
+    "case": "bulk_one_bad_amount_refuses_all",
+    "expected": 51812,
+    "actual": 51812,
+    "result": "PASS",
+    "input": {
+      "sql": "UPDATE dbo.SalesOrder SET OrderStatus=N'已完成',CompletedAt=SYSDATETIME()\n WHERE SalesOrderID LIKE 'SO%' AND OrderStatus=N'待出库'",
+      "parameters": []
+    }
+  },
+  {
+    "case": "bulk_one_bad_amount_refuses_all_no_partial_data",
+    "expected": "all dbo table digests unchanged",
+    "actual": "all dbo table digests unchanged",
+    "result": "PASS"
+  },
+  {
+    "case": "bulk_bad_payment_refuses_all",
+    "expected": 51812,
+    "actual": 51812,
+    "result": "PASS",
+    "input": {
+      "sql": "UPDATE dbo.SalesOrder SET OrderStatus=N'已完成',CompletedAt=SYSDATETIME()\n WHERE SalesOrderID LIKE 'SO%' AND OrderStatus=N'待出库'",
+      "parameters": []
+    }
+  },
+  {
+    "case": "bulk_bad_payment_refuses_all_no_partial_data",
+    "expected": "all dbo table digests unchanged",
+    "actual": "all dbo table digests unchanged",
+    "result": "PASS"
+  },
+  {
+    "case": "empty_order_completion",
+    "expected": 51812,
+    "actual": 51812,
+    "result": "PASS",
+    "input": {
+      "sql": "UPDATE dbo.SalesOrder SET OrderStatus=N'已完成',CompletedAt=SYSDATETIME()\n WHERE SalesOrderID LIKE 'SO%' AND OrderStatus=N'待出库'",
+      "parameters": []
+    }
+  },
+  {
+    "case": "empty_order_completion_no_partial_data",
+    "expected": "all dbo table digests unchanged",
+    "actual": "all dbo table digests unchanged",
+    "result": "PASS"
+  },
+  {
+    "case": "shipment_product_mismatch",
+    "expected": 51812,
+    "actual": 51812,
+    "result": "PASS",
+    "input": {
+      "sql": "UPDATE dbo.SalesOrder SET OrderStatus=N'已完成',CompletedAt=SYSDATETIME()\n WHERE SalesOrderID LIKE 'SO%' AND OrderStatus=N'待出库'",
+      "parameters": []
+    }
+  },
+  {
+    "case": "shipment_product_mismatch_no_partial_data",
+    "expected": "all dbo table digests unchanged",
+    "actual": "all dbo table digests unchanged",
+    "result": "PASS"
+  },
+  {
+    "case": "shipment_quantity_mismatch",
+    "expected": 51812,
+    "actual": 51812,
+    "result": "PASS",
+    "input": {
+      "sql": "UPDATE dbo.SalesOrder SET OrderStatus=N'已完成',CompletedAt=SYSDATETIME()\n WHERE SalesOrderID LIKE 'SO%' AND OrderStatus=N'待出库'",
+      "parameters": []
+    }
+  },
+  {
+    "case": "shipment_quantity_mismatch_no_partial_data",
+    "expected": "all dbo table digests unchanged",
+    "actual": "all dbo table digests unchanged",
+    "result": "PASS"
+  },
+  {
+    "case": "shipment_batch_unavailable",
+    "expected": 51812,
+    "actual": 51812,
+    "result": "PASS",
+    "input": {
+      "sql": "UPDATE dbo.SalesOrder SET OrderStatus=N'已完成',CompletedAt=SYSDATETIME()\n WHERE SalesOrderID LIKE 'SO%' AND OrderStatus=N'待出库'",
+      "parameters": []
+    }
+  },
+  {
+    "case": "shipment_batch_unavailable_no_partial_data",
+    "expected": "all dbo table digests unchanged",
+    "actual": "all dbo table digests unchanged",
+    "result": "PASS"
+  },
+  {
+    "case": "shipment_stock_ledger_mismatch",
+    "expected": 51812,
+    "actual": 51812,
+    "result": "PASS",
+    "input": {
+      "sql": "UPDATE dbo.SalesOrder SET OrderStatus=N'已完成',CompletedAt=SYSDATETIME()\n WHERE SalesOrderID LIKE 'SO%' AND OrderStatus=N'待出库'",
+      "parameters": []
+    }
+  },
+  {
+    "case": "shipment_stock_ledger_mismatch_no_partial_data",
+    "expected": "all dbo table digests unchanged",
+    "actual": "all dbo table digests unchanged",
+    "result": "PASS"
+  },
+  {
+    "case": "invalid_order_quantity_constraint",
+    "expected": 547,
+    "actual": 547,
+    "result": "PASS",
+    "input": {
+      "sql": "UPDATE dbo.SalesOrderItem SET Quantity=0 WHERE SalesItemID='SI03'",
+      "parameters": []
+    }
+  },
+  {
+    "case": "invalid_order_quantity_constraint_no_partial_data",
+    "expected": "all dbo table digests unchanged",
+    "actual": "all dbo table digests unchanged",
+    "result": "PASS"
+  },
+  {
+    "case": "window_preserves_order_rows",
+    "expected": true,
+    "actual": true,
+    "result": "PASS"
+  },
+  {
+    "case": "cumulative_independent_calculation",
+    "expected": [
+      "48.00",
+      "64.50",
+      "73.30",
+      "117.30",
+      "134.90",
+      "148.10"
+    ],
+    "actual": [
+      "48.00",
+      "64.50",
+      "73.30",
+      "117.30",
+      "134.90",
+      "148.10"
+    ],
+    "result": "PASS"
+  },
+  {
+    "case": "moving_average_three_orders",
+    "expected": [
+      "48.00",
+      "32.25",
+      "24.43333333333333333333333333",
+      "23.10",
+      "23.46666666666666666666666667",
+      "24.93333333333333333333333333"
+    ],
+    "actual": [
+      "48.000000",
+      "32.250000",
+      "24.433333",
+      "23.100000",
+      "23.466666",
+      "24.933333"
+    ],
+    "result": "PASS"
+  },
+  {
+    "case": "moving_window_counts",
+    "expected": true,
+    "actual": true,
+    "result": "PASS"
+  },
+  {
+    "case": "rank_independent_calculation",
+    "expected": "descending revenue dense ranks",
+    "actual": [
+      {
+        "ProductID": "S01",
+        "ProductName": "百事可乐罐装",
+        "SalesQty": 20,
+        "SalesAmount": "127.6000",
+        "OrderCount": 5,
+        "RevenueRank": 1
+      },
+      {
+        "ProductID": "S02",
+        "ProductName": "旺旺雪饼",
+        "SalesQty": 3,
+        "SalesAmount": "16.5000",
+        "OrderCount": 1,
+        "RevenueRank": 2
+      },
+      {
+        "ProductID": "S00",
+        "ProductName": "卫龙大面筋",
+        "SalesQty": 2,
+        "SalesAmount": "4.0000",
+        "OrderCount": 1,
+        "RevenueRank": 3
+      }
+    ],
+    "result": "PASS"
+  },
+  {
+    "case": "dense_rank_ties_no_gap",
+    "expected": "1,1,2",
+    "actual": [
+      {
+        "x": "A",
+        "r": 1
+      },
+      {
+        "x": "B",
+        "r": 1
+      },
+      {
+        "x": "C",
+        "r": 2
+      }
+    ],
+    "result": "PASS"
+  },
+  {
+    "case": "window_fixture_rolled_back",
+    "expected": true,
+    "actual": true,
+    "result": "PASS"
+  },
+  {
+    "case": "web_login_customer",
+    "expected": true,
+    "actual": true,
+    "result": "PASS"
+  },
+  {
+    "case": "web_customer_report_denied",
+    "expected": true,
+    "actual": true,
+    "result": "PASS"
+  },
+  {
+    "case": "web_sql_discount_create",
+    "expected": "8.36 / discount 0.44",
+    "actual": {
+      "discount_amount": "0.44",
+      "order_id": "SO7C466400C7",
+      "total_amount": "8.36"
+    },
+    "result": "PASS"
+  },
+  {
+    "case": "web_sql_discount_quantity_change",
+    "expected": true,
+    "actual": true,
+    "result": "PASS"
+  },
+  {
+    "case": "web_sql_discount_add_item",
+    "expected": true,
+    "actual": true,
+    "result": "PASS"
+  },
+  {
+    "case": "web_sql_discount_remove_item",
+    "expected": true,
+    "actual": true,
+    "result": "PASS"
+  },
+  {
+    "case": "web_pay_discounted_amount",
+    "expected": true,
+    "actual": true,
+    "result": "PASS"
+  },
+  {
+    "case": "web_login_staff",
+    "expected": true,
+    "actual": true,
+    "result": "PASS"
+  },
+  {
+    "case": "web_replenishment_sql",
+    "expected": true,
+    "actual": true,
+    "result": "PASS"
+  },
+  {
+    "case": "web_replenishment_unknown",
+    "expected": true,
+    "actual": true,
+    "result": "PASS"
+  },
+  {
+    "case": "web_sales_tvf",
+    "expected": true,
+    "actual": true,
+    "result": "PASS"
+  },
+  {
+    "case": "web_date_range_error",
+    "expected": true,
+    "actual": true,
+    "result": "PASS"
+  },
+  {
+    "case": "web_adjust_procedure",
+    "expected": true,
+    "actual": true,
+    "result": "PASS"
+  },
+  {
+    "case": "web_adjust_restore",
+    "expected": true,
+    "actual": true,
+    "result": "PASS"
+  },
+  {
+    "case": "web_adjust_sql_shortage",
+    "expected": true,
+    "actual": true,
+    "result": "PASS"
+  },
+  {
+    "case": "web_complete_procedure",
+    "expected": true,
+    "actual": true,
+    "result": "PASS"
+  },
+  {
+    "case": "web_repeat_complete_denied",
+    "expected": true,
+    "actual": true,
+    "result": "PASS"
+  },
+  {
+    "case": "web_discount_snapshot_persisted",
+    "expected": true,
+    "actual": true,
+    "result": "PASS"
+  },
+  {
+    "case": "web_complete_once_only",
+    "expected": true,
+    "actual": true,
+    "result": "PASS"
+  },
+  {
+    "case": "web_staff_direct_stock_update_denied",
+    "expected": true,
+    "actual": true,
+    "result": "PASS"
+  }
+]

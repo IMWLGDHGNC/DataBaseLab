@@ -1,0 +1,110 @@
+[
+  [
+    {
+      "ProductID": "S01",
+      "ProductName": "百事可乐罐装",
+      "SalesQty": 20,
+      "SalesAmount": "127.6000",
+      "OrderCount": 5,
+      "RevenueRank": 1
+    },
+    {
+      "ProductID": "S02",
+      "ProductName": "旺旺雪饼",
+      "SalesQty": 3,
+      "SalesAmount": "16.5000",
+      "OrderCount": 1,
+      "RevenueRank": 2
+    },
+    {
+      "ProductID": "S00",
+      "ProductName": "卫龙大面筋",
+      "SalesQty": 2,
+      "SalesAmount": "4.0000",
+      "OrderCount": 1,
+      "RevenueRank": 3
+    }
+  ],
+  [
+    {
+      "SalesOrderID": "ST00",
+      "CompletedAt": "2026-09-16 10:30:00",
+      "TotalAmount": "48.00",
+      "CumulativeAmount": "48.00"
+    },
+    {
+      "SalesOrderID": "ST01",
+      "CompletedAt": "2026-09-16 11:25:00",
+      "TotalAmount": "16.50",
+      "CumulativeAmount": "64.50"
+    },
+    {
+      "SalesOrderID": "SO37E4A146",
+      "CompletedAt": "2026-09-20 10:00:00",
+      "TotalAmount": "8.80",
+      "CumulativeAmount": "73.30"
+    },
+    {
+      "SalesOrderID": "SO844E97F6",
+      "CompletedAt": "2026-09-20 10:00:00",
+      "TotalAmount": "44.00",
+      "CumulativeAmount": "117.30"
+    },
+    {
+      "SalesOrderID": "SOD2C7FFCB",
+      "CompletedAt": "2026-09-20 10:00:00",
+      "TotalAmount": "17.60",
+      "CumulativeAmount": "134.90"
+    },
+    {
+      "SalesOrderID": "SOD2EA73BB",
+      "CompletedAt": "2026-09-20 10:00:00",
+      "TotalAmount": "13.20",
+      "CumulativeAmount": "148.10"
+    }
+  ],
+  [
+    {
+      "SalesOrderID": "ST00",
+      "CompletedAt": "2026-09-16 10:30:00",
+      "TotalAmount": "48.00",
+      "WindowOrders": 1,
+      "MovingAverage3Orders": "48.000000"
+    },
+    {
+      "SalesOrderID": "ST01",
+      "CompletedAt": "2026-09-16 11:25:00",
+      "TotalAmount": "16.50",
+      "WindowOrders": 2,
+      "MovingAverage3Orders": "32.250000"
+    },
+    {
+      "SalesOrderID": "SO37E4A146",
+      "CompletedAt": "2026-09-20 10:00:00",
+      "TotalAmount": "8.80",
+      "WindowOrders": 3,
+      "MovingAverage3Orders": "24.433333"
+    },
+    {
+      "SalesOrderID": "SO844E97F6",
+      "CompletedAt": "2026-09-20 10:00:00",
+      "TotalAmount": "44.00",
+      "WindowOrders": 3,
+      "MovingAverage3Orders": "23.100000"
+    },
+    {
+      "SalesOrderID": "SOD2C7FFCB",
+      "CompletedAt": "2026-09-20 10:00:00",
+      "TotalAmount": "17.60",
+      "WindowOrders": 3,
+      "MovingAverage3Orders": "23.466666"
+    },
+    {
+      "SalesOrderID": "SOD2EA73BB",
+      "CompletedAt": "2026-09-20 10:00:00",
+      "TotalAmount": "13.20",
+      "WindowOrders": 3,
+      "MovingAverage3Orders": "24.933333"
+    }
+  ]
+]

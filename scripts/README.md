@@ -47,3 +47,7 @@ powershell.exe -NoProfile -File .\scripts\Invoke-LabSql.ps1 -Database $db -Input
 ## 第10周独立复现
 
 [Run-Week10.ps1](Run-Week10.ps1)从新的第六周样例库依次安装第10周迁移、函数、过程和授权；数据库名须符合专用测试前缀且尚不存在。随后运行 `python tests/Test-Week10.py`，按[本周说明](../docs/week10/README.md)设置 `LAB_TEST_DATABASE`。现有Linux Web部署入口也安装第10周SQL，不能将新应用直接连到未升级的v1.0库。
+
+## 第11周触发器和窗口验证
+
+在已完成第10周的专用库运行 [Run-Week11.ps1](Run-Week11.ps1)，再执行 `python tests/Test-Week11.py`；沿用 `LAB_TEST_DATABASE`。脚本保留已有数据，只安装触发器并展示三组窗口查询；测试说明及72项结果见[第11周](../docs/week11/README.md)。新建Linux Web样例库的部署入口已按第10→11周安装当前SQL。

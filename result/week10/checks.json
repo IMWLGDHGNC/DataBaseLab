@@ -134,14 +134,14 @@
   },
   {
     "case": "member_nonmember_unknown_rates",
-    "expected": null,
-    "actual": null,
+    "expected": true,
+    "actual": true,
     "result": "PASS"
   },
   {
     "case": "tvf_invalid_range_empty",
-    "expected": null,
-    "actual": null,
+    "expected": true,
+    "actual": true,
     "result": "PASS"
   },
   {
@@ -165,14 +165,14 @@
   },
   {
     "case": "adjust_movement_pair",
-    "expected": null,
-    "actual": null,
+    "expected": true,
+    "actual": true,
     "result": "PASS"
   },
   {
     "case": "procedure_does_not_commit_outer",
-    "expected": null,
-    "actual": null,
+    "expected": true,
+    "actual": true,
     "result": "PASS"
   },
   {
@@ -187,8 +187,8 @@
   },
   {
     "case": "price_snapshot_C00",
-    "expected": null,
-    "actual": null,
+    "expected": true,
+    "actual": true,
     "result": "PASS"
   },
   {
@@ -203,27 +203,34 @@
   },
   {
     "case": "price_snapshot_C02",
-    "expected": null,
-    "actual": null,
+    "expected": true,
+    "actual": true,
     "result": "PASS"
   },
   {
     "case": "complete_stock_and_points",
-    "expected": null,
-    "actual": null,
+    "expected": true,
+    "actual": true,
     "result": "PASS"
   },
   {
     "case": "complete_status_and_movements",
-    "expected": null,
-    "actual": null,
+    "expected": true,
+    "actual": true,
     "result": "PASS"
   },
   {
     "case": "statistics_invalid_None",
     "expected": 51801,
     "actual": 51801,
-    "result": "PASS"
+    "result": "PASS",
+    "input": {
+      "sql": "EXEC dbo.sp_SalesStatistics ?,?",
+      "parameters": [
+        null,
+        "2026-09-16"
+      ]
+    }
   },
   {
     "case": "statistics_invalid_None_no_partial_data",
@@ -235,7 +242,14 @@
     "case": "statistics_invalid_2026-10-01",
     "expected": 51801,
     "actual": 51801,
-    "result": "PASS"
+    "result": "PASS",
+    "input": {
+      "sql": "EXEC dbo.sp_SalesStatistics ?,?",
+      "parameters": [
+        "2026-10-01",
+        "2026-09-01"
+      ]
+    }
   },
   {
     "case": "statistics_invalid_2026-10-01_no_partial_data",
@@ -247,7 +261,17 @@
     "case": "adjust_zero",
     "expected": 51801,
     "actual": 51801,
-    "result": "PASS"
+    "result": "PASS",
+    "input": {
+      "sql": "EXEC dbo.sp_AdjustInventory ?,?,?,?,?",
+      "parameters": [
+        "S01",
+        0,
+        "模拟",
+        "P00",
+        null
+      ]
+    }
   },
   {
     "case": "adjust_zero_no_partial_data",
@@ -259,7 +283,17 @@
     "case": "adjust_null_qty",
     "expected": 51801,
     "actual": 51801,
-    "result": "PASS"
+    "result": "PASS",
+    "input": {
+      "sql": "EXEC dbo.sp_AdjustInventory ?,?,?,?,?",
+      "parameters": [
+        "S01",
+        null,
+        "模拟",
+        "P00",
+        null
+      ]
+    }
   },
   {
     "case": "adjust_null_qty_no_partial_data",
@@ -271,7 +305,17 @@
     "case": "adjust_null_reason",
     "expected": 51801,
     "actual": 51801,
-    "result": "PASS"
+    "result": "PASS",
+    "input": {
+      "sql": "EXEC dbo.sp_AdjustInventory ?,?,?,?,?",
+      "parameters": [
+        "S01",
+        1,
+        null,
+        "P00",
+        null
+      ]
+    }
   },
   {
     "case": "adjust_null_reason_no_partial_data",
@@ -283,7 +327,17 @@
     "case": "adjust_empty_reason",
     "expected": 51801,
     "actual": 51801,
-    "result": "PASS"
+    "result": "PASS",
+    "input": {
+      "sql": "EXEC dbo.sp_AdjustInventory ?,?,?,?,?",
+      "parameters": [
+        "S01",
+        1,
+        "  ",
+        "P00",
+        null
+      ]
+    }
   },
   {
     "case": "adjust_empty_reason_no_partial_data",
@@ -295,7 +349,17 @@
     "case": "adjust_unknown",
     "expected": 51802,
     "actual": 51802,
-    "result": "PASS"
+    "result": "PASS",
+    "input": {
+      "sql": "EXEC dbo.sp_AdjustInventory ?,?,?,?,?",
+      "parameters": [
+        "missing",
+        1,
+        "模拟",
+        "P00",
+        null
+      ]
+    }
   },
   {
     "case": "adjust_unknown_no_partial_data",
@@ -307,7 +371,17 @@
     "case": "adjust_unknown_employee",
     "expected": 51803,
     "actual": 51803,
-    "result": "PASS"
+    "result": "PASS",
+    "input": {
+      "sql": "EXEC dbo.sp_AdjustInventory ?,?,?,?,?",
+      "parameters": [
+        "S01",
+        1,
+        "模拟",
+        "missing",
+        null
+      ]
+    }
   },
   {
     "case": "adjust_unknown_employee_no_partial_data",
@@ -319,7 +393,17 @@
     "case": "adjust_stock_shortage",
     "expected": 51804,
     "actual": 51804,
-    "result": "PASS"
+    "result": "PASS",
+    "input": {
+      "sql": "EXEC dbo.sp_AdjustInventory ?,?,?,?,?",
+      "parameters": [
+        "S01",
+        -999,
+        "模拟",
+        "P00",
+        null
+      ]
+    }
   },
   {
     "case": "adjust_stock_shortage_no_partial_data",
@@ -331,7 +415,17 @@
     "case": "adjust_reserved_stock",
     "expected": 51804,
     "actual": 51804,
-    "result": "PASS"
+    "result": "PASS",
+    "input": {
+      "sql": "EXEC dbo.sp_AdjustInventory ?,?,?,?,?",
+      "parameters": [
+        "S02",
+        -36,
+        "模拟",
+        "P00",
+        null
+      ]
+    }
   },
   {
     "case": "adjust_reserved_stock_no_partial_data",
@@ -343,7 +437,17 @@
     "case": "adjust_wrong_batch",
     "expected": 51802,
     "actual": 51802,
-    "result": "PASS"
+    "result": "PASS",
+    "input": {
+      "sql": "EXEC dbo.sp_AdjustInventory ?,?,?,?,?",
+      "parameters": [
+        "S01",
+        1,
+        "模拟",
+        "P00",
+        "B02"
+      ]
+    }
   },
   {
     "case": "adjust_wrong_batch_no_partial_data",
@@ -355,7 +459,11 @@
     "case": "replenishment_unknown",
     "expected": 51801,
     "actual": 51801,
-    "result": "PASS"
+    "result": "PASS",
+    "input": {
+      "sql": "EXEC dbo.sp_SelectReplenishment 'missing',20",
+      "parameters": []
+    }
   },
   {
     "case": "replenishment_unknown_no_partial_data",
@@ -367,7 +475,11 @@
     "case": "replenishment_negative",
     "expected": 51801,
     "actual": 51801,
-    "result": "PASS"
+    "result": "PASS",
+    "input": {
+      "sql": "EXEC dbo.sp_SelectReplenishment 'S01',-1",
+      "parameters": []
+    }
   },
   {
     "case": "replenishment_negative_no_partial_data",
@@ -379,7 +491,11 @@
     "case": "complete_unknown",
     "expected": 51802,
     "actual": 51802,
-    "result": "PASS"
+    "result": "PASS",
+    "input": {
+      "sql": "EXEC dbo.sp_CompleteOrder 'missing','P00'",
+      "parameters": []
+    }
   },
   {
     "case": "complete_unknown_no_partial_data",
@@ -391,7 +507,11 @@
     "case": "complete_null",
     "expected": 51802,
     "actual": 51802,
-    "result": "PASS"
+    "result": "PASS",
+    "input": {
+      "sql": "EXEC dbo.sp_CompleteOrder NULL,'P00'",
+      "parameters": []
+    }
   },
   {
     "case": "complete_null_no_partial_data",
@@ -403,7 +523,11 @@
     "case": "complete_invalid_employee",
     "expected": 51803,
     "actual": 51803,
-    "result": "PASS"
+    "result": "PASS",
+    "input": {
+      "sql": "EXEC dbo.sp_CompleteOrder 'ST02',NULL",
+      "parameters": []
+    }
   },
   {
     "case": "complete_invalid_employee_no_partial_data",
@@ -415,7 +539,11 @@
     "case": "complete_expired_batch",
     "expected": 51804,
     "actual": 51804,
-    "result": "PASS"
+    "result": "PASS",
+    "input": {
+      "sql": "EXEC dbo.sp_CompleteOrder 'ST02','P00'",
+      "parameters": []
+    }
   },
   {
     "case": "complete_expired_batch_no_partial_data",
@@ -427,7 +555,11 @@
     "case": "complete_repeated",
     "expected": 51804,
     "actual": 51804,
-    "result": "PASS"
+    "result": "PASS",
+    "input": {
+      "sql": "EXEC dbo.sp_CompleteOrder 'ST00','P00'",
+      "parameters": []
+    }
   },
   {
     "case": "complete_repeated_no_partial_data",
@@ -439,7 +571,11 @@
     "case": "price_unknown",
     "expected": 51804,
     "actual": 51804,
-    "result": "PASS"
+    "result": "PASS",
+    "input": {
+      "sql": "EXEC dbo.sp_PriceOrder 'missing'",
+      "parameters": []
+    }
   },
   {
     "case": "price_unknown_no_partial_data",
@@ -451,7 +587,11 @@
     "case": "complete_injected_failure",
     "expected": 59000,
     "actual": 59000,
-    "result": "PASS"
+    "result": "PASS",
+    "input": {
+      "sql": "DECLARE @id varchar(12)=(SELECT TOP(1) SalesOrderID\n        FROM dbo.SalesOrder WHERE SalesOrderID LIKE 'SO%' ORDER BY CreatedAt DESC,SalesOrderID);\n        EXEC dbo.sp_CompleteOrder @id,'P00';",
+      "parameters": []
+    }
   },
   {
     "case": "complete_injected_failure_no_partial_data",
@@ -461,14 +601,14 @@
   },
   {
     "case": "web_login_customer",
-    "expected": null,
-    "actual": null,
+    "expected": true,
+    "actual": true,
     "result": "PASS"
   },
   {
     "case": "web_customer_report_denied",
-    "expected": null,
-    "actual": null,
+    "expected": true,
+    "actual": true,
     "result": "PASS"
   },
   {
@@ -476,111 +616,111 @@
     "expected": "8.36 / discount 0.44",
     "actual": {
       "discount_amount": "0.44",
-      "order_id": "SO86062378D1",
+      "order_id": "SOEF06F655DD",
       "total_amount": "8.36"
     },
     "result": "PASS"
   },
   {
     "case": "web_sql_discount_quantity_change",
-    "expected": null,
-    "actual": null,
+    "expected": true,
+    "actual": true,
     "result": "PASS"
   },
   {
     "case": "web_sql_discount_add_item",
-    "expected": null,
-    "actual": null,
+    "expected": true,
+    "actual": true,
     "result": "PASS"
   },
   {
     "case": "web_sql_discount_remove_item",
-    "expected": null,
-    "actual": null,
+    "expected": true,
+    "actual": true,
     "result": "PASS"
   },
   {
     "case": "web_pay_discounted_amount",
-    "expected": null,
-    "actual": null,
+    "expected": true,
+    "actual": true,
     "result": "PASS"
   },
   {
     "case": "web_login_staff",
-    "expected": null,
-    "actual": null,
+    "expected": true,
+    "actual": true,
     "result": "PASS"
   },
   {
     "case": "web_replenishment_sql",
-    "expected": null,
-    "actual": null,
+    "expected": true,
+    "actual": true,
     "result": "PASS"
   },
   {
     "case": "web_replenishment_unknown",
-    "expected": null,
-    "actual": null,
+    "expected": true,
+    "actual": true,
     "result": "PASS"
   },
   {
     "case": "web_sales_tvf",
-    "expected": null,
-    "actual": null,
+    "expected": true,
+    "actual": true,
     "result": "PASS"
   },
   {
     "case": "web_date_range_error",
-    "expected": null,
-    "actual": null,
+    "expected": true,
+    "actual": true,
     "result": "PASS"
   },
   {
     "case": "web_adjust_procedure",
-    "expected": null,
-    "actual": null,
+    "expected": true,
+    "actual": true,
     "result": "PASS"
   },
   {
     "case": "web_adjust_restore",
-    "expected": null,
-    "actual": null,
+    "expected": true,
+    "actual": true,
     "result": "PASS"
   },
   {
     "case": "web_adjust_sql_shortage",
-    "expected": null,
-    "actual": null,
+    "expected": true,
+    "actual": true,
     "result": "PASS"
   },
   {
     "case": "web_complete_procedure",
-    "expected": null,
-    "actual": null,
+    "expected": true,
+    "actual": true,
     "result": "PASS"
   },
   {
     "case": "web_repeat_complete_denied",
-    "expected": null,
-    "actual": null,
+    "expected": true,
+    "actual": true,
     "result": "PASS"
   },
   {
     "case": "web_discount_snapshot_persisted",
-    "expected": null,
-    "actual": null,
+    "expected": true,
+    "actual": true,
     "result": "PASS"
   },
   {
     "case": "web_complete_once_only",
-    "expected": null,
-    "actual": null,
+    "expected": true,
+    "actual": true,
     "result": "PASS"
   },
   {
     "case": "web_staff_direct_stock_update_denied",
-    "expected": null,
-    "actual": null,
+    "expected": true,
+    "actual": true,
     "result": "PASS"
   }
 ]

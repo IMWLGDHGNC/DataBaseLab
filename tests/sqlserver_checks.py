@@ -12,6 +12,7 @@ from decimal import Decimal
 import pyodbc
 
 ROOT = Path(__file__).resolve().parents[1]
+_UNSET = object()
 DB = os.environ.get("LAB_TEST_DATABASE", "")
 if not re.fullmatch(r"DataBaseLab_Week6_Week10[0-9]+", DB):
     raise RuntimeError("Set LAB_TEST_DATABASE to the dedicated Run-Week10.ps1 sample database")
@@ -59,7 +60,9 @@ class Checks:
     def __init__(self, week):
         self.week, self.results = week, []
 
-    def check(self, name, condition, actual=None, expected=None):
+    def check(self, name, condition, actual=_UNSET, expected=_UNSET):
+        actual = bool(condition) if actual is _UNSET else actual
+        expected = True if expected is _UNSET else expected
         if not condition:
             raise AssertionError(f"{name}: actual={actual!r}, expected={expected!r}")
         self.results.append({"case": name, "expected": expected, "actual": actual, "result": "PASS"})
@@ -76,6 +79,7 @@ class Checks:
             except pyodbc.Error as exc:
                 numbers = [int(n) for n in re.findall(r"\((\d+)\)", str(exc))]
                 self.check(name, expected in numbers, expected, expected)
+                self.results[-1]['input'] = {'sql':sql,'parameters':params}
             else:
                 raise AssertionError(name + ": SQL unexpectedly accepted invalid data")
             finally:

@@ -1,0 +1,134 @@
+[
+  {
+    "BatchID": "B00",
+    "ProductID": "S01",
+    "BeforeQty": 284,
+    "AfterQty": 283,
+    "QuantityDelta": -1,
+    "OperationType": "UPDATE",
+    "OperatorID": "P00",
+    "ActorType": "EMPLOYEE",
+    "OccurredAt": "2026-11-11 12:18:43.8191900"
+  },
+  {
+    "BatchID": "B00",
+    "ProductID": "S01",
+    "BeforeQty": 283,
+    "AfterQty": 284,
+    "QuantityDelta": 1,
+    "OperationType": "UPDATE",
+    "OperatorID": "P00",
+    "ActorType": "EMPLOYEE",
+    "OccurredAt": "2026-11-11 12:18:43.8146802"
+  },
+  {
+    "BatchID": "BT780D4FC91B",
+    "ProductID": "W9E1228E67",
+    "BeforeQty": 13,
+    "AfterQty": 0,
+    "QuantityDelta": -13,
+    "OperationType": "UPDATE",
+    "OperatorID": "P00",
+    "ActorType": "EMPLOYEE",
+    "OccurredAt": "2026-11-11 12:16:04.2475594"
+  },
+  {
+    "BatchID": "BT780D4FC91B",
+    "ProductID": "W9E1228E67",
+    "BeforeQty": 15,
+    "AfterQty": 13,
+    "QuantityDelta": -2,
+    "OperationType": "UPDATE",
+    "OperatorID": "P00",
+    "ActorType": "EMPLOYEE",
+    "OccurredAt": "2026-11-11 12:16:04.2376806"
+  },
+  {
+    "BatchID": "BT780D4FC91B",
+    "ProductID": "W9E1228E67",
+    "BeforeQty": 17,
+    "AfterQty": 15,
+    "QuantityDelta": -2,
+    "OperationType": "UPDATE",
+    "OperatorID": "P00",
+    "ActorType": "EMPLOYEE",
+    "OccurredAt": "2026-11-11 12:16:03.2926296"
+  },
+  {
+    "BatchID": "BT780D4FC91B",
+    "ProductID": "W9E1228E67",
+    "BeforeQty": 20,
+    "AfterQty": 17,
+    "QuantityDelta": -3,
+    "OperationType": "UPDATE",
+    "OperatorID": "P00",
+    "ActorType": "EMPLOYEE",
+    "OccurredAt": "2026-11-11 12:16:01.8737581"
+  },
+  {
+    "BatchID": "BT780D4FC91B",
+    "ProductID": "W9E1228E67",
+    "BeforeQty": null,
+    "AfterQty": 20,
+    "QuantityDelta": 20,
+    "OperationType": "INSERT",
+    "OperatorID": "P00",
+    "ActorType": "EMPLOYEE",
+    "OccurredAt": "2026-11-11 12:16:01.4490467"
+  },
+  {
+    "BatchID": "B00",
+    "ProductID": "S01",
+    "BeforeQty": 285,
+    "AfterQty": 283,
+    "QuantityDelta": -2,
+    "OperationType": "UPDATE",
+    "OperatorID": "P00",
+    "ActorType": "EMPLOYEE",
+    "OccurredAt": "2026-11-11 12:15:55.6912428"
+  },
+  {
+    "BatchID": "B02",
+    "ProductID": "S00",
+    "BeforeQty": 498,
+    "AfterQty": 497,
+    "QuantityDelta": -1,
+    "OperationType": "UPDATE",
+    "OperatorID": "P00",
+    "ActorType": "EMPLOYEE",
+    "OccurredAt": "2026-11-11 12:15:55.6912428"
+  },
+  {
+    "BatchID": "B00",
+    "ProductID": "S01",
+    "BeforeQty": 284,
+    "AfterQty": 285,
+    "QuantityDelta": 1,
+    "OperationType": "UPDATE",
+    "OperatorID": "P00",
+    "ActorType": "EMPLOYEE",
+    "OccurredAt": "2026-11-11 12:15:55.6814395"
+  },
+  {
+    "BatchID": "B00",
+    "ProductID": "S01",
+    "BeforeQty": 287,
+    "AfterQty": 284,
+    "QuantityDelta": -3,
+    "OperationType": "UPDATE",
+    "OperatorID": "P00",
+    "ActorType": "EMPLOYEE",
+    "OccurredAt": "2026-11-11 12:15:53.7112385"
+  },
+  {
+    "BatchID": "B00",
+    "ProductID": "S01",
+    "BeforeQty": 288,
+    "AfterQty": 287,
+    "QuantityDelta": -1,
+    "OperationType": "UPDATE",
+    "OperatorID": "P00",
+    "ActorType": "EMPLOYEE",
+    "OccurredAt": "2026-11-11 12:15:53.6951894"
+  }
+]

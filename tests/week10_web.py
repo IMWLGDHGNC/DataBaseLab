@@ -8,12 +8,15 @@ from datetime import date, datetime
 from decimal import Decimal
 import re
 import secrets
+import sys
 
 import pyodbc
 import pymssql
 from werkzeug.security import generate_password_hash
 
 from sqlserver_checks import connect, install_file, rows, scalar, ROOT, DB
+
+sys.path.insert(0,str(ROOT))
 
 
 class Cursor:
