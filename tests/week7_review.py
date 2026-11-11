@@ -131,14 +131,15 @@ def run_review_checks(app, config, passwords, check):
            {"price": "2.50", "status": "在售", "reorder_level": 2147483648}, 400, "INVALID_INPUT")
     expect("nonfinite_inventory_adjustment", "staff", "POST", "/api/inventory/adjust",
            {"batch_id": batch_id, "delta": float("inf"), "reason": "模拟错误输入"}, 400, "INVALID_INPUT")
-    expect("change_quantity", "customer", "PATCH", f"/api/orders/{order_id}/items/{item_id}", {"quantity": 3})
+    changed = expect("change_quantity", "customer", "PATCH", f"/api/orders/{order_id}/items/{item_id}", {"quantity": 3})
     flow.append({"step": "customer_change_quantity", "order_id": order_id, "quantity": 3,
-                 "total_amount": "7.50", "on_hand": batch()["OnHandQty"], "reserved": batch()["ReservedQty"]})
+                 "total_amount": str(changed["total_amount"]), "on_hand": batch()["OnHandQty"], "reserved": batch()["ReservedQty"]})
     pay = expect("pay_new_product_order", "customer", "POST", f"/api/orders/{order_id}/pay")
     flow.append({"step": "customer_pay", **pay, "on_hand": batch()["OnHandQty"], "reserved": batch()["ReservedQty"]})
     expect("paid_item_change_denied", "customer", "PATCH", f"/api/orders/{order_id}/items/{item_id}", {"quantity": 1}, 409, "BUSINESS_CONFLICT")
     before = digest()
-    with fail_after("award_points"):
+    # Completion, shipment and points now execute inside this SQL procedure.
+    with fail_after("complete_order"):
         expect("fulfillment_failure_after_points", "staff", "POST", f"/api/orders/{order_id}/fulfill", None, 500, "TRANSACTION_FAILED")
     check("fulfillment_rollback_all_affected_tables", digest() == before)
     with db.session("staff") as repo:
@@ -163,14 +164,14 @@ def run_review_checks(app, config, passwords, check):
     eid = expensive["order_id"]
     ei = request("customer", "GET", "/api/orders/" + eid)[1]["data"]["items"][0]["SalesItemID"]
     before = digest()
-    expect("edited_total_overflow", "customer", "PATCH", f"/api/orders/{eid}/items/{ei}", {"quantity": 2}, 400, "INVALID_INPUT")
+    expect("edited_total_overflow", "customer", "PATCH", f"/api/orders/{eid}/items/{ei}", {"quantity": 3}, 400, "INVALID_INPUT")
     check("edited_total_rollback", digest() == before)
     with db.session("manager") as repo:
         sample_product = repo.product("S00")
     expect("second_high_price_product", "manager", "PATCH", "/api/products/S00",
            {"price": "50000000.00", "status": "在售", "reorder_level": 0})
     before = digest()
-    expect("added_total_overflow", "customer", "POST", f"/api/orders/{eid}/items", {"product_id": "S00", "quantity": 1}, 400, "INVALID_INPUT")
+    expect("added_total_overflow", "customer", "POST", f"/api/orders/{eid}/items", {"product_id": "S00", "quantity": 2}, 400, "INVALID_INPUT")
     check("added_total_rollback", digest() == before)
     expect("cancel_boundary_order", "customer", "DELETE", "/api/orders/" + eid)
     expect("restore_new_product_price", "manager", "PATCH", "/api/products/" + product_id,
@@ -183,7 +184,7 @@ def run_review_checks(app, config, passwords, check):
     pending = expect("concurrency_order", "customer", "POST", "/api/orders", order_payload, 201)["order_id"]
     expect("concurrency_order_pay", "customer", "POST", f"/api/orders/{pending}/pay")
     held, release, stock_locked = Event(), Event(), Event()
-    original_customer, original_reservations = Repository.customer, Repository.active_reservations_for_order
+    original_customer, original_complete = Repository.customer, Repository.complete_order
     def scheduled_customer(repo, customer_id, lock=False):
         result = original_customer(repo, customer_id, lock)
         if current_thread().name.startswith("CreateRegression") and lock:
@@ -191,11 +192,11 @@ def run_review_checks(app, config, passwords, check):
             if not release.wait(10):
                 raise AssertionError("Concurrency scheduling deadline")
         return result
-    def scheduled_reservations(repo, oid):
-        result = original_reservations(repo, oid)
+    def scheduled_complete(repo, oid, operator_id):
+        result = original_complete(repo, oid, operator_id)
         stock_locked.set()
         return result
-    with patch.object(Repository, "customer", scheduled_customer), patch.object(Repository, "active_reservations_for_order", scheduled_reservations):
+    with patch.object(Repository, "customer", scheduled_customer), patch.object(Repository, "complete_order", scheduled_complete):
         with ThreadPoolExecutor(max_workers=1, thread_name_prefix="CreateRegression") as creates, ThreadPoolExecutor(max_workers=1, thread_name_prefix="FulfillRegression") as ships:
             created = creates.submit(request, "customer", "POST", "/api/orders", order_payload, True)
             assert held.wait(10)

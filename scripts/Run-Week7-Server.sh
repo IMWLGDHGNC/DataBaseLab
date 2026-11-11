@@ -38,6 +38,11 @@ sqlcmd_app() {
 output/week7/.venv/bin/python -m app.bootstrap login-sql --config "$CONFIG_FILE" | sqlcmd_master
 output/week7/.venv/bin/python -m app.bootstrap grants-sql --config "$CONFIG_FILE" | sqlcmd_app
 
+# Current application uses database-owned Week10 business rules.
+for file in migration function procedure permissions; do
+  sqlcmd_app < "sql/week10/$file.sql"
+done
+
 printf '%s\n' "$CONFIG_FILE" > output/week7/config-path.txt
 chmod 600 output/week7/config-path.txt
 printf 'WEEK7_DEPLOY_PREP_PASS %s\n' "$DB_NAME"

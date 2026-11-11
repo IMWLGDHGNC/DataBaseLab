@@ -1,0 +1,586 @@
+[
+  {
+    "case": "inclusive_sales_date",
+    "expected": "2 orders / 15 items / 64.50",
+    "actual": [
+      {
+        "OrderCount": 2,
+        "SalesAmount": "64.50",
+        "SalesQty": 15
+      }
+    ],
+    "result": "PASS"
+  },
+  {
+    "case": "tvf_matches_statistics",
+    "expected": "S00:2/4.00; S01:10/44.00; S02:3/16.50",
+    "actual": [
+      {
+        "ProductID": "S00",
+        "ProductName": "卫龙大面筋",
+        "SalesQty": 2,
+        "SalesAmount": "4.0000",
+        "OrderCount": 1
+      },
+      {
+        "ProductID": "S01",
+        "ProductName": "百事可乐罐装",
+        "SalesQty": 10,
+        "SalesAmount": "44.0000",
+        "OrderCount": 1
+      },
+      {
+        "ProductID": "S02",
+        "ProductName": "旺旺雪饼",
+        "SalesQty": 3,
+        "SalesAmount": "16.5000",
+        "OrderCount": 1
+      }
+    ],
+    "result": "PASS"
+  },
+  {
+    "case": "no_sales_returns_zero_and_empty",
+    "expected": "zero totals and empty detail",
+    "actual": [
+      [
+        {
+          "OrderCount": 0,
+          "SalesAmount": "0.00",
+          "SalesQty": 0
+        }
+      ],
+      []
+    ],
+    "result": "PASS"
+  },
+  {
+    "case": "replenishment_S01_300",
+    "expected": 10,
+    "actual": 10,
+    "result": "PASS"
+  },
+  {
+    "case": "replenishment_S01_10",
+    "expected": 0,
+    "actual": 0,
+    "result": "PASS"
+  },
+  {
+    "case": "replenishment_S02_None",
+    "expected": 20,
+    "actual": 20,
+    "result": "PASS"
+  },
+  {
+    "case": "replenishment_missing_20",
+    "expected": null,
+    "actual": null,
+    "result": "PASS"
+  },
+  {
+    "case": "replenishment_None_20",
+    "expected": null,
+    "actual": null,
+    "result": "PASS"
+  },
+  {
+    "case": "replenishment_S01_-1",
+    "expected": null,
+    "actual": null,
+    "result": "PASS"
+  },
+  {
+    "case": "scalar_invalid_discount",
+    "expected": null,
+    "actual": null,
+    "result": "PASS"
+  },
+  {
+    "case": "discount_100_0.05",
+    "expected": "5.00",
+    "actual": "5.00",
+    "result": "PASS"
+  },
+  {
+    "case": "discount_0_0",
+    "expected": 0,
+    "actual": "0.00",
+    "result": "PASS"
+  },
+  {
+    "case": "discount_-1_0",
+    "expected": null,
+    "actual": null,
+    "result": "PASS"
+  },
+  {
+    "case": "discount_None_0",
+    "expected": null,
+    "actual": null,
+    "result": "PASS"
+  },
+  {
+    "case": "discount_100_None",
+    "expected": null,
+    "actual": null,
+    "result": "PASS"
+  },
+  {
+    "case": "discount_100_-0.01",
+    "expected": null,
+    "actual": null,
+    "result": "PASS"
+  },
+  {
+    "case": "member_nonmember_unknown_rates",
+    "expected": null,
+    "actual": null,
+    "result": "PASS"
+  },
+  {
+    "case": "tvf_invalid_range_empty",
+    "expected": null,
+    "actual": null,
+    "result": "PASS"
+  },
+  {
+    "case": "adjust_repeat_calls",
+    "expected": "+5 then -5",
+    "actual": [
+      {
+        "BatchID": "B00",
+        "BeforeQty": 290,
+        "AfterQty": 295,
+        "Delta": 5
+      },
+      {
+        "BatchID": "B00",
+        "BeforeQty": 295,
+        "AfterQty": 290,
+        "Delta": -5
+      }
+    ],
+    "result": "PASS"
+  },
+  {
+    "case": "adjust_movement_pair",
+    "expected": null,
+    "actual": null,
+    "result": "PASS"
+  },
+  {
+    "case": "procedure_does_not_commit_outer",
+    "expected": null,
+    "actual": null,
+    "result": "PASS"
+  },
+  {
+    "case": "pricing_repeat_C00",
+    "expected": "8.36",
+    "actual": {
+      "TotalAmount": "8.36",
+      "DiscountRate": "0.0500",
+      "DiscountAmount": "0.44"
+    },
+    "result": "PASS"
+  },
+  {
+    "case": "price_snapshot_C00",
+    "expected": null,
+    "actual": null,
+    "result": "PASS"
+  },
+  {
+    "case": "pricing_repeat_C02",
+    "expected": "8.80",
+    "actual": {
+      "TotalAmount": "8.80",
+      "DiscountRate": "0.0000",
+      "DiscountAmount": "0.00"
+    },
+    "result": "PASS"
+  },
+  {
+    "case": "price_snapshot_C02",
+    "expected": null,
+    "actual": null,
+    "result": "PASS"
+  },
+  {
+    "case": "complete_stock_and_points",
+    "expected": null,
+    "actual": null,
+    "result": "PASS"
+  },
+  {
+    "case": "complete_status_and_movements",
+    "expected": null,
+    "actual": null,
+    "result": "PASS"
+  },
+  {
+    "case": "statistics_invalid_None",
+    "expected": 51801,
+    "actual": 51801,
+    "result": "PASS"
+  },
+  {
+    "case": "statistics_invalid_None_no_partial_data",
+    "expected": "all dbo table digests unchanged",
+    "actual": "all dbo table digests unchanged",
+    "result": "PASS"
+  },
+  {
+    "case": "statistics_invalid_2026-10-01",
+    "expected": 51801,
+    "actual": 51801,
+    "result": "PASS"
+  },
+  {
+    "case": "statistics_invalid_2026-10-01_no_partial_data",
+    "expected": "all dbo table digests unchanged",
+    "actual": "all dbo table digests unchanged",
+    "result": "PASS"
+  },
+  {
+    "case": "adjust_zero",
+    "expected": 51801,
+    "actual": 51801,
+    "result": "PASS"
+  },
+  {
+    "case": "adjust_zero_no_partial_data",
+    "expected": "all dbo table digests unchanged",
+    "actual": "all dbo table digests unchanged",
+    "result": "PASS"
+  },
+  {
+    "case": "adjust_null_qty",
+    "expected": 51801,
+    "actual": 51801,
+    "result": "PASS"
+  },
+  {
+    "case": "adjust_null_qty_no_partial_data",
+    "expected": "all dbo table digests unchanged",
+    "actual": "all dbo table digests unchanged",
+    "result": "PASS"
+  },
+  {
+    "case": "adjust_null_reason",
+    "expected": 51801,
+    "actual": 51801,
+    "result": "PASS"
+  },
+  {
+    "case": "adjust_null_reason_no_partial_data",
+    "expected": "all dbo table digests unchanged",
+    "actual": "all dbo table digests unchanged",
+    "result": "PASS"
+  },
+  {
+    "case": "adjust_empty_reason",
+    "expected": 51801,
+    "actual": 51801,
+    "result": "PASS"
+  },
+  {
+    "case": "adjust_empty_reason_no_partial_data",
+    "expected": "all dbo table digests unchanged",
+    "actual": "all dbo table digests unchanged",
+    "result": "PASS"
+  },
+  {
+    "case": "adjust_unknown",
+    "expected": 51802,
+    "actual": 51802,
+    "result": "PASS"
+  },
+  {
+    "case": "adjust_unknown_no_partial_data",
+    "expected": "all dbo table digests unchanged",
+    "actual": "all dbo table digests unchanged",
+    "result": "PASS"
+  },
+  {
+    "case": "adjust_unknown_employee",
+    "expected": 51803,
+    "actual": 51803,
+    "result": "PASS"
+  },
+  {
+    "case": "adjust_unknown_employee_no_partial_data",
+    "expected": "all dbo table digests unchanged",
+    "actual": "all dbo table digests unchanged",
+    "result": "PASS"
+  },
+  {
+    "case": "adjust_stock_shortage",
+    "expected": 51804,
+    "actual": 51804,
+    "result": "PASS"
+  },
+  {
+    "case": "adjust_stock_shortage_no_partial_data",
+    "expected": "all dbo table digests unchanged",
+    "actual": "all dbo table digests unchanged",
+    "result": "PASS"
+  },
+  {
+    "case": "adjust_reserved_stock",
+    "expected": 51804,
+    "actual": 51804,
+    "result": "PASS"
+  },
+  {
+    "case": "adjust_reserved_stock_no_partial_data",
+    "expected": "all dbo table digests unchanged",
+    "actual": "all dbo table digests unchanged",
+    "result": "PASS"
+  },
+  {
+    "case": "adjust_wrong_batch",
+    "expected": 51802,
+    "actual": 51802,
+    "result": "PASS"
+  },
+  {
+    "case": "adjust_wrong_batch_no_partial_data",
+    "expected": "all dbo table digests unchanged",
+    "actual": "all dbo table digests unchanged",
+    "result": "PASS"
+  },
+  {
+    "case": "replenishment_unknown",
+    "expected": 51801,
+    "actual": 51801,
+    "result": "PASS"
+  },
+  {
+    "case": "replenishment_unknown_no_partial_data",
+    "expected": "all dbo table digests unchanged",
+    "actual": "all dbo table digests unchanged",
+    "result": "PASS"
+  },
+  {
+    "case": "replenishment_negative",
+    "expected": 51801,
+    "actual": 51801,
+    "result": "PASS"
+  },
+  {
+    "case": "replenishment_negative_no_partial_data",
+    "expected": "all dbo table digests unchanged",
+    "actual": "all dbo table digests unchanged",
+    "result": "PASS"
+  },
+  {
+    "case": "complete_unknown",
+    "expected": 51802,
+    "actual": 51802,
+    "result": "PASS"
+  },
+  {
+    "case": "complete_unknown_no_partial_data",
+    "expected": "all dbo table digests unchanged",
+    "actual": "all dbo table digests unchanged",
+    "result": "PASS"
+  },
+  {
+    "case": "complete_null",
+    "expected": 51802,
+    "actual": 51802,
+    "result": "PASS"
+  },
+  {
+    "case": "complete_null_no_partial_data",
+    "expected": "all dbo table digests unchanged",
+    "actual": "all dbo table digests unchanged",
+    "result": "PASS"
+  },
+  {
+    "case": "complete_invalid_employee",
+    "expected": 51803,
+    "actual": 51803,
+    "result": "PASS"
+  },
+  {
+    "case": "complete_invalid_employee_no_partial_data",
+    "expected": "all dbo table digests unchanged",
+    "actual": "all dbo table digests unchanged",
+    "result": "PASS"
+  },
+  {
+    "case": "complete_expired_batch",
+    "expected": 51804,
+    "actual": 51804,
+    "result": "PASS"
+  },
+  {
+    "case": "complete_expired_batch_no_partial_data",
+    "expected": "all dbo table digests unchanged",
+    "actual": "all dbo table digests unchanged",
+    "result": "PASS"
+  },
+  {
+    "case": "complete_repeated",
+    "expected": 51804,
+    "actual": 51804,
+    "result": "PASS"
+  },
+  {
+    "case": "complete_repeated_no_partial_data",
+    "expected": "all dbo table digests unchanged",
+    "actual": "all dbo table digests unchanged",
+    "result": "PASS"
+  },
+  {
+    "case": "price_unknown",
+    "expected": 51804,
+    "actual": 51804,
+    "result": "PASS"
+  },
+  {
+    "case": "price_unknown_no_partial_data",
+    "expected": "all dbo table digests unchanged",
+    "actual": "all dbo table digests unchanged",
+    "result": "PASS"
+  },
+  {
+    "case": "complete_injected_failure",
+    "expected": 59000,
+    "actual": 59000,
+    "result": "PASS"
+  },
+  {
+    "case": "complete_injected_failure_no_partial_data",
+    "expected": "all dbo table digests unchanged",
+    "actual": "all dbo table digests unchanged",
+    "result": "PASS"
+  },
+  {
+    "case": "web_login_customer",
+    "expected": null,
+    "actual": null,
+    "result": "PASS"
+  },
+  {
+    "case": "web_customer_report_denied",
+    "expected": null,
+    "actual": null,
+    "result": "PASS"
+  },
+  {
+    "case": "web_sql_discount_create",
+    "expected": "8.36 / discount 0.44",
+    "actual": {
+      "discount_amount": "0.44",
+      "order_id": "SO86062378D1",
+      "total_amount": "8.36"
+    },
+    "result": "PASS"
+  },
+  {
+    "case": "web_sql_discount_quantity_change",
+    "expected": null,
+    "actual": null,
+    "result": "PASS"
+  },
+  {
+    "case": "web_sql_discount_add_item",
+    "expected": null,
+    "actual": null,
+    "result": "PASS"
+  },
+  {
+    "case": "web_sql_discount_remove_item",
+    "expected": null,
+    "actual": null,
+    "result": "PASS"
+  },
+  {
+    "case": "web_pay_discounted_amount",
+    "expected": null,
+    "actual": null,
+    "result": "PASS"
+  },
+  {
+    "case": "web_login_staff",
+    "expected": null,
+    "actual": null,
+    "result": "PASS"
+  },
+  {
+    "case": "web_replenishment_sql",
+    "expected": null,
+    "actual": null,
+    "result": "PASS"
+  },
+  {
+    "case": "web_replenishment_unknown",
+    "expected": null,
+    "actual": null,
+    "result": "PASS"
+  },
+  {
+    "case": "web_sales_tvf",
+    "expected": null,
+    "actual": null,
+    "result": "PASS"
+  },
+  {
+    "case": "web_date_range_error",
+    "expected": null,
+    "actual": null,
+    "result": "PASS"
+  },
+  {
+    "case": "web_adjust_procedure",
+    "expected": null,
+    "actual": null,
+    "result": "PASS"
+  },
+  {
+    "case": "web_adjust_restore",
+    "expected": null,
+    "actual": null,
+    "result": "PASS"
+  },
+  {
+    "case": "web_adjust_sql_shortage",
+    "expected": null,
+    "actual": null,
+    "result": "PASS"
+  },
+  {
+    "case": "web_complete_procedure",
+    "expected": null,
+    "actual": null,
+    "result": "PASS"
+  },
+  {
+    "case": "web_repeat_complete_denied",
+    "expected": null,
+    "actual": null,
+    "result": "PASS"
+  },
+  {
+    "case": "web_discount_snapshot_persisted",
+    "expected": null,
+    "actual": null,
+    "result": "PASS"
+  },
+  {
+    "case": "web_complete_once_only",
+    "expected": null,
+    "actual": null,
+    "result": "PASS"
+  },
+  {
+    "case": "web_staff_direct_stock_update_denied",
+    "expected": null,
+    "actual": null,
+    "result": "PASS"
+  }
+]

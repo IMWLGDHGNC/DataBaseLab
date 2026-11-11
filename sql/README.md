@@ -50,3 +50,7 @@
 修复版新增管理员采购建立/审批与店员验收入库所需的表级、列级权限，Employee 和 Supplier 仅读取 DAO 所需列；所有业务写入先取得以 public 为共同数据库主体的事务级应用锁。入库仍写 v1.0 的批次和流水，不恢复已迁移删除的冗余采购明细列。
 
 [week7/permissions.sql](week7/permissions.sql)在第六周独立 v1.0 样例库中创建顾客、店员、管理员三个应用数据库角色，给新建的随机 SQL 登录授予所需表级及列级操作，最后确认登录未进入 `db_owner` 等宽权限角色。该脚本的登录占位符由[部署脚本](../scripts/Run-Week7-Server.sh)在服务器私下替换，不能直接把占位符原样运行。顾客“仅本人”行级限制在 Web 服务层，数据库端目前是表级授权；边界见 [第7–9周](../docs/week7-9/README.md)。
+
+## 第10周 过程、函数与应用集成
+
+v1.0之后执行 [week10/migration.sql](week10/migration.sql) → [function.sql](week10/function.sql) → [procedure.sql](week10/procedure.sql)；第7周授权后执行 [permissions.sql](week10/permissions.sql)。迁移只运行一次，程序对象可重装。[调用示例](week10/call_examples.sql)与[本周说明](../docs/week10/README.md)定义含首尾日的销售口径、批次调整、会员折扣快照、补货选择和订单完成；[87项结果](../result/week10/README.md)包含异常和回滚证据。

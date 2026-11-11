@@ -108,7 +108,7 @@ function renderCart() {
 async function showDetail(orderId) {
   const data=await api("/api/orders/"+encodeURIComponent(orderId));
   const o=data.order;
-  $("#detail-content").innerHTML=`<div class="detail-grid"><div>订单：${esc(o.SalesOrderID)}</div><div>状态：${esc(o.OrderStatus)}</div><div>收货人：${esc(o.RecipientName)}</div><div>联系电话：${esc(o.RecipientPhone)}</div><div>地址：${esc(o.ShippingAddress)}</div><div>金额：¥${money(o.TotalAmount)}</div></div><h3>订单明细</h3><div class="table-wrap"><table><thead><tr><th>明细</th><th>商品</th><th>数量</th><th>历史单价</th><th>操作</th></tr></thead><tbody>${data.items.map(i=>`<tr><td>${esc(i.SalesItemID)}</td><td>${esc(i.ProductName)}</td><td>${esc(i.Quantity)}</td><td>¥${money(i.DealUnitPrice)}</td><td>${user?.role==="customer" && o.OrderStatus==="待支付" ? `<div class="actions"><button data-item-edit="${esc(i.SalesItemID)}" data-order="${esc(o.SalesOrderID)}" data-qty="${esc(i.Quantity)}">改数量</button><button class="danger" data-item-delete="${esc(i.SalesItemID)}" data-order="${esc(o.SalesOrderID)}">删明细</button></div>`:""}</td></tr>`).join("")}</tbody></table></div>${user?.role==="customer" && o.OrderStatus==="待支付" ? `<div class="detail-actions"><button data-recipient="${esc(o.SalesOrderID)}">改收货信息</button><button data-item-add="${esc(o.SalesOrderID)}">加商品</button></div>`:""}`;
+  $("#detail-content").innerHTML=`<div class="detail-grid"><div>订单：${esc(o.SalesOrderID)}</div><div>状态：${esc(o.OrderStatus)}</div><div>收货人：${esc(o.RecipientName)}</div><div>联系电话：${esc(o.RecipientPhone)}</div><div>地址：${esc(o.ShippingAddress)}</div><div>金额：¥${money(o.TotalAmount)}</div><div>优惠：¥${money(o.DiscountAmount)}（${Number(o.DiscountRate)*100}%）</div></div><h3>订单明细</h3><div class="table-wrap"><table><thead><tr><th>明细</th><th>商品</th><th>数量</th><th>历史单价</th><th>操作</th></tr></thead><tbody>${data.items.map(i=>`<tr><td>${esc(i.SalesItemID)}</td><td>${esc(i.ProductName)}</td><td>${esc(i.Quantity)}</td><td>¥${money(i.DealUnitPrice)}</td><td>${user?.role==="customer" && o.OrderStatus==="待支付" ? `<div class="actions"><button data-item-edit="${esc(i.SalesItemID)}" data-order="${esc(o.SalesOrderID)}" data-qty="${esc(i.Quantity)}">改数量</button><button class="danger" data-item-delete="${esc(i.SalesItemID)}" data-order="${esc(o.SalesOrderID)}">删明细</button></div>`:""}</td></tr>`).join("")}</tbody></table></div>${user?.role==="customer" && o.OrderStatus==="待支付" ? `<div class="detail-actions"><button data-recipient="${esc(o.SalesOrderID)}">改收货信息</button><button data-item-add="${esc(o.SalesOrderID)}">加商品</button></div>`:""}`;
   if (!$("#detail-dialog").open) $("#detail-dialog").showModal();
 }
 
@@ -182,4 +182,15 @@ document.addEventListener("click",event=>{
     else if(d.itemAdd){const product_id=await promptAction("商品编号");if(product_id===null)return;const quantity=await promptAction("数量");if(quantity===null)return;await api(`/api/orders/${encodeURIComponent(d.itemAdd)}/items`,{method:"POST",body:JSON.stringify({product_id,quantity})});await showDetail(d.itemAdd);await loadOrders();await loadProducts();}
     else if(d.recipient){const recipient_name=await promptAction("收货人");if(recipient_name===null)return;const recipient_phone=await promptAction("联系电话");if(recipient_phone===null)return;const shipping_address=await promptAction("收货地址");if(shipping_address===null)return;await api(`/api/orders/${encodeURIComponent(d.recipient)}`,{method:"PATCH",body:JSON.stringify({recipient_name,recipient_phone,shipping_address})});await showDetail(d.recipient);}
   },"操作完成");
+});
+
+$("#replenishment-form").addEventListener("submit",event=>{
+  event.preventDefault();const form=new FormData(event.currentTarget);
+  action(async()=>{const data=await api("/api/replenishment/"+encodeURIComponent(form.get("product_id"))+"?target="+encodeURIComponent(form.get("target")));
+    $("#replenishment-result").textContent=`建议补货 ${data.ReplenishmentQty} 件`;},"补货建议已计算");
+});
+$("#sales-form").addEventListener("submit",event=>{
+  event.preventDefault();const query=new URLSearchParams(new FormData(event.currentTarget));
+  action(async()=>{const data=await api("/api/sales-summary?"+query);
+    $("#sales-body").innerHTML=data.map(row=>`<tr><td>${esc(row.ProductName)} (${esc(row.ProductID)})</td><td>${esc(row.SalesQty)}</td><td>¥${money(row.SalesAmount)}</td><td>${esc(row.OrderCount)}</td></tr>`).join("")||'<tr><td colspan="4">该日期范围没有已完成销售</td></tr>';},"销售汇总已更新");
 });

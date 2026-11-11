@@ -213,25 +213,44 @@ class Repository:
         return int(row["Qty"])
 
     def change_stock(self, batch_id, delta, movement_id, operator_id, reason):
-        self.run("UPDATE dbo.InventoryBatch SET OnHandQty=OnHandQty+%s WHERE BatchID=%s",
-                 (delta, batch_id))
-        self.run(
-            """INSERT dbo.InventoryMovement(MovementID,BatchID,MovementType,QuantityDelta,
-                       SalesItemID,Reason,OperatorID,OccurredAt)
-               VALUES (%s,%s,N'盘点调整',%s,NULL,%s,%s,SYSDATETIME())""",
-            (movement_id, batch_id, delta, reason, operator_id),
-        )
+        return self.one("""EXEC dbo.sp_AdjustInventory @ProductID=%s,@Delta=%s,
+            @Reason=%s,@OperatorID=%s,@BatchID=%s""",
+            (self.batch_product(batch_id), delta, reason, operator_id, batch_id))
+
+    def batch_product(self, batch_id):
+        row = self.one("""SELECT i.ProductID FROM dbo.InventoryBatch b
+            JOIN dbo.PurchaseOrderItem i ON i.PurchaseItemID=b.PurchaseItemID
+            WHERE b.BatchID=%s""", (batch_id,))
+        return row["ProductID"] if row else None
+
+    def price_order(self, order_id, initialize=False):
+        return self.one("EXEC dbo.sp_PriceOrder @OrderID=%s,@Initialize=%s",
+                        (order_id, int(initialize)))
+
+    def complete_order(self, order_id, operator_id):
+        return self.one("EXEC dbo.sp_CompleteOrder @OrderID=%s,@OperatorID=%s",
+                        (order_id, operator_id))
+
+    def replenishment(self, product_id, target):
+        return self.one("EXEC dbo.sp_SelectReplenishment @ProductID=%s,@TargetQty=%s",
+                        (product_id, target))
+
+    def sales_summary(self, start, end):
+        return self.all("SELECT * FROM dbo.fn_SalesSummary(%s,%s) ORDER BY ProductID", (start, end))
+
+    def set_operator(self, employee_id):
+        self.run("EXEC sys.sp_set_session_context @key=N'OperatorID',@value=%s", (employee_id,))
 
     def orders(self, customer_id=None):
         if customer_id is None:
             return self.all(
                 """SELECT SalesOrderID,CustomerID,CreatedAt,OrderStatus,TotalAmount,
-                          RecipientName,CompletedAt FROM dbo.SalesOrder
+                       RecipientName,CompletedAt,DiscountRate,DiscountAmount FROM dbo.SalesOrder
                    ORDER BY CreatedAt DESC,SalesOrderID DESC"""
             )
         return self.all(
             """SELECT SalesOrderID,CustomerID,CreatedAt,OrderStatus,TotalAmount,
-                      RecipientName,CompletedAt FROM dbo.SalesOrder
+                      RecipientName,CompletedAt,DiscountRate,DiscountAmount FROM dbo.SalesOrder
                WHERE CustomerID=%s ORDER BY CreatedAt DESC,SalesOrderID DESC""",
             (customer_id,),
         )
@@ -243,17 +262,10 @@ class Repository:
 
     def order_items(self, order_id):
         return self.all(
-            """SELECT i.SalesItemID,i.ProductID,p.ProductName,i.Quantity,i.DealUnitPrice
+            """SELECT i.SalesItemID,i.ProductID,p.ProductName,i.Quantity,i.DealUnitPrice,i.ListUnitPrice
                FROM dbo.SalesOrderItem i JOIN dbo.Product p ON p.ProductID=i.ProductID
                WHERE i.SalesOrderID=%s ORDER BY i.SalesItemID""", (order_id,)
         )
-
-    def order_total(self, order_id):
-        row = self.one(
-            """SELECT SUM(CONVERT(decimal(18,2),Quantity)*DealUnitPrice) AS Total
-               FROM dbo.SalesOrderItem WHERE SalesOrderID=%s""", (order_id,)
-        )
-        return row["Total"]
 
     def insert_order(self, order_id, customer_id, data, total):
         self.run(
@@ -272,15 +284,11 @@ class Repository:
              data["shipping_address"], order_id),
         )
 
-    def update_order_total(self, order_id, total):
-        self.run("UPDATE dbo.SalesOrder SET TotalAmount=%s WHERE SalesOrderID=%s",
-                 (total, order_id))
-
     def insert_item(self, item_id, order_id, product_id, quantity, price):
         self.run(
-            """INSERT dbo.SalesOrderItem(SalesItemID,SalesOrderID,ProductID,Quantity,DealUnitPrice)
-               VALUES (%s,%s,%s,%s,%s)""",
-            (item_id, order_id, product_id, quantity, price),
+            """INSERT dbo.SalesOrderItem(SalesItemID,SalesOrderID,ProductID,Quantity,DealUnitPrice,ListUnitPrice)
+               VALUES (%s,%s,%s,%s,%s,%s)""",
+            (item_id, order_id, product_id, quantity, price, price),
         )
 
     def update_item_quantity(self, item_id, quantity):
@@ -338,39 +346,6 @@ class Repository:
             (payment_id, order_id, transaction_no, amount),
         )
 
-    def active_reservations_for_order(self, order_id):
-        return self.all(
-            """SELECT r.ReservationID,r.BatchID,r.ReservedQty,i.SalesItemID,
-                      i.ProductID,i.Quantity,b.OnHandQty,b.BatchStatus,b.ExpiryDate,
-                      CASE WHEN b.ExpiryDate>CONVERT(date,GETDATE()) THEN 1 ELSE 0 END AS IsUnexpired,
-                      pi.ProductID AS BatchProductID
-               FROM dbo.SalesOrderItem i
-               LEFT JOIN dbo.InventoryReservation r WITH (UPDLOCK,HOLDLOCK)
-                 ON r.SalesItemID=i.SalesItemID AND r.ReservationStatus=N'有效'
-               LEFT JOIN dbo.InventoryBatch b WITH (UPDLOCK,HOLDLOCK) ON b.BatchID=r.BatchID
-               LEFT JOIN dbo.PurchaseOrderItem pi ON pi.PurchaseItemID=b.PurchaseItemID
-               WHERE i.SalesOrderID=%s ORDER BY i.SalesItemID,r.ReservationID""",
-            (order_id,),
-        )
-
-    def ship_reservation(self, reservation, movement_id, operator_id, reason):
-        self.run(
-            "UPDATE dbo.InventoryBatch SET OnHandQty=OnHandQty-%s WHERE BatchID=%s",
-            (reservation["ReservedQty"], reservation["BatchID"]),
-        )
-        self.run(
-            """INSERT dbo.InventoryMovement(MovementID,BatchID,MovementType,QuantityDelta,
-                       SalesItemID,Reason,OperatorID,OccurredAt)
-               VALUES (%s,%s,N'销售出库',%s,%s,%s,%s,SYSDATETIME())""",
-            (movement_id, reservation["BatchID"], -reservation["ReservedQty"],
-             reservation["SalesItemID"], reason, operator_id),
-        )
-        self.run(
-            """UPDATE dbo.InventoryReservation SET ReservationStatus=N'已转出库',
-                       EndedAt=SYSDATETIME() WHERE ReservationID=%s""",
-            (reservation["ReservationID"],),
-        )
-
     def customer(self, customer_id, lock=False):
         hint = " WITH (UPDLOCK,HOLDLOCK)" if lock else ""
         return self.one("SELECT CustomerID,IsMember,PointsBalance,ActiveStatus FROM dbo.Customer" +
@@ -379,13 +354,3 @@ class Repository:
     def points_for_order(self, order_id):
         return self.one("SELECT PointsMovementID FROM dbo.PointsMovement WHERE SalesOrderID=%s",
                         (order_id,))
-
-    def award_points(self, movement_id, customer_id, order_id, points, amount):
-        self.run(
-            """INSERT dbo.PointsMovement(PointsMovementID,CustomerID,SalesOrderID,
-                       PointsDelta,BasedAmount,Reason,OccurredAt)
-               VALUES (%s,%s,%s,%s,%s,N'订单完成赠分',SYSDATETIME())""",
-            (movement_id, customer_id, order_id, points, amount),
-        )
-        self.run("UPDATE dbo.Customer SET PointsBalance=PointsBalance+%s WHERE CustomerID=%s",
-                 (points, customer_id))

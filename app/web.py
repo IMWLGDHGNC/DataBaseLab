@@ -81,6 +81,14 @@ def create_app(config=None):
             details = details[0]
         number = details[0] if details and isinstance(details[0], int) else None
         app.logger.exception("request_id=%s code=DB_%s role=%s", g.request_id, number, g.role)
+        if number == 51801:
+            return failure("INVALID_INPUT", "输入参数或金额超出允许范围", 400)
+        if number == 51802:
+            return failure("NOT_FOUND", "商品、批次或订单不存在", 404)
+        if number == 51803:
+            return failure("FORBIDDEN", "员工账号不可执行业务操作", 403)
+        if number in (51804, 51811, 51812):
+            return failure("BUSINESS_CONFLICT", "库存、订单或支付状态不满足操作条件", 409)
         if number in (2601, 2627, 547, 515, 50000):
             return failure("CONSTRAINT_CONFLICT", "操作与现有数据或约束冲突，请检查输入", 409)
         if number in (8115, 8152, 2628):
@@ -174,6 +182,14 @@ def create_app(config=None):
     @app.post("/api/inventory/adjust")
     def adjust_inventory():
         return success(service.adjust_inventory(current_user(), body()))
+
+    @app.get("/api/replenishment/<product_id>")
+    def replenishment(product_id):
+        return success(service.replenishment(current_user(), product_id, request.args.get("target")))
+
+    @app.get("/api/sales-summary")
+    def sales_summary():
+        return success(service.sales_summary(current_user(), request.args.get("start"), request.args.get("end")))
 
     @app.get("/api/orders")
     def orders():

@@ -70,11 +70,25 @@
         <button type="submit">确认整单验收入库</button>
       </form>
       <p class="hint">管理员先建立并审批单商品采购单，店员按采购数量整单验收入库。已入库的批次和流水保留历史。</p>
+      <form id="replenishment-form" class="grid-form">
+        <h3>补货建议</h3>
+        <label>商品编号<input name="product_id" maxlength="12" required></label>
+        <label>目标可售库存<input name="target" type="number" min="0" max="2147483647" placeholder="留空使用补货阈值"></label>
+        <button type="submit">计算建议数量</button>
+        <output id="replenishment-result" aria-live="polite"></output>
+      </form>
+      <form id="sales-form" class="grid-form">
+        <h3>已完成销售汇总</h3>
+        <label>开始日期<input name="start" type="date" required></label>
+        <label>结束日期<input name="end" type="date" required></label>
+        <button type="submit">查询销售</button>
+      </form>
+      <div class="table-wrap"><table><thead><tr><th>商品</th><th>数量</th><th>金额</th><th>订单数</th></tr></thead><tbody id="sales-body"></tbody></table></div>
     </section>
 
     <section class="panel role-customer" id="new-order-panel" hidden>
       <div class="section-head"><div><p class="eyebrow">顾客</p><h2>创建订单</h2></div></div>
-      <p class="hint">下单先锁定可售库存；模拟支付后，需由店员确认出库。</p>
+      <p class="hint">会员享九五折，订单保存实际优惠与成交价。下单先锁定可售库存；模拟支付后，需由店员确认出库。</p>
       <div class="inline form-row"><select id="cart-product"></select><input id="cart-qty" type="number" min="1" step="1" value="1" aria-label="数量"><button id="cart-add" type="button">加入订单</button></div>
       <ul id="cart-list" class="cart-list"></ul>
       <form id="order-form" class="grid-form">

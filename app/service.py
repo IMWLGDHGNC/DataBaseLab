@@ -1,6 +1,5 @@
 """Business rules and transaction boundaries for the Week 7–9 application."""
 
-from collections import defaultdict
 from decimal import Decimal, InvalidOperation
 from datetime import date
 import secrets
@@ -255,6 +254,7 @@ class ShopService:
         reason = required_text(payload.get("reason"), "验收说明", 200)
         with self.db.session(user["role"], write=True) as repo:
             self._operator(repo, user)
+            repo.set_operator(user["employee_id"])
             purchase = repo.purchase_item(item_id)
             if purchase is None:
                 raise AppError("NOT_FOUND", "采购明细不存在", 404)
@@ -282,17 +282,23 @@ class ShopService:
         if isinstance(payload.get("delta"), bool) or delta == 0 or abs(delta) > 100000 or str(delta) != str(payload.get("delta")):
             raise AppError("INVALID_INPUT", "调整数量必须为非零整数")
         with self.db.session(user["role"], write=True) as repo:
-            batch = repo.batch(batch_id, lock=True)
-            if batch is None:
-                raise AppError("NOT_FOUND", "批次不存在", 404)
-            self._operator(repo, user)
-            reserved = repo.reserved_in_batch(batch_id)
-            if int(batch["OnHandQty"]) + delta < reserved:
-                raise AppError("BUSINESS_CONFLICT", "调整后库存不能低于有效锁定量", 409)
-            if int(batch["OnHandQty"]) + delta > INT_MAX:
-                raise AppError("INVALID_INPUT", "调整后库存超出允许范围")
             repo.change_stock(batch_id, delta, new_id("IM"), user["employee_id"], reason)
         return {"batch_id": batch_id, "delta": delta}
+
+    def replenishment(self, user, product_id, target=None):
+        require_role(user, "staff", "manager")
+        product_id = required_text(product_id, "商品编号", 12)
+        target = None if target in (None, "") else nonnegative_int(target, "目标库存")
+        with self.db.session(user["role"]) as repo:
+            return repo.replenishment(product_id, target)
+
+    def sales_summary(self, user, start, end):
+        require_role(user, "staff", "manager")
+        start, end = input_date(start, "开始日期"), input_date(end, "结束日期")
+        if start > end:
+            raise AppError("INVALID_INPUT", "开始日期不能晚于结束日期")
+        with self.db.session(user["role"]) as repo:
+            return repo.sales_summary(start, end)
 
     def orders(self, user):
         require_role(user, "customer", "staff", "manager")
@@ -329,7 +335,9 @@ class ShopService:
                 repo.insert_item(item_id, order_id, product_id, quantity, price)
                 for batch_id, take in allocations:
                     repo.insert_reservation(new_id("RS"), item_id, batch_id, take)
-        return {"order_id": order_id, "total_amount": total}
+            pricing = repo.price_order(order_id, initialize=True)
+        return {"order_id": order_id, "total_amount": pricing["TotalAmount"],
+                "discount_amount": pricing["DiscountAmount"]}
 
     def change_recipient(self, user, order_id, payload):
         require_role(user, "customer")
@@ -356,8 +364,7 @@ class ShopService:
             repo.insert_item(item_id, order_id, product_id, quantity, product["CurrentPrice"])
             for batch_id, take in allocations:
                 repo.insert_reservation(new_id("RS"), item_id, batch_id, take)
-            total = checked_total(repo.order_total(order_id))
-            repo.update_order_total(order_id, total)
+            total = repo.price_order(order_id)["TotalAmount"]
         return {"order_id": order_id, "item_id": item_id, "total_amount": total}
 
     def change_order_item(self, user, order_id, item_id, payload):
@@ -376,8 +383,7 @@ class ShopService:
             repo.update_item_quantity(item_id, quantity)
             for batch_id, take in allocations:
                 repo.insert_reservation(new_id("RS"), item_id, batch_id, take)
-            total = checked_total(repo.order_total(order_id))
-            repo.update_order_total(order_id, total)
+            total = repo.price_order(order_id)["TotalAmount"]
         return {"order_id": order_id, "item_id": item_id, "total_amount": total}
 
     def remove_order_item(self, user, order_id, item_id):
@@ -391,8 +397,7 @@ class ShopService:
             if len(items) == 1:
                 raise AppError("BUSINESS_CONFLICT", "最后一条明细请通过取消订单处理", 409)
             repo.delete_item(item_id)
-            total = checked_total(repo.order_total(order_id))
-            repo.update_order_total(order_id, total)
+            total = repo.price_order(order_id)["TotalAmount"]
         return {"order_id": order_id, "item_id": item_id, "total_amount": total}
 
     def cancel_order(self, user, order_id):
@@ -422,47 +427,5 @@ class ShopService:
     def fulfill_order(self, user, order_id):
         require_role(user, "staff", "manager")
         with self.db.session(user["role"], write=True) as repo:
-            order = repo.order(order_id, lock=True)
-            self._operator(repo, user)
-            if order is None:
-                raise AppError("NOT_FOUND", "订单不存在", 404)
-            if order["OrderStatus"] != "待出库" or not repo.successful_payment(order_id):
-                raise AppError("BUSINESS_CONFLICT", "订单尚未满足出库条件", 409)
-            reservations = repo.active_reservations_for_order(order_id)
-            if not reservations:
-                raise AppError("BUSINESS_CONFLICT", "订单缺少库存锁定", 409)
-            per_item = defaultdict(int)
-            per_batch = defaultdict(int)
-            expected = {}
-            for reservation in reservations:
-                item_id = reservation["SalesItemID"]
-                expected[item_id] = int(reservation["Quantity"])
-                if reservation["ReservationID"] is None:
-                    raise AppError("BUSINESS_CONFLICT", "订单明细缺少有效锁定", 409)
-                if reservation["ProductID"] != reservation["BatchProductID"]:
-                    raise AppError("BUSINESS_CONFLICT", "锁定批次与商品不一致", 409)
-                if reservation["BatchStatus"] != "合格":
-                    raise AppError("BUSINESS_CONFLICT", "锁定批次不可出库", 409)
-                if not reservation["IsUnexpired"]:
-                    raise AppError("BUSINESS_CONFLICT", "锁定批次已到期，暂停出库", 409)
-                per_item[item_id] += int(reservation["ReservedQty"])
-                per_batch[reservation["BatchID"]] += int(reservation["ReservedQty"])
-            if per_item != expected:
-                raise AppError("BUSINESS_CONFLICT", "明细数量与库存锁定不一致", 409)
-            for batch_id, quantity in per_batch.items():
-                batch = repo.batch(batch_id, lock=True)
-                if int(batch["OnHandQty"]) < repo.reserved_in_batch(batch_id) or int(batch["OnHandQty"]) < quantity:
-                    raise AppError("BUSINESS_CONFLICT", "库存与有效锁定不一致", 409)
-            for reservation in reservations:
-                repo.ship_reservation(reservation, new_id("IM"), user["employee_id"],
-                                      f"{order_id} 确认出库")
-            repo.set_order_status(order_id, "已完成", completed=True)
-            customer = repo.customer(order["CustomerID"], lock=True)
-            if customer and customer["IsMember"]:
-                if repo.points_for_order(order_id):
-                    raise AppError("BUSINESS_CONFLICT", "该订单已赠送积分", 409)
-                points = int(order["TotalAmount"])
-                if points > 0:
-                    repo.award_points(new_id("PM"), order["CustomerID"], order_id,
-                                      points, order["TotalAmount"])
+            repo.complete_order(order_id, user["employee_id"])
         return {"order_id": order_id, "status": "已完成"}
