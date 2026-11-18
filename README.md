@@ -48,7 +48,7 @@ DataBaseLab/
 | [第二阶段报告](docs/reports/第二阶段报告.md) / [提交清单](docs/submission/第5-9周提交核对.md) | 第5–9周v1.0交付 |
 | [第10周](docs/week10/README.md) / [验证结果](result/week10/README.md) | 数据库过程、函数、折扣与应用集成 |
 | [第11周](docs/week11/README.md) / [验证结果](result/week11/README.md) | 库存审计、完成触发器及三类窗口查询 |
-| [第12周](docs/week12/README.md) / [实验报告 DOCX](docs/reports/第12周实验报告.docx) | 商品分类递归、订单完成与补货入库事务 |
+| [第12周](docs/week12/README.md) / [验证结果](result/week12/README.md) | 商品分类递归、订单完成与补货入库事务 |
 | [组内分工](docs/submission/组内分工.md) / [ai_log.md](ai_log.md) | 实际贡献、AI辅助与审核记录 |
 
 已有验证包含LocalDB及课程服务器各 **103项集成检查**，以及服务器 **21项三角色流程核对**，详见[验证结果](result/week7/README.md)。第一阶段v0.1的复现和历史材料保留在相应指南与周文档中。
