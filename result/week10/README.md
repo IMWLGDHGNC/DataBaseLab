@@ -14,6 +14,6 @@
 | 失败写入 | 非法输入、库存不足、过期出库以及出库后积分阶段故障均拒绝；每例比较全部dbo表内容摘要保持一致 |
 | Web权限 | 顾客报表拒绝；店员可执行过程，直接更新现存量拒绝 |
 
-测试源码：[SQL与事务](../../tests/Test-Week10.py)、[Flask及受限账户](../../tests/week10_web.py)、[公共测试工具](../../tests/sqlserver_checks.py)。Flask路由、服务和DAO执行真实SQL；仅将Windows不可用的pymssql连接传输替换为ODBC/LocalDB。不能据此声称Linux、Gunicorn或生产pymssql传输已复验。
+本次 Flask 路由、服务和 DAO 对 LocalDB 执行真实 SQL，连接通过 Windows ODBC 适配。Linux、Gunicorn 和真实 pymssql 的课程服务器实测对应第7–9周版本。[SQL 与事务测试](../../tests/Test-Week10.py)、[Flask 与受限账户测试](../../tests/week10_web.py)、[公共测试工具](../../tests/sqlserver_checks.py)、[服务器历史结果](../week7/README.md)
 
 测试中的原始异常、测试配置和凭据均保存在 `output/week10/`。公开JSON仅包含模拟参数、业务结果和摘要比较结论，无连接信息、身份凭据或异常堆栈。异常探针会回滚；成功Web流程在独立库保留模拟订单与库存流水，基础15表46行是写入测试之前的基线。

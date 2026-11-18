@@ -26,7 +26,7 @@ export APP_CONFIG_FILE="$(cat output/week7/config-path.txt)"
 bash scripts/Start-Week7-Web.sh
 ```
 
-默认访问 `http://127.0.0.1:8767`。脚本依次完成基线建库 → ER核对 → v1.0迁移与回归 → 应用授权与配置；配置及演示账号保存在私有目录。安装前提、登录、测试和排错见[Web操作手册](app/README.md)，Windows数据库复现见[LocalDB指南](docs/guides/本地SQL环境.md)。
+默认访问 `http://127.0.0.1:8767`。部署脚本在独立样例库安装当前应用所需的 SQL，配置及演示账号保存在私有目录。Linux 启动与操作见[Web 手册](app/README.md)，Windows 专项复现见[LocalDB 指南](docs/guides/本地SQL环境.md)。
 
 ## 项目与文档入口
 
@@ -51,6 +51,6 @@ DataBaseLab/
 | [第12周](docs/week12/README.md) / [验证结果](result/week12/README.md) | 商品分类递归、订单完成与补货入库事务 |
 | [组内分工](docs/submission/组内分工.md) / [ai_log.md](ai_log.md) | 实际贡献、AI辅助与审核记录 |
 
-已有验证包含LocalDB及课程服务器各 **103项集成检查**，以及服务器 **21项三角色流程核对**，详见[验证结果](result/week7/README.md)。第一阶段v0.1的复现和历史材料保留在相应指南与周文档中。
+当前 LocalDB 验证包括 **23 项第12周专项**和 **103 项 Web 回归**，见[第12周结果](result/week12/README.md)。课程服务器的 **103 项集成检查**和 **21 项三角色核对**对应[第7–9周版本](result/week7/README.md)。
 
 参与修改前阅读[仓库规则](AGENTS.md)和[公开材料规则](docs/guides/公开材料与敏感信息规则.md)。署名报告、私下提交包和凭据保存在公开仓库之外。

@@ -1,6 +1,6 @@
 # 本地 SQL Server 环境
 
-使用 SQL Server 2022 Express LocalDB，实例名为 `DataBaseLab`，数据库名为 `DataBaseLab`，通过 Windows 身份验证连接。LocalDB 适合本机开发实验；已部署的共享 SQL Server 2022 容器及 SSH 隧道连接方式见[服务器 SQL Server 环境](服务器SQL环境.md)。参见 [Microsoft LocalDB 文档](https://learn.microsoft.com/en-us/sql/database-engine/configure-windows/sql-server-express-localdb?view=sql-server-ver17)。
+使用 SQL Server 2022 Express LocalDB，通过 Windows 身份验证连接 `DataBaseLab` 实例。初始化脚本创建同名数据库用于环境检查，各周复现使用各自的独立数据库。Linux 环境与 SSH 隧道见[服务器 SQL 环境](服务器SQL环境.md)。参见 [Microsoft LocalDB 文档](https://learn.microsoft.com/en-us/sql/database-engine/configure-windows/sql-server-express-localdb?view=sql-server-ver17)。
 
 ## 安装
 
@@ -52,9 +52,23 @@ SQL 执行器会先检查输入文件，再检查当前用户能否找到实例�
 
 2026-09-17：用户手动安装后，已检测到 SQL Server 2022 LocalDB `16.0.1000.6`，创建并启动 `DataBaseLab` 实例和同名数据库。通过 Windows 身份验证执行环境验证 SQL，返回 `EnvironmentSmokeTest = PASS`；临时表建表、插入、查询与事务回滚执行成功，0.50 元和 1.00 元的积分计算分别返回 0 和 1。修复了 Windows PowerShell 对连接字符串构造器属性赋值的兼容问题，改为使用标准连接字符串键。
 
-上述环境脚本仅验证连接和基本 SQL 能力。第三周已另在 `DataBaseLab_Week3` 数据库实现 15 张业务表，具体脚本与结果见 [Week3.md](../week3/README.md)。无需重复安装；上述初始化脚本可以再次运行，保留已有实例和数据库。
+第三周另在 `DataBaseLab_Week3` 数据库验证 15 张业务表。脚本与结果见[第3周复现](../week3/README.md)。环境初始化可以再次运行，保留已有实例和数据库。
 
-## v1.0 数据库复现
+## 第10至12周专项复现
+
+初始化 LocalDB 后，在同一 Windows 用户的终端中从仓库根目录执行。第12周专项需要 Python 3.12、`pyodbc` 以及可用的 SQL Server ODBC 驱动。第10、11周专项还会测试 Flask 和 DAO，需要 Flask 与 pymssql。各周的依赖和预期结果见[脚本导航](../../scripts/README.md)及[结果导航](../../result/README.md)。
+
+```powershell
+$env:LAB_TEST_DATABASE = 'DataBaseLab_Week6_Week10' + (Get-Date -Format 'yyyyMMddHHmmss')
+./scripts/Run-Week10.ps1 -Database $env:LAB_TEST_DATABASE
+./scripts/Run-Week11.ps1 -Database $env:LAB_TEST_DATABASE
+./scripts/Run-Week12.ps1 -Database $env:LAB_TEST_DATABASE
+python tests/Test-Week12.py
+```
+
+第10周脚本负责新建数据库，第11、12周脚本在同一库安装对象。预期最后输出 `WEEK12_PASS 23`。专项测试会装入模拟数据并保留提交结果，重跑整套专项时请新建样例库。课程服务器的 Web 启动与配置见[应用手册](../../app/README.md)。
+
+## 第二阶段 v1.0 基线复现
 
 初始化LocalDB后，在仓库根目录运行：
 
@@ -62,7 +76,7 @@ SQL 执行器会先检查输入文件，再检查当前用户能否找到实例�
 powershell.exe -NoProfile -File .\scripts\Run-Week6.ps1
 ```
 
-脚本自动选择新的独立数据库，按顺序重建v0.1样例、核对第五周ER、迁移为v1.0并执行回归。预期最后输出 `W6_REGRESSION_PASS 15 46 15 64.50` 和 `WEEK6_PASS`。迁移、回归须在同一天执行；完整SQL顺序见[SQL导航](../../sql/README.md)。Web应用的Linux部署、私有配置与三角色操作另见[应用手册](../../app/README.md)。
+脚本自动选择新的独立数据库，重建 v0.1 样例、核对第五周 ER、迁移为 v1.0 并执行回归。预期最后输出 `W6_REGRESSION_PASS 15 46 15 64.50` 和 `WEEK6_PASS`。迁移和回归须在同一天执行，顺序见 [SQL 导航](../../sql/README.md)。
 
 ## 第一阶段 v0.1 空库复现
 

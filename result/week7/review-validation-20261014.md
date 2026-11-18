@@ -8,7 +8,7 @@
 
 仓库入口 `tests/Test-Week7-Web.py` 的原 39 项与新增 64 项全部通过，最终 `WEEK7_WEB_PASS 103`。逐项输出见[安全日志](review-validation-20261014.txt)。应用和测试 Python 语法、前端 JavaScript 语法、服务器 Bash 脚本语法及本次修改的 Markdown 本地链接均另行检查。直接脚本入口已能导入 app；未指定私有配置时按预期要求 `APP_CONFIG_FILE`。
 
-测试会写入独立样例库，46 行仅为测试前基线。修复版尚未在课程 Linux/pymssql/Gunicorn 环境重部署，不能把本次 LocalDB 结果写成服务器复验。正式数据库未修改。
+测试在独立样例库写入数据，46 行是写入前基线。本页记录 LocalDB 验证，正式数据库保留原版本。随后在课程服务器完成了 Linux 集成检查及 Gunicorn 页面复验，证据见[第7–9周结果](README.md)。
 
 ## 六项修复对应
 

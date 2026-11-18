@@ -34,20 +34,20 @@
 
 页面 → Flask角色/格式校验 → DAO参数绑定 → SQL过程/函数。`service.py` 的盘点与完成规则已移入SQL，不保留Python的第二套扣货、赠分实现；创建及增改删明细统一调用计价过程。补货建议和销售汇总可在库存页面查询，详情展示实际优惠。SQL错误51801/51802/51803/51804分别映射为输入错误/不存在/无权限/业务冲突，不向页面返回SQL堆栈。
 
-先应用第7周受限角色授权，再运行[本周权限](../../sql/week10/permissions.sql)，撤回店员/管理员直接改现存量、订单完成状态、积分余额和积分插入的权限，授予对应过程执行权限。采购验收仍需原有批次/入库流水写权限。应用共享顾客数据库登录的“仅本人”边界继续在后端校验，过程参数不是独立的顾客身份认证。
+第7周受限角色授权后应用[第10周权限](../../sql/week10/permissions.sql)，收回店员和管理员直接修改现存量、完成状态和积分的权限，授权执行对应过程。第10周版本仍由 Web 写入采购验收数据。[第12周](../week12/README.md)将采购验收迁到数据库过程并收回相关直接写权限。共享顾客登录的“仅本人”边界由 Web 后端校验。
 
 ## 复现
 
-Windows需要已初始化的SQL Server 2022 LocalDB、Python3.12，以及 Flask、pymssql、pyodbc。安装依赖可使用自己的虚拟环境，不提交环境或凭据。从根目录执行：
+Windows 运行依赖见[本地 SQL 环境](../guides/本地SQL环境.md#第10至12周专项复现)。单独复现第10周时，在仓库根目录使用新库名。
 
 ```powershell
-./scripts/Run-Week10.ps1 -Database DataBaseLab_Week6_Week102026111101
-$env:LAB_TEST_DATABASE = 'DataBaseLab_Week6_Week102026111101'
+$env:LAB_TEST_DATABASE = 'DataBaseLab_Week6_Week10' + (Get-Date -Format 'yyyyMMddHHmmss')
+./scripts/Run-Week10.ps1 -Database $env:LAB_TEST_DATABASE
 python tests/Test-Week10.py
 ```
 
 数据库名必须使用尚未存在的新名称，重复建库会明确拒绝。执行器从第3–6周空库迁移开始，再运行本周 `migration → function → procedure → permissions`；第10周迁移只运行一次，过程、函数、授权可重复安装。Python测试只允许专用命名的样例库，所有模拟身份和原始异常保存在忽略目录。
 
-Linux新建Web样例库继续使用[部署脚本](../../scripts/Run-Week7-Server.sh)，第7周授权后安装本周SQL。已有v1.0应用升级须先备份并审查目标库，在停写时按上述SQL顺序升级，再部署新应用；本次没有对既有远端环境执行升级。
+Linux 新建 Web 样例库在第7周授权后依次安装第10至12周对象。已有 v1.0 应用升级前先备份并核对目标库，停写后按[当前 SQL 顺序](../../sql/README.md)安装，再部署应用。第10周实测在 LocalDB 完成。
 
 [实际结果](../../result/week10/README.md)包含输入、预期、实际值、错误号及无部分写入证据。原第7–9周测试适配了会员优惠金额与SQL完成入口，103项仍作为完整流程回归；历史103项服务器证据保留原版本含义。

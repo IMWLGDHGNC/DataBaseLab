@@ -32,15 +32,7 @@
 
 两个过程都通过 `sp_BusinessLock` 获取事务级应用锁 `DataBaseLab.WebWrite`，Web 写会话也获取同一把锁。独立调用由过程提交或回滚。Web 调用过程时由写会话负责最终提交，过程使用保存点。外层事务不可提交时由外层调用者回滚。库存审计与业务写入随事务一起提交或回滚。两个过程均还原连接上的操作人上下文。
 
-在 Windows 上按前序专用样例库的命名约定创建空库。
-
-```powershell
-$env:LAB_TEST_DATABASE = 'DataBaseLab_Week6_Week10' + (Get-Date -Format 'yyyyMMddHHmmss')
-./scripts/Run-Week10.ps1 -Database $env:LAB_TEST_DATABASE
-./scripts/Run-Week11.ps1 -Database $env:LAB_TEST_DATABASE
-./scripts/Run-Week12.ps1 -Database $env:LAB_TEST_DATABASE
-python tests/Test-Week12.py
-```
+在 Windows 上按[第10至12周专项复现](../guides/本地SQL环境.md#第10至12周专项复现)创建并安装独立样例库，再运行 [Test-Week12.py](../../tests/Test-Week12.py)。
 
 专项脚本自动装入测试数据，在失败前后逐表对比，并用新连接读取正常提交结果。回滚探针在隔离测试库中临时创建。每次失败后核对已恢复到基线，重复调用基于一次已提交的状态。整套复测从新的样例库开始。手工查看时可在另一个新样例库先执行 `test_data.sql`，再运行 `order_transaction.sql`。补货调用参数见 `restock_transaction.sql` 尾部。运行依赖与完整证据见[验证结果](../../result/week12/README.md)。
 

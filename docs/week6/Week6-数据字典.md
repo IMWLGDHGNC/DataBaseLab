@@ -2,7 +2,7 @@
 
 完整 v0.1 字段、键和基数以[第五周已核对的数据字典](../week5/er-model.md)为准；本页只列迁移后的差异。
 
-本文件记录 v0.1 到 v1.0 的字典差异；其他 14 张表字段、主码、候选码和外码沿用 [`Week2.md`](../week2/README.md)。本次不改 15 张表的实体边界，只重构库存流水中可经批次唯一还原的采购来源属性。
+本文件记录第六周从 v0.1 到 v1.0 的字典差异。其他 14 张表在这次迁移中沿用[第2周字典](../week2/README.md)的字段与键。第三阶段新增的优惠快照、库存审计和分类父级分别见[第10周](../week10/README.md)、[第11周](../week11/README.md)、[第12周](../week12/README.md)。
 
 ## InventoryMovement 库存变动
 
@@ -27,4 +27,4 @@
 - 目标库增加 `TR_InventoryBatch_PurchaseSourceImmutable`：批次已有库存流水后，不允许将该批的 `PurchaseItemID` 改成另一采购明细；这保护删去重复列后的历史追溯含义。回归要求返回错误 51620。
 - 迁移不删库存流水、批次或采购明细记录。入库来源查询方式改为 `InventoryMovement.BatchID → InventoryBatch.PurchaseItemID → PurchaseOrderItem`。
 
-其余表的码和属性仍见 `Week2.md`；总额、库存现存量及顾客积分余额是保留的跨表缓存，不作为本次字典拆分对象，须由受控事务维护并由回归核对。
+总额、库存现存量及顾客积分余额是此次迁移保留的跨表缓存，由受控事务维护，并通过回归核对。

@@ -1,6 +1,6 @@
 # SQL 导航
 
-本目录保存已完成的v1.0应用所需SQL：`week3/`、`week4/`建立v0.1基线，`week5/`核对ER，`week6/`执行规范化迁移与回归，`week7/`为第7–9周Web应用授权。完整运行入口见[应用手册](../app/README.md)，Windows数据库复现见[LocalDB指南](../docs/guides/本地SQL环境.md)。
+本目录保存 v0.1 原型、v1.0 应用基线和第10至12周的数据库对象。当前 Web 应用需要安装到第12周。Linux 部署见[应用手册](../app/README.md)，Windows 专项复现见[LocalDB 指南](../docs/guides/本地SQL环境.md)。
 
 ## 文件用途
 
@@ -18,7 +18,13 @@
 | 第四周约束 | [constraint.sql](week4/constraint.sql) | 异常解决说明 CHECK 与 6 项合法/非法写入验证 |
 | 第四周权限 | [role.sql](week4/role.sql) | 六类最小权限角色、本人订单/积分过程、辅助身份映射及 34 项权限正反例 |
 
-## v1.0 执行顺序
+## 从空库安装当前 Web 应用
+
+[Run-Week7-Server.sh](../scripts/Run-Week7-Server.sh) 先运行第六周脚本准备 v1.0 基线，然后安装应用登录和第7周授权。接着加载第10周迁移、函数、过程与授权，第11周触发器，以及第12周分类递归、入库过程和收货权限。
+
+`week11/window_query.sql` 用于窗口查询演示。`week12/test_data.sql` 和 `week12/order_transaction.sql` 用于隔离实验，安装脚本只加载当前应用所需对象。
+
+## v0.1 与 v1.0 基线执行顺序
 
 ```text
 00-create-database（在 master 中）
@@ -47,7 +53,7 @@
 
 ## 第七至九周 Web 授权
 
-修复版新增管理员采购建立/审批与店员验收入库所需的表级、列级权限，Employee 和 Supplier 仅读取 DAO 所需列；所有业务写入先取得以 public 为共同数据库主体的事务级应用锁。入库仍写 v1.0 的批次和流水，不恢复已迁移删除的冗余采购明细列。
+第7–9周授权为管理员采购建单与审批、店员验收入库配置了基础表级和列级权限。当前部署继续应用第10、12周授权，将订单完成、盘点和验收入库所需的直接写入权限收回，由相应过程执行。所有业务写入先获取同一事务级应用锁。
 
 [week7/permissions.sql](week7/permissions.sql)在第六周独立 v1.0 样例库中创建顾客、店员、管理员三个应用数据库角色，给新建的随机 SQL 登录授予所需表级及列级操作，最后确认登录未进入 `db_owner` 等宽权限角色。该脚本的登录占位符由[部署脚本](../scripts/Run-Week7-Server.sh)在服务器私下替换，不能直接把占位符原样运行。顾客“仅本人”行级限制在 Web 服务层，数据库端目前是表级授权；边界见 [第7–9周](../docs/week7-9/README.md)。
 

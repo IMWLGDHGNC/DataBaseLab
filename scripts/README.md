@@ -1,6 +1,6 @@
 # 脚本导航
 
-这里的脚本负责本地环境和 SQL 执行。业务规则实现在 [sql](../sql/README.md)，阶段复现与预期结果以[根 README](../README.md)为准。PowerShell 命令均在仓库根目录运行。
+这里的脚本负责环境初始化、SQL 安装和复现。执行顺序见 [SQL 导航](../sql/README.md)，实测输出见[结果导航](../result/README.md)。PowerShell 命令均在仓库根目录运行。
 
 ## 选择脚本
 
@@ -14,12 +14,15 @@
 | [Test-Week3Reproduction.ps1](Test-Week3Reproduction.ps1) | 复验第三周两个独立空库的一致性 | 创建并保留两个新实验库，更新 `docs/verification/` 的历史复现文件；执行后检查 Git 差异 |
 | [Run-Week6.ps1](Run-Week6.ps1) | Windows LocalDB 的第六周隔离复现 | 新建库，从 v0.1 和第五周核对运行到迁移与回归；原始日志保存在被忽略的 `output/week6/` |
 | [Run-Week6-Server.sh](Run-Week6-Server.sh) | 授权的 Linux SQL Server 容器环境 | 私下设置 `DB_CONTAINER` 后新建测试库，使用 `sqlcmd -I` 执行同一顺序；原始日志保存在被忽略的 `output/week6/` |
-| [Run-Week7-Server.sh](Run-Week7-Server.sh) | 授权服务器上部署 Web 应用 | 先重跑第六周独立样例库，再建立受限登录、私有配置和 Python 环境；输出 `WEEK7_DEPLOY_PREP_PASS` |
-| [Start-Week7-Web.sh](Start-Week7-Web.sh) | 第7–9周部署准备通过后 | 以私有配置启动只监听环回地址的 Web 服务；说明见[应用手册](../app/README.md) |
+| [Run-Week10.ps1](Run-Week10.ps1) | Windows 复现第10至12周的起点 | 新建独立库，准备 v1.0 基线并安装第10周 SQL |
+| [Run-Week11.ps1](Run-Week11.ps1) | 已安装第10周 | 在同一实验库安装触发器并展示窗口查询 |
+| [Run-Week12.ps1](Run-Week12.ps1) | 已安装第10、11周 | 在同一实验库更新订单过程并安装递归、补货入库和授权 |
+| [Run-Week7-Server.sh](Run-Week7-Server.sh) | 在授权的 Linux 服务器部署当前 Web 应用 | 在独立库准备 v1.0 基线、受限登录和私有配置，再安装第10至12周应用对象 |
+| [Start-Week7-Web.sh](Start-Week7-Web.sh) | Web 部署输出 `WEEK7_DEPLOY_PREP_PASS` 后 | 使用私有配置启动监听环回地址的服务，详见[应用手册](../app/README.md) |
 
 ## 常用入口
 
-已经完成环境初始化时，选择一个新的数据库名并运行：
+当前 Windows 专项复现见[第10至12周复现步骤](../docs/guides/本地SQL环境.md#第10至12周专项复现)。若只需重跑第一阶段 v0.1 原型，可另选新库名运行以下命令。
 
 ```powershell
 $db = 'DataBaseLab_Week4_' + (Get-Date -Format 'yyyyMMddHHmmss')
