@@ -50,4 +50,8 @@ powershell.exe -NoProfile -File .\scripts\Invoke-LabSql.ps1 -Database $db -Input
 
 ## 第11周触发器和窗口验证
 
-在已完成第10周的专用库运行 [Run-Week11.ps1](Run-Week11.ps1)，再执行 `python tests/Test-Week11.py`；沿用 `LAB_TEST_DATABASE`。脚本保留已有数据，只安装触发器并展示三组窗口查询；测试说明及72项结果见[第11周](../docs/week11/README.md)。新建Linux Web样例库的部署入口已按第10→11周安装当前SQL。
+在已完成第10周的专用库运行 [Run-Week11.ps1](Run-Week11.ps1)，再执行 `python tests/Test-Week11.py`，沿用 `LAB_TEST_DATABASE`。脚本安装触发器并展示三组窗口查询，保留已有数据。测试说明及72项结果见[第11周](../docs/week11/README.md)。
+
+## 第12周递归查询与事务验证
+
+在已安装第10、11周的专用库运行 [Run-Week12.ps1](Run-Week12.ps1)，再在同一 `LAB_TEST_DATABASE` 上执行 `python tests/Test-Week12.py`。安装脚本只更新数据库对象。专项验证装入模拟数据并保留已提交的结果，复测时使用新的样例库。Linux Web 新建库入口同样安装第12周对象，手工调用顺序见[第12周说明](../docs/week12/README.md)。

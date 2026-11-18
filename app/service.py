@@ -253,21 +253,10 @@ class ShopService:
         expiry = input_date(payload.get("expiry_date"), "到期日期")
         reason = required_text(payload.get("reason"), "验收说明", 200)
         with self.db.session(user["role"], write=True) as repo:
-            self._operator(repo, user)
-            repo.set_operator(user["employee_id"])
-            purchase = repo.purchase_item(item_id)
-            if purchase is None:
-                raise AppError("NOT_FOUND", "采购明细不存在", 404)
-            if purchase["OrderStatus"] != "已批准" or purchase["ItemCount"] != 1:
-                raise AppError("BUSINESS_CONFLICT", "本入口只验收已批准的单商品采购单", 409)
-            today = repo.today()
-            if production > today or expiry <= today or expiry <= production:
-                raise AppError("INVALID_INPUT", "生产日期不能晚于今天，到期日期须晚于今天及生产日期")
-            batch_id = new_id("BT")
-            repo.receive_purchase(purchase, batch_id, batch_no, production, expiry,
-                                  new_id("IM"), user["employee_id"], reason)
-        return {"batch_id": batch_id, "product_id": purchase["ProductID"],
-                "quantity": purchase["OrderedQty"], "status": "已收货"}
+            receipt = repo.receive_purchase(item_id, new_id("BT"), batch_no, production, expiry,
+                                            new_id("IM"), user["employee_id"], reason)
+        return {"batch_id": receipt["BatchID"], "product_id": receipt["ProductID"],
+                "quantity": receipt["ReceivedQty"], "status": receipt["OrderStatus"]}
 
     def adjust_inventory(self, user, payload):
         require_role(user, "staff", "manager")

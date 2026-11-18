@@ -2,12 +2,12 @@
 
 v1.0 Web应用已完成，对应第7–9周合并任务，将第六周SQL Server v1.0样例库接入浏览器。页面、Flask 路由、业务服务、DAO 和数据库的职责见 [第7–9周设计说明](../docs/week7-9/README.md)。登录账号仅为课程演示账号，顾客账号绑定样例顾客，店员和管理员绑定样例员工；真实密码由部署时随机生成，不进入 Git。
 
-当前代码已整合[第10周过程与函数](../docs/week10/README.md)及[第11周触发器](../docs/week11/README.md)：盘点、订单完成和计价由SQL Server负责，页面增加补货建议与销售汇总。新部署脚本按第10→11周安装SQL；已有v1.0库需先升级。会员下单享九五折，订单详情保留实际优惠及历史成交价。本次LocalDB第10周87项、第11周72项及触发器开启下完整Web回归103项通过；下面的服务器103项和21项流程是v1.0历史验证。
+当前代码整合[第10周过程与函数](../docs/week10/README.md)、[第11周触发器](../docs/week11/README.md)及[第12周事务](../docs/week12/README.md)。盘点、订单完成、计价与采购验收入库由 SQL Server 负责。部署脚本按第10至12周顺序安装 SQL，已有 v1.0 库需先升级。会员下单享九五折，订单详情保留实际优惠及历史成交价。[第12周验证](../result/week12/README.md)记录当前 LocalDB 实测，下面的服务器 103 项和 21 项流程是 v1.0 历史验证。
 
 ## 环境与目录
 
 - Python 3.12、`uv`、Flask、pymssql、Gunicorn；SQL Server 2022 容器监听服务器环回地址。
-- `app/templates/` 与 `app/static/` 是页面；`web.py` 是路由、会话和统一错误；`service.py` 是角色、输入校验及请求组织；第10周的计价/盘点/完成规则在SQL过程；`db.py` 是唯一执行 SQL 的 DAO；`bootstrap.py` 创建私有配置。
+- `app/templates/` 与 `app/static/` 是页面；`web.py` 负责路由、会话和统一错误；`service.py` 负责角色、输入校验及请求组织；`db.py` 调用计价、盘点、订单完成和验收入库等 SQL 过程；`bootstrap.py` 创建私有配置。
 - `sql/week7/permissions.sql` 为顾客、店员、管理员分别授予本阶段所需的表级或列级权限。Web 不使用 `sa`；不得公开私有配置和演示口令。
 
 ## 从空样例库复现

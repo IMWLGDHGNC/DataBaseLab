@@ -1,0 +1,1697 @@
+[
+  {
+    "case": "category_W12ROOT",
+    "expected": [
+      [
+        "W12A",
+        "W12ROOT",
+        1,
+        "/W12ROOT/W12A"
+      ],
+      [
+        "W12B",
+        "W12ROOT",
+        1,
+        "/W12ROOT/W12B"
+      ],
+      [
+        "W12LEAF",
+        "W12A",
+        2,
+        "/W12ROOT/W12A/W12LEAF"
+      ]
+    ],
+    "actual": [
+      {
+        "CategoryID": "W12A",
+        "ParentCategoryID": "W12ROOT",
+        "Depth": 1,
+        "CategoryPath": "/W12ROOT/W12A"
+      },
+      {
+        "CategoryID": "W12B",
+        "ParentCategoryID": "W12ROOT",
+        "Depth": 1,
+        "CategoryPath": "/W12ROOT/W12B"
+      },
+      {
+        "CategoryID": "W12LEAF",
+        "ParentCategoryID": "W12A",
+        "Depth": 2,
+        "CategoryPath": "/W12ROOT/W12A/W12LEAF"
+      }
+    ],
+    "result": "PASS"
+  },
+  {
+    "case": "category_W12A",
+    "expected": [
+      [
+        "W12LEAF",
+        "W12A",
+        1,
+        "/W12A/W12LEAF"
+      ]
+    ],
+    "actual": [
+      {
+        "CategoryID": "W12LEAF",
+        "ParentCategoryID": "W12A",
+        "Depth": 1,
+        "CategoryPath": "/W12A/W12LEAF"
+      }
+    ],
+    "result": "PASS"
+  },
+  {
+    "case": "category_W12LEAF",
+    "expected": [],
+    "actual": [],
+    "result": "PASS"
+  },
+  {
+    "case": "category_W12NONE",
+    "expected": [],
+    "actual": [],
+    "result": "PASS"
+  },
+  {
+    "case": "category_cycle_stops",
+    "expected": [
+      [
+        "W12A",
+        "W12ROOT",
+        1,
+        "/W12ROOT/W12A"
+      ],
+      [
+        "W12B",
+        "W12ROOT",
+        1,
+        "/W12ROOT/W12B"
+      ],
+      [
+        "W12LEAF",
+        "W12A",
+        2,
+        "/W12ROOT/W12A/W12LEAF"
+      ]
+    ],
+    "actual": [
+      {
+        "CategoryID": "W12A",
+        "ParentCategoryID": "W12ROOT",
+        "Depth": 1,
+        "CategoryPath": "/W12ROOT/W12A"
+      },
+      {
+        "CategoryID": "W12B",
+        "ParentCategoryID": "W12ROOT",
+        "Depth": 1,
+        "CategoryPath": "/W12ROOT/W12B"
+      },
+      {
+        "CategoryID": "W12LEAF",
+        "ParentCategoryID": "W12A",
+        "Depth": 2,
+        "CategoryPath": "/W12ROOT/W12A/W12LEAF"
+      }
+    ],
+    "result": "PASS"
+  },
+  {
+    "case": "starting_order",
+    "expected": "P=20 Q=15, reserved P=3 Q=4, paid 27.00, pending shipment",
+    "actual": {
+      "order": {
+        "OrderStatus": "待出库",
+        "TotalAmount": "27.00",
+        "CompletedAt": null
+      },
+      "items": [
+        {
+          "ProductID": "W12P",
+          "Quantity": 3,
+          "DealUnitPrice": "5.00"
+        },
+        {
+          "ProductID": "W12Q",
+          "Quantity": 4,
+          "DealUnitPrice": "3.00"
+        }
+      ],
+      "payment": {
+        "PaymentStatus": "成功",
+        "Amount": "27.00"
+      },
+      "reservations": [
+        {
+          "BatchID": "W12BP",
+          "ReservedQty": 3,
+          "ReservationStatus": "有效",
+          "EndedAt": null
+        },
+        {
+          "BatchID": "W12BQ",
+          "ReservedQty": 4,
+          "ReservationStatus": "有效",
+          "EndedAt": null
+        }
+      ],
+      "stock": [
+        {
+          "BatchID": "W12BP",
+          "OnHandQty": 20
+        },
+        {
+          "BatchID": "W12BQ",
+          "OnHandQty": 15
+        }
+      ],
+      "movements": [],
+      "audit": [],
+      "points": [],
+      "balance": 48
+    },
+    "result": "PASS"
+  },
+  {
+    "case": "order_not_found",
+    "expected": {
+      "error": 51802,
+      "message_fragment": "Order not found",
+      "open_transactions": 0,
+      "xact_state": 0,
+      "state_before_caller_cleanup": 0,
+      "all_dbo_tables_restored": true
+    },
+    "actual": {
+      "error": 51802,
+      "message": "Order not found.",
+      "open_transactions": 0,
+      "xact_state": 0,
+      "state_before_caller_cleanup": 0,
+      "all_dbo_tables_restored": true,
+      "after": {
+        "order": {
+          "OrderStatus": "待出库",
+          "TotalAmount": "27.00",
+          "CompletedAt": null
+        },
+        "items": [
+          {
+            "ProductID": "W12P",
+            "Quantity": 3,
+            "DealUnitPrice": "5.00"
+          },
+          {
+            "ProductID": "W12Q",
+            "Quantity": 4,
+            "DealUnitPrice": "3.00"
+          }
+        ],
+        "payment": {
+          "PaymentStatus": "成功",
+          "Amount": "27.00"
+        },
+        "reservations": [
+          {
+            "BatchID": "W12BP",
+            "ReservedQty": 3,
+            "ReservationStatus": "有效",
+            "EndedAt": null
+          },
+          {
+            "BatchID": "W12BQ",
+            "ReservedQty": 4,
+            "ReservationStatus": "有效",
+            "EndedAt": null
+          }
+        ],
+        "stock": [
+          {
+            "BatchID": "W12BP",
+            "OnHandQty": 20
+          },
+          {
+            "BatchID": "W12BQ",
+            "OnHandQty": 15
+          }
+        ],
+        "movements": [],
+        "audit": [],
+        "points": [],
+        "balance": 48
+      }
+    },
+    "result": "PASS",
+    "initial": {
+      "order": {
+        "OrderStatus": "待出库",
+        "TotalAmount": "27.00",
+        "CompletedAt": null
+      },
+      "items": [
+        {
+          "ProductID": "W12P",
+          "Quantity": 3,
+          "DealUnitPrice": "5.00"
+        },
+        {
+          "ProductID": "W12Q",
+          "Quantity": 4,
+          "DealUnitPrice": "3.00"
+        }
+      ],
+      "payment": {
+        "PaymentStatus": "成功",
+        "Amount": "27.00"
+      },
+      "reservations": [
+        {
+          "BatchID": "W12BP",
+          "ReservedQty": 3,
+          "ReservationStatus": "有效",
+          "EndedAt": null
+        },
+        {
+          "BatchID": "W12BQ",
+          "ReservedQty": 4,
+          "ReservationStatus": "有效",
+          "EndedAt": null
+        }
+      ],
+      "stock": [
+        {
+          "BatchID": "W12BP",
+          "OnHandQty": 20
+        },
+        {
+          "BatchID": "W12BQ",
+          "OnHandQty": 15
+        }
+      ],
+      "movements": [],
+      "audit": [],
+      "points": [],
+      "balance": 48
+    },
+    "operation": {
+      "sql": "EXEC dbo.sp_CompleteOrder ?,'P00';",
+      "parameters": [
+        "W12NONE"
+      ]
+    }
+  },
+  {
+    "case": "order_no_items",
+    "expected": {
+      "error": 51804,
+      "message_fragment": "no items",
+      "open_transactions": 0,
+      "xact_state": 0,
+      "state_before_caller_cleanup": -1,
+      "all_dbo_tables_restored": true
+    },
+    "actual": {
+      "error": 51804,
+      "message": "Order has no items.",
+      "open_transactions": 0,
+      "xact_state": 0,
+      "state_before_caller_cleanup": -1,
+      "all_dbo_tables_restored": true,
+      "after": {
+        "order": {
+          "OrderStatus": "待出库",
+          "TotalAmount": "27.00",
+          "CompletedAt": null
+        },
+        "items": [
+          {
+            "ProductID": "W12P",
+            "Quantity": 3,
+            "DealUnitPrice": "5.00"
+          },
+          {
+            "ProductID": "W12Q",
+            "Quantity": 4,
+            "DealUnitPrice": "3.00"
+          }
+        ],
+        "payment": {
+          "PaymentStatus": "成功",
+          "Amount": "27.00"
+        },
+        "reservations": [
+          {
+            "BatchID": "W12BP",
+            "ReservedQty": 3,
+            "ReservationStatus": "有效",
+            "EndedAt": null
+          },
+          {
+            "BatchID": "W12BQ",
+            "ReservedQty": 4,
+            "ReservationStatus": "有效",
+            "EndedAt": null
+          }
+        ],
+        "stock": [
+          {
+            "BatchID": "W12BP",
+            "OnHandQty": 20
+          },
+          {
+            "BatchID": "W12BQ",
+            "OnHandQty": 15
+          }
+        ],
+        "movements": [],
+        "audit": [],
+        "points": [],
+        "balance": 48
+      }
+    },
+    "result": "PASS",
+    "initial": {
+      "order": {
+        "OrderStatus": "待出库",
+        "TotalAmount": "27.00",
+        "CompletedAt": null
+      },
+      "items": [],
+      "payment": {
+        "PaymentStatus": "成功",
+        "Amount": "27.00"
+      },
+      "reservations": [],
+      "stock": [
+        {
+          "BatchID": "W12BP",
+          "OnHandQty": 20
+        },
+        {
+          "BatchID": "W12BQ",
+          "OnHandQty": 15
+        }
+      ],
+      "movements": [],
+      "audit": [],
+      "points": [],
+      "balance": 48
+    },
+    "operation": {
+      "sql": "EXEC dbo.sp_CompleteOrder 'W12SALE','P00';",
+      "parameters": []
+    },
+    "setup": "\n    DELETE dbo.InventoryReservation WHERE ReservationID IN('W12RP','W12RQ');\n    DELETE dbo.SalesOrderItem WHERE SalesOrderID='W12SALE';"
+  },
+  {
+    "case": "order_insufficient_stock",
+    "expected": {
+      "error": 51804,
+      "message_fragment": "overcommitted",
+      "open_transactions": 0,
+      "xact_state": 0,
+      "state_before_caller_cleanup": -1,
+      "all_dbo_tables_restored": true
+    },
+    "actual": {
+      "error": 51804,
+      "message": "Reserved batch is unavailable or overcommitted.",
+      "open_transactions": 0,
+      "xact_state": 0,
+      "state_before_caller_cleanup": -1,
+      "all_dbo_tables_restored": true,
+      "after": {
+        "order": {
+          "OrderStatus": "待出库",
+          "TotalAmount": "27.00",
+          "CompletedAt": null
+        },
+        "items": [
+          {
+            "ProductID": "W12P",
+            "Quantity": 3,
+            "DealUnitPrice": "5.00"
+          },
+          {
+            "ProductID": "W12Q",
+            "Quantity": 4,
+            "DealUnitPrice": "3.00"
+          }
+        ],
+        "payment": {
+          "PaymentStatus": "成功",
+          "Amount": "27.00"
+        },
+        "reservations": [
+          {
+            "BatchID": "W12BP",
+            "ReservedQty": 3,
+            "ReservationStatus": "有效",
+            "EndedAt": null
+          },
+          {
+            "BatchID": "W12BQ",
+            "ReservedQty": 4,
+            "ReservationStatus": "有效",
+            "EndedAt": null
+          }
+        ],
+        "stock": [
+          {
+            "BatchID": "W12BP",
+            "OnHandQty": 20
+          },
+          {
+            "BatchID": "W12BQ",
+            "OnHandQty": 15
+          }
+        ],
+        "movements": [],
+        "audit": [],
+        "points": [],
+        "balance": 48
+      }
+    },
+    "result": "PASS",
+    "initial": {
+      "order": {
+        "OrderStatus": "待出库",
+        "TotalAmount": "117.00",
+        "CompletedAt": null
+      },
+      "items": [
+        {
+          "ProductID": "W12P",
+          "Quantity": 21,
+          "DealUnitPrice": "5.00"
+        },
+        {
+          "ProductID": "W12Q",
+          "Quantity": 4,
+          "DealUnitPrice": "3.00"
+        }
+      ],
+      "payment": {
+        "PaymentStatus": "成功",
+        "Amount": "117.00"
+      },
+      "reservations": [
+        {
+          "BatchID": "W12BP",
+          "ReservedQty": 21,
+          "ReservationStatus": "有效",
+          "EndedAt": null
+        },
+        {
+          "BatchID": "W12BQ",
+          "ReservedQty": 4,
+          "ReservationStatus": "有效",
+          "EndedAt": null
+        }
+      ],
+      "stock": [
+        {
+          "BatchID": "W12BP",
+          "OnHandQty": 20
+        },
+        {
+          "BatchID": "W12BQ",
+          "OnHandQty": 15
+        }
+      ],
+      "movements": [],
+      "audit": [],
+      "points": [],
+      "balance": 48
+    },
+    "operation": {
+      "sql": "EXEC dbo.sp_CompleteOrder 'W12SALE','P00';",
+      "parameters": []
+    },
+    "setup": "\n    UPDATE dbo.SalesOrderItem SET Quantity=21 WHERE SalesItemID='W12SP';\n    UPDATE dbo.InventoryReservation SET ReservedQty=21 WHERE ReservationID='W12RP';\n    UPDATE dbo.SalesOrder SET TotalAmount=117 WHERE SalesOrderID='W12SALE';\n    UPDATE dbo.PaymentRecord SET Amount=117 WHERE SalesOrderID='W12SALE';"
+  },
+  {
+    "case": "order_midway_rollback",
+    "expected": {
+      "error": 51920,
+      "message_fragment": "after stock",
+      "open_transactions": 0,
+      "xact_state": 0,
+      "state_before_caller_cleanup": 0,
+      "all_dbo_tables_restored": true
+    },
+    "actual": {
+      "error": 51920,
+      "message": "Injected after stock, audit, movement and order status writes.",
+      "open_transactions": 0,
+      "xact_state": 0,
+      "state_before_caller_cleanup": 0,
+      "all_dbo_tables_restored": true,
+      "after": {
+        "order": {
+          "OrderStatus": "待出库",
+          "TotalAmount": "27.00",
+          "CompletedAt": null
+        },
+        "items": [
+          {
+            "ProductID": "W12P",
+            "Quantity": 3,
+            "DealUnitPrice": "5.00"
+          },
+          {
+            "ProductID": "W12Q",
+            "Quantity": 4,
+            "DealUnitPrice": "3.00"
+          }
+        ],
+        "payment": {
+          "PaymentStatus": "成功",
+          "Amount": "27.00"
+        },
+        "reservations": [
+          {
+            "BatchID": "W12BP",
+            "ReservedQty": 3,
+            "ReservationStatus": "有效",
+            "EndedAt": null
+          },
+          {
+            "BatchID": "W12BQ",
+            "ReservedQty": 4,
+            "ReservationStatus": "有效",
+            "EndedAt": null
+          }
+        ],
+        "stock": [
+          {
+            "BatchID": "W12BP",
+            "OnHandQty": 20
+          },
+          {
+            "BatchID": "W12BQ",
+            "OnHandQty": 15
+          }
+        ],
+        "movements": [],
+        "audit": [],
+        "points": [],
+        "balance": 48
+      }
+    },
+    "result": "PASS",
+    "initial": {
+      "order": {
+        "OrderStatus": "待出库",
+        "TotalAmount": "27.00",
+        "CompletedAt": null
+      },
+      "items": [
+        {
+          "ProductID": "W12P",
+          "Quantity": 3,
+          "DealUnitPrice": "5.00"
+        },
+        {
+          "ProductID": "W12Q",
+          "Quantity": 4,
+          "DealUnitPrice": "3.00"
+        }
+      ],
+      "payment": {
+        "PaymentStatus": "成功",
+        "Amount": "27.00"
+      },
+      "reservations": [
+        {
+          "BatchID": "W12BP",
+          "ReservedQty": 3,
+          "ReservationStatus": "有效",
+          "EndedAt": null
+        },
+        {
+          "BatchID": "W12BQ",
+          "ReservedQty": 4,
+          "ReservationStatus": "有效",
+          "EndedAt": null
+        }
+      ],
+      "stock": [
+        {
+          "BatchID": "W12BP",
+          "OnHandQty": 20
+        },
+        {
+          "BatchID": "W12BQ",
+          "OnHandQty": 15
+        }
+      ],
+      "movements": [],
+      "audit": [],
+      "points": [],
+      "balance": 48
+    },
+    "operation": {
+      "sql": "EXEC dbo.sp_CompleteOrder ?,'P00';",
+      "parameters": [
+        "W12SALE"
+      ]
+    }
+  },
+  {
+    "case": "order_caller_transaction_closed",
+    "expected": true,
+    "actual": true,
+    "result": "PASS"
+  },
+  {
+    "case": "order_committed_visible_to_new_connection",
+    "expected": "P=17 Q=11, completed 27.00, reserves consumed, two movements and audit rows, +27 points",
+    "actual": {
+      "order": {
+        "OrderStatus": "已完成",
+        "TotalAmount": "27.00",
+        "CompletedAt": "2026-11-18 13:09:54"
+      },
+      "items": [
+        {
+          "ProductID": "W12P",
+          "Quantity": 3,
+          "DealUnitPrice": "5.00"
+        },
+        {
+          "ProductID": "W12Q",
+          "Quantity": 4,
+          "DealUnitPrice": "3.00"
+        }
+      ],
+      "payment": {
+        "PaymentStatus": "成功",
+        "Amount": "27.00"
+      },
+      "reservations": [
+        {
+          "BatchID": "W12BP",
+          "ReservedQty": 3,
+          "ReservationStatus": "已转出库",
+          "EndedAt": "2026-11-18 13:09:54"
+        },
+        {
+          "BatchID": "W12BQ",
+          "ReservedQty": 4,
+          "ReservationStatus": "已转出库",
+          "EndedAt": "2026-11-18 13:09:54"
+        }
+      ],
+      "stock": [
+        {
+          "BatchID": "W12BP",
+          "OnHandQty": 17
+        },
+        {
+          "BatchID": "W12BQ",
+          "OnHandQty": 11
+        }
+      ],
+      "movements": [
+        {
+          "BatchID": "W12BP",
+          "QuantityDelta": -3,
+          "OperatorID": "P00"
+        },
+        {
+          "BatchID": "W12BQ",
+          "QuantityDelta": -4,
+          "OperatorID": "P00"
+        }
+      ],
+      "audit": [
+        {
+          "BatchID": "W12BP",
+          "BeforeQty": 20,
+          "AfterQty": 17,
+          "QuantityDelta": -3,
+          "OperatorID": "P00"
+        },
+        {
+          "BatchID": "W12BQ",
+          "BeforeQty": 15,
+          "AfterQty": 11,
+          "QuantityDelta": -4,
+          "OperatorID": "P00"
+        }
+      ],
+      "points": [
+        {
+          "PointsDelta": 27,
+          "BasedAmount": "27.00"
+        }
+      ],
+      "balance": 75
+    },
+    "result": "PASS",
+    "initial": {
+      "order": {
+        "OrderStatus": "待出库",
+        "TotalAmount": "27.00",
+        "CompletedAt": null
+      },
+      "items": [
+        {
+          "ProductID": "W12P",
+          "Quantity": 3,
+          "DealUnitPrice": "5.00"
+        },
+        {
+          "ProductID": "W12Q",
+          "Quantity": 4,
+          "DealUnitPrice": "3.00"
+        }
+      ],
+      "payment": {
+        "PaymentStatus": "成功",
+        "Amount": "27.00"
+      },
+      "reservations": [
+        {
+          "BatchID": "W12BP",
+          "ReservedQty": 3,
+          "ReservationStatus": "有效",
+          "EndedAt": null
+        },
+        {
+          "BatchID": "W12BQ",
+          "ReservedQty": 4,
+          "ReservationStatus": "有效",
+          "EndedAt": null
+        }
+      ],
+      "stock": [
+        {
+          "BatchID": "W12BP",
+          "OnHandQty": 20
+        },
+        {
+          "BatchID": "W12BQ",
+          "OnHandQty": 15
+        }
+      ],
+      "movements": [],
+      "audit": [],
+      "points": [],
+      "balance": 48
+    },
+    "operation": "order_transaction.sql"
+  },
+  {
+    "case": "order_repeat",
+    "expected": {
+      "error": 51804,
+      "message_fragment": "already been completed",
+      "open_transactions": 0,
+      "xact_state": 0,
+      "state_before_caller_cleanup": 0,
+      "all_dbo_tables_restored": true
+    },
+    "actual": {
+      "error": 51804,
+      "message": "Order has already been completed.",
+      "open_transactions": 0,
+      "xact_state": 0,
+      "state_before_caller_cleanup": 0,
+      "all_dbo_tables_restored": true,
+      "after": {
+        "order": {
+          "OrderStatus": "已完成",
+          "TotalAmount": "27.00",
+          "CompletedAt": "2026-11-18 13:09:54"
+        },
+        "items": [
+          {
+            "ProductID": "W12P",
+            "Quantity": 3,
+            "DealUnitPrice": "5.00"
+          },
+          {
+            "ProductID": "W12Q",
+            "Quantity": 4,
+            "DealUnitPrice": "3.00"
+          }
+        ],
+        "payment": {
+          "PaymentStatus": "成功",
+          "Amount": "27.00"
+        },
+        "reservations": [
+          {
+            "BatchID": "W12BP",
+            "ReservedQty": 3,
+            "ReservationStatus": "已转出库",
+            "EndedAt": "2026-11-18 13:09:54"
+          },
+          {
+            "BatchID": "W12BQ",
+            "ReservedQty": 4,
+            "ReservationStatus": "已转出库",
+            "EndedAt": "2026-11-18 13:09:54"
+          }
+        ],
+        "stock": [
+          {
+            "BatchID": "W12BP",
+            "OnHandQty": 17
+          },
+          {
+            "BatchID": "W12BQ",
+            "OnHandQty": 11
+          }
+        ],
+        "movements": [
+          {
+            "BatchID": "W12BP",
+            "QuantityDelta": -3,
+            "OperatorID": "P00"
+          },
+          {
+            "BatchID": "W12BQ",
+            "QuantityDelta": -4,
+            "OperatorID": "P00"
+          }
+        ],
+        "audit": [
+          {
+            "BatchID": "W12BP",
+            "BeforeQty": 20,
+            "AfterQty": 17,
+            "QuantityDelta": -3,
+            "OperatorID": "P00"
+          },
+          {
+            "BatchID": "W12BQ",
+            "BeforeQty": 15,
+            "AfterQty": 11,
+            "QuantityDelta": -4,
+            "OperatorID": "P00"
+          }
+        ],
+        "points": [
+          {
+            "PointsDelta": 27,
+            "BasedAmount": "27.00"
+          }
+        ],
+        "balance": 75
+      }
+    },
+    "result": "PASS",
+    "initial": {
+      "order": {
+        "OrderStatus": "已完成",
+        "TotalAmount": "27.00",
+        "CompletedAt": "2026-11-18 13:09:54"
+      },
+      "items": [
+        {
+          "ProductID": "W12P",
+          "Quantity": 3,
+          "DealUnitPrice": "5.00"
+        },
+        {
+          "ProductID": "W12Q",
+          "Quantity": 4,
+          "DealUnitPrice": "3.00"
+        }
+      ],
+      "payment": {
+        "PaymentStatus": "成功",
+        "Amount": "27.00"
+      },
+      "reservations": [
+        {
+          "BatchID": "W12BP",
+          "ReservedQty": 3,
+          "ReservationStatus": "已转出库",
+          "EndedAt": "2026-11-18 13:09:54"
+        },
+        {
+          "BatchID": "W12BQ",
+          "ReservedQty": 4,
+          "ReservationStatus": "已转出库",
+          "EndedAt": "2026-11-18 13:09:54"
+        }
+      ],
+      "stock": [
+        {
+          "BatchID": "W12BP",
+          "OnHandQty": 17
+        },
+        {
+          "BatchID": "W12BQ",
+          "OnHandQty": 11
+        }
+      ],
+      "movements": [
+        {
+          "BatchID": "W12BP",
+          "QuantityDelta": -3,
+          "OperatorID": "P00"
+        },
+        {
+          "BatchID": "W12BQ",
+          "QuantityDelta": -4,
+          "OperatorID": "P00"
+        }
+      ],
+      "audit": [
+        {
+          "BatchID": "W12BP",
+          "BeforeQty": 20,
+          "AfterQty": 17,
+          "QuantityDelta": -3,
+          "OperatorID": "P00"
+        },
+        {
+          "BatchID": "W12BQ",
+          "BeforeQty": 15,
+          "AfterQty": 11,
+          "QuantityDelta": -4,
+          "OperatorID": "P00"
+        }
+      ],
+      "points": [
+        {
+          "PointsDelta": 27,
+          "BasedAmount": "27.00"
+        }
+      ],
+      "balance": 75
+    },
+    "operation": {
+      "sql": "EXEC dbo.sp_CompleteOrder ?,'P00';",
+      "parameters": [
+        "W12SALE"
+      ]
+    }
+  },
+  {
+    "case": "restock_unknown_item",
+    "expected": {
+      "error": 51802,
+      "message_fragment": "not found",
+      "open_transactions": 0,
+      "xact_state": 0,
+      "state_before_caller_cleanup": 0,
+      "all_dbo_tables_restored": true
+    },
+    "actual": {
+      "error": 51802,
+      "message": "Purchase item or product not found.",
+      "open_transactions": 0,
+      "xact_state": 0,
+      "state_before_caller_cleanup": 0,
+      "all_dbo_tables_restored": true,
+      "after": {
+        "purchase": {
+          "OrderStatus": "已批准",
+          "ReceivedAt": null,
+          "ReceivedBy": null
+        },
+        "item": {
+          "PurchaseOrderID": "W12PUR",
+          "PurchaseItemID": "W12RI",
+          "ProductID": "W12Q",
+          "OrderedQty": 7
+        },
+        "stock": [
+          {
+            "BatchID": "W12BQ",
+            "PurchaseItemID": "W12IQ",
+            "OnHandQty": 11,
+            "ReceivedAt": "2026-11-18 13:09:53"
+          }
+        ],
+        "movements": [],
+        "audit": []
+      }
+    },
+    "result": "PASS",
+    "initial": {
+      "purchase": {
+        "OrderStatus": "已批准",
+        "ReceivedAt": null,
+        "ReceivedBy": null
+      },
+      "item": {
+        "PurchaseOrderID": "W12PUR",
+        "PurchaseItemID": "W12RI",
+        "ProductID": "W12Q",
+        "OrderedQty": 7
+      },
+      "stock": [
+        {
+          "BatchID": "W12BQ",
+          "PurchaseItemID": "W12IQ",
+          "OnHandQty": 11,
+          "ReceivedAt": "2026-11-18 13:09:53"
+        }
+      ],
+      "movements": [],
+      "audit": []
+    },
+    "operation": {
+      "sql": "DECLARE @today date=CONVERT(date,GETDATE()), @expiry date=DATEADD(day,365,GETDATE());\nEXEC dbo.sp_ReceivePurchase ?,'W12BR','W12-RESTOCK',@today,@expiry,'W12MR','P00',N'模拟验收',?;",
+      "parameters": [
+        "W12NONE",
+        7
+      ]
+    }
+  },
+  {
+    "case": "restock_pending_approval",
+    "expected": {
+      "error": 51804,
+      "message_fragment": "approved",
+      "open_transactions": 0,
+      "xact_state": 0,
+      "state_before_caller_cleanup": 0,
+      "all_dbo_tables_restored": true
+    },
+    "actual": {
+      "error": 51804,
+      "message": "An approved single-item purchase order is required.",
+      "open_transactions": 0,
+      "xact_state": 0,
+      "state_before_caller_cleanup": 0,
+      "all_dbo_tables_restored": true,
+      "after": {
+        "purchase": {
+          "OrderStatus": "已批准",
+          "ReceivedAt": null,
+          "ReceivedBy": null
+        },
+        "item": {
+          "PurchaseOrderID": "W12PUR",
+          "PurchaseItemID": "W12RI",
+          "ProductID": "W12Q",
+          "OrderedQty": 7
+        },
+        "stock": [
+          {
+            "BatchID": "W12BQ",
+            "PurchaseItemID": "W12IQ",
+            "OnHandQty": 11,
+            "ReceivedAt": "2026-11-18 13:09:53"
+          }
+        ],
+        "movements": [],
+        "audit": []
+      }
+    },
+    "result": "PASS",
+    "initial": {
+      "purchase": {
+        "OrderStatus": "已批准",
+        "ReceivedAt": null,
+        "ReceivedBy": null
+      },
+      "item": {
+        "PurchaseOrderID": "W12PUR",
+        "PurchaseItemID": "W12RI",
+        "ProductID": "W12Q",
+        "OrderedQty": 7
+      },
+      "stock": [
+        {
+          "BatchID": "W12BQ",
+          "PurchaseItemID": "W12IQ",
+          "OnHandQty": 11,
+          "ReceivedAt": "2026-11-18 13:09:53"
+        }
+      ],
+      "movements": [],
+      "audit": []
+    },
+    "operation": {
+      "sql": "DECLARE @today date=CONVERT(date,GETDATE()), @expiry date=DATEADD(day,365,GETDATE());\nEXEC dbo.sp_ReceivePurchase ?,'W12BR','W12-RESTOCK',@today,@expiry,'W12MR','P00',N'模拟验收',?;",
+      "parameters": [
+        "W12PI",
+        7
+      ]
+    }
+  },
+  {
+    "case": "restock_zero_quantity",
+    "expected": {
+      "error": 51801,
+      "message_fragment": "quantity",
+      "open_transactions": 0,
+      "xact_state": 0,
+      "state_before_caller_cleanup": 0,
+      "all_dbo_tables_restored": true
+    },
+    "actual": {
+      "error": 51801,
+      "message": "Invalid receipt dates, quantity or batch information.",
+      "open_transactions": 0,
+      "xact_state": 0,
+      "state_before_caller_cleanup": 0,
+      "all_dbo_tables_restored": true,
+      "after": {
+        "purchase": {
+          "OrderStatus": "已批准",
+          "ReceivedAt": null,
+          "ReceivedBy": null
+        },
+        "item": {
+          "PurchaseOrderID": "W12PUR",
+          "PurchaseItemID": "W12RI",
+          "ProductID": "W12Q",
+          "OrderedQty": 7
+        },
+        "stock": [
+          {
+            "BatchID": "W12BQ",
+            "PurchaseItemID": "W12IQ",
+            "OnHandQty": 11,
+            "ReceivedAt": "2026-11-18 13:09:53"
+          }
+        ],
+        "movements": [],
+        "audit": []
+      }
+    },
+    "result": "PASS",
+    "initial": {
+      "purchase": {
+        "OrderStatus": "已批准",
+        "ReceivedAt": null,
+        "ReceivedBy": null
+      },
+      "item": {
+        "PurchaseOrderID": "W12PUR",
+        "PurchaseItemID": "W12RI",
+        "ProductID": "W12Q",
+        "OrderedQty": 7
+      },
+      "stock": [
+        {
+          "BatchID": "W12BQ",
+          "PurchaseItemID": "W12IQ",
+          "OnHandQty": 11,
+          "ReceivedAt": "2026-11-18 13:09:53"
+        }
+      ],
+      "movements": [],
+      "audit": []
+    },
+    "operation": {
+      "sql": "DECLARE @today date=CONVERT(date,GETDATE()), @expiry date=DATEADD(day,365,GETDATE());\nEXEC dbo.sp_ReceivePurchase ?,'W12BR','W12-RESTOCK',@today,@expiry,'W12MR','P00',N'模拟验收',?;",
+      "parameters": [
+        "W12RI",
+        0
+      ]
+    }
+  },
+  {
+    "case": "restock_negative_quantity",
+    "expected": {
+      "error": 51801,
+      "message_fragment": "quantity",
+      "open_transactions": 0,
+      "xact_state": 0,
+      "state_before_caller_cleanup": 0,
+      "all_dbo_tables_restored": true
+    },
+    "actual": {
+      "error": 51801,
+      "message": "Invalid receipt dates, quantity or batch information.",
+      "open_transactions": 0,
+      "xact_state": 0,
+      "state_before_caller_cleanup": 0,
+      "all_dbo_tables_restored": true,
+      "after": {
+        "purchase": {
+          "OrderStatus": "已批准",
+          "ReceivedAt": null,
+          "ReceivedBy": null
+        },
+        "item": {
+          "PurchaseOrderID": "W12PUR",
+          "PurchaseItemID": "W12RI",
+          "ProductID": "W12Q",
+          "OrderedQty": 7
+        },
+        "stock": [
+          {
+            "BatchID": "W12BQ",
+            "PurchaseItemID": "W12IQ",
+            "OnHandQty": 11,
+            "ReceivedAt": "2026-11-18 13:09:53"
+          }
+        ],
+        "movements": [],
+        "audit": []
+      }
+    },
+    "result": "PASS",
+    "initial": {
+      "purchase": {
+        "OrderStatus": "已批准",
+        "ReceivedAt": null,
+        "ReceivedBy": null
+      },
+      "item": {
+        "PurchaseOrderID": "W12PUR",
+        "PurchaseItemID": "W12RI",
+        "ProductID": "W12Q",
+        "OrderedQty": 7
+      },
+      "stock": [
+        {
+          "BatchID": "W12BQ",
+          "PurchaseItemID": "W12IQ",
+          "OnHandQty": 11,
+          "ReceivedAt": "2026-11-18 13:09:53"
+        }
+      ],
+      "movements": [],
+      "audit": []
+    },
+    "operation": {
+      "sql": "DECLARE @today date=CONVERT(date,GETDATE()), @expiry date=DATEADD(day,365,GETDATE());\nEXEC dbo.sp_ReceivePurchase ?,'W12BR','W12-RESTOCK',@today,@expiry,'W12MR','P00',N'模拟验收',?;",
+      "parameters": [
+        "W12RI",
+        -1
+      ]
+    }
+  },
+  {
+    "case": "restock_quantity_mismatch",
+    "expected": {
+      "error": 51801,
+      "message_fragment": "equal the approved quantity",
+      "open_transactions": 0,
+      "xact_state": 0,
+      "state_before_caller_cleanup": 0,
+      "all_dbo_tables_restored": true
+    },
+    "actual": {
+      "error": 51801,
+      "message": "Receipt quantity must be positive and equal the approved quantity.",
+      "open_transactions": 0,
+      "xact_state": 0,
+      "state_before_caller_cleanup": 0,
+      "all_dbo_tables_restored": true,
+      "after": {
+        "purchase": {
+          "OrderStatus": "已批准",
+          "ReceivedAt": null,
+          "ReceivedBy": null
+        },
+        "item": {
+          "PurchaseOrderID": "W12PUR",
+          "PurchaseItemID": "W12RI",
+          "ProductID": "W12Q",
+          "OrderedQty": 7
+        },
+        "stock": [
+          {
+            "BatchID": "W12BQ",
+            "PurchaseItemID": "W12IQ",
+            "OnHandQty": 11,
+            "ReceivedAt": "2026-11-18 13:09:53"
+          }
+        ],
+        "movements": [],
+        "audit": []
+      }
+    },
+    "result": "PASS",
+    "initial": {
+      "purchase": {
+        "OrderStatus": "已批准",
+        "ReceivedAt": null,
+        "ReceivedBy": null
+      },
+      "item": {
+        "PurchaseOrderID": "W12PUR",
+        "PurchaseItemID": "W12RI",
+        "ProductID": "W12Q",
+        "OrderedQty": 7
+      },
+      "stock": [
+        {
+          "BatchID": "W12BQ",
+          "PurchaseItemID": "W12IQ",
+          "OnHandQty": 11,
+          "ReceivedAt": "2026-11-18 13:09:53"
+        }
+      ],
+      "movements": [],
+      "audit": []
+    },
+    "operation": {
+      "sql": "DECLARE @today date=CONVERT(date,GETDATE()), @expiry date=DATEADD(day,365,GETDATE());\nEXEC dbo.sp_ReceivePurchase ?,'W12BR','W12-RESTOCK',@today,@expiry,'W12MR','P00',N'模拟验收',?;",
+      "parameters": [
+        "W12RI",
+        8
+      ]
+    }
+  },
+  {
+    "case": "restock_midway_rollback",
+    "expected": {
+      "error": 51921,
+      "message_fragment": "before receipt status",
+      "open_transactions": 0,
+      "xact_state": 0,
+      "state_before_caller_cleanup": 0,
+      "all_dbo_tables_restored": true
+    },
+    "actual": {
+      "error": 51921,
+      "message": "Injected after stock and audit writes and before receipt status update.",
+      "open_transactions": 0,
+      "xact_state": 0,
+      "state_before_caller_cleanup": 0,
+      "all_dbo_tables_restored": true,
+      "after": {
+        "purchase": {
+          "OrderStatus": "已批准",
+          "ReceivedAt": null,
+          "ReceivedBy": null
+        },
+        "item": {
+          "PurchaseOrderID": "W12PUR",
+          "PurchaseItemID": "W12RI",
+          "ProductID": "W12Q",
+          "OrderedQty": 7
+        },
+        "stock": [
+          {
+            "BatchID": "W12BQ",
+            "PurchaseItemID": "W12IQ",
+            "OnHandQty": 11,
+            "ReceivedAt": "2026-11-18 13:09:53"
+          }
+        ],
+        "movements": [],
+        "audit": []
+      }
+    },
+    "result": "PASS",
+    "initial": {
+      "purchase": {
+        "OrderStatus": "已批准",
+        "ReceivedAt": null,
+        "ReceivedBy": null
+      },
+      "item": {
+        "PurchaseOrderID": "W12PUR",
+        "PurchaseItemID": "W12RI",
+        "ProductID": "W12Q",
+        "OrderedQty": 7
+      },
+      "stock": [
+        {
+          "BatchID": "W12BQ",
+          "PurchaseItemID": "W12IQ",
+          "OnHandQty": 11,
+          "ReceivedAt": "2026-11-18 13:09:53"
+        }
+      ],
+      "movements": [],
+      "audit": []
+    },
+    "operation": {
+      "sql": "DECLARE @today date=CONVERT(date,GETDATE()), @expiry date=DATEADD(day,365,GETDATE());\nEXEC dbo.sp_ReceivePurchase ?,'W12BR','W12-RESTOCK',@today,@expiry,'W12MR','P00',N'模拟验收',?;",
+      "parameters": [
+        "W12RI",
+        7
+      ]
+    }
+  },
+  {
+    "case": "restock_outer_transaction_controls_commit",
+    "expected": "caller still owns one transaction and can roll back all rows",
+    "actual": {
+      "open_transactions": 1,
+      "receipt": {
+        "purchase": {
+          "OrderStatus": "已收货",
+          "ReceivedAt": "2026-11-18 13:09:54",
+          "ReceivedBy": "P00"
+        },
+        "item": {
+          "PurchaseOrderID": "W12PUR",
+          "PurchaseItemID": "W12RI",
+          "ProductID": "W12Q",
+          "OrderedQty": 7
+        },
+        "stock": [
+          {
+            "BatchID": "W12BQ",
+            "PurchaseItemID": "W12IQ",
+            "OnHandQty": 11,
+            "ReceivedAt": "2026-11-18 13:09:53"
+          },
+          {
+            "BatchID": "W12BR",
+            "PurchaseItemID": "W12RI",
+            "OnHandQty": 7,
+            "ReceivedAt": "2026-11-18 13:09:54"
+          }
+        ],
+        "movements": [
+          {
+            "BatchID": "W12BR",
+            "QuantityDelta": 7,
+            "MovementType": "采购入库",
+            "OperatorID": "P00",
+            "OccurredAt": "2026-11-18 13:09:54"
+          }
+        ],
+        "audit": [
+          {
+            "BatchID": "W12BR",
+            "ProductID": "W12Q",
+            "BeforeQty": null,
+            "AfterQty": 7,
+            "QuantityDelta": 7,
+            "OperatorID": "P00"
+          }
+        ]
+      }
+    },
+    "result": "PASS"
+  },
+  {
+    "case": "restock_caller_transaction_closed_and_actor_restored",
+    "expected": true,
+    "actual": true,
+    "result": "PASS"
+  },
+  {
+    "case": "restock_committed_visible_to_new_connection",
+    "expected": "Q increases 11→18, received with one batch, movement and audit row",
+    "actual": {
+      "purchase": {
+        "OrderStatus": "已收货",
+        "ReceivedAt": "2026-11-18 13:09:54",
+        "ReceivedBy": "P00"
+      },
+      "item": {
+        "PurchaseOrderID": "W12PUR",
+        "PurchaseItemID": "W12RI",
+        "ProductID": "W12Q",
+        "OrderedQty": 7
+      },
+      "stock": [
+        {
+          "BatchID": "W12BQ",
+          "PurchaseItemID": "W12IQ",
+          "OnHandQty": 11,
+          "ReceivedAt": "2026-11-18 13:09:53"
+        },
+        {
+          "BatchID": "W12BR",
+          "PurchaseItemID": "W12RI",
+          "OnHandQty": 7,
+          "ReceivedAt": "2026-11-18 13:09:54"
+        }
+      ],
+      "movements": [
+        {
+          "BatchID": "W12BR",
+          "QuantityDelta": 7,
+          "MovementType": "采购入库",
+          "OperatorID": "P00",
+          "OccurredAt": "2026-11-18 13:09:54"
+        }
+      ],
+      "audit": [
+        {
+          "BatchID": "W12BR",
+          "ProductID": "W12Q",
+          "BeforeQty": null,
+          "AfterQty": 7,
+          "QuantityDelta": 7,
+          "OperatorID": "P00"
+        }
+      ]
+    },
+    "result": "PASS",
+    "initial": {
+      "purchase": {
+        "OrderStatus": "已批准",
+        "ReceivedAt": null,
+        "ReceivedBy": null
+      },
+      "item": {
+        "PurchaseOrderID": "W12PUR",
+        "PurchaseItemID": "W12RI",
+        "ProductID": "W12Q",
+        "OrderedQty": 7
+      },
+      "stock": [
+        {
+          "BatchID": "W12BQ",
+          "PurchaseItemID": "W12IQ",
+          "OnHandQty": 11,
+          "ReceivedAt": "2026-11-18 13:09:53"
+        }
+      ],
+      "movements": [],
+      "audit": []
+    },
+    "operation": {
+      "sql": "DECLARE @today date=CONVERT(date,GETDATE()), @expiry date=DATEADD(day,365,GETDATE());\nEXEC dbo.sp_ReceivePurchase ?,'W12BR','W12-RESTOCK',@today,@expiry,'W12MR','P00',N'模拟验收',?;",
+      "parameters": [
+        "W12RI",
+        7
+      ]
+    }
+  },
+  {
+    "case": "restock_repeat",
+    "expected": {
+      "error": 51804,
+      "message_fragment": "already been received",
+      "open_transactions": 0,
+      "xact_state": 0,
+      "state_before_caller_cleanup": 0,
+      "all_dbo_tables_restored": true
+    },
+    "actual": {
+      "error": 51804,
+      "message": "Purchase order has already been received.",
+      "open_transactions": 0,
+      "xact_state": 0,
+      "state_before_caller_cleanup": 0,
+      "all_dbo_tables_restored": true,
+      "after": {
+        "purchase": {
+          "OrderStatus": "已收货",
+          "ReceivedAt": "2026-11-18 13:09:54",
+          "ReceivedBy": "P00"
+        },
+        "item": {
+          "PurchaseOrderID": "W12PUR",
+          "PurchaseItemID": "W12RI",
+          "ProductID": "W12Q",
+          "OrderedQty": 7
+        },
+        "stock": [
+          {
+            "BatchID": "W12BQ",
+            "PurchaseItemID": "W12IQ",
+            "OnHandQty": 11,
+            "ReceivedAt": "2026-11-18 13:09:53"
+          },
+          {
+            "BatchID": "W12BR",
+            "PurchaseItemID": "W12RI",
+            "OnHandQty": 7,
+            "ReceivedAt": "2026-11-18 13:09:54"
+          }
+        ],
+        "movements": [
+          {
+            "BatchID": "W12BR",
+            "QuantityDelta": 7,
+            "MovementType": "采购入库",
+            "OperatorID": "P00",
+            "OccurredAt": "2026-11-18 13:09:54"
+          }
+        ],
+        "audit": [
+          {
+            "BatchID": "W12BR",
+            "ProductID": "W12Q",
+            "BeforeQty": null,
+            "AfterQty": 7,
+            "QuantityDelta": 7,
+            "OperatorID": "P00"
+          }
+        ]
+      }
+    },
+    "result": "PASS",
+    "initial": {
+      "purchase": {
+        "OrderStatus": "已收货",
+        "ReceivedAt": "2026-11-18 13:09:54",
+        "ReceivedBy": "P00"
+      },
+      "item": {
+        "PurchaseOrderID": "W12PUR",
+        "PurchaseItemID": "W12RI",
+        "ProductID": "W12Q",
+        "OrderedQty": 7
+      },
+      "stock": [
+        {
+          "BatchID": "W12BQ",
+          "PurchaseItemID": "W12IQ",
+          "OnHandQty": 11,
+          "ReceivedAt": "2026-11-18 13:09:53"
+        },
+        {
+          "BatchID": "W12BR",
+          "PurchaseItemID": "W12RI",
+          "OnHandQty": 7,
+          "ReceivedAt": "2026-11-18 13:09:54"
+        }
+      ],
+      "movements": [
+        {
+          "BatchID": "W12BR",
+          "QuantityDelta": 7,
+          "MovementType": "采购入库",
+          "OperatorID": "P00",
+          "OccurredAt": "2026-11-18 13:09:54"
+        }
+      ],
+      "audit": [
+        {
+          "BatchID": "W12BR",
+          "ProductID": "W12Q",
+          "BeforeQty": null,
+          "AfterQty": 7,
+          "QuantityDelta": 7,
+          "OperatorID": "P00"
+        }
+      ]
+    },
+    "operation": {
+      "sql": "DECLARE @today date=CONVERT(date,GETDATE()), @expiry date=DATEADD(day,365,GETDATE());\nEXEC dbo.sp_ReceivePurchase ?,'W12BR','W12-RESTOCK',@today,@expiry,'W12MR','P00',N'模拟验收',?;",
+      "parameters": [
+        "W12RI",
+        7
+      ]
+    }
+  }
+]

@@ -84,11 +84,11 @@ def create_app(config=None):
         if number == 51801:
             return failure("INVALID_INPUT", "输入参数或金额超出允许范围", 400)
         if number == 51802:
-            return failure("NOT_FOUND", "商品、批次或订单不存在", 404)
+            return failure("NOT_FOUND", "商品、批次、订单或采购明细不存在", 404)
         if number == 51803:
             return failure("FORBIDDEN", "员工账号不可执行业务操作", 403)
         if number in (51804, 51811, 51812):
-            return failure("BUSINESS_CONFLICT", "库存、订单或支付状态不满足操作条件", 409)
+            return failure("BUSINESS_CONFLICT", "库存、订单、支付或采购状态不满足操作条件", 409)
         if number in (2601, 2627, 547, 515, 50000):
             return failure("CONSTRAINT_CONFLICT", "操作与现有数据或约束冲突，请检查输入", 409)
         if number in (8115, 8152, 2628):

@@ -80,6 +80,8 @@ def run_web_checks(c):
                 sql=sql.replace('FOR LOGIN ['+user+']','WITHOUT LOGIN')
             rows(db,sql)
         install_file(db,'sql/week10/permissions.sql')
+        if scalar(db, "SELECT OBJECT_ID('dbo.sp_ReceivePurchase')") is not None:
+            install_file(db, 'sql/week12/permissions.sql')
     password=secrets.token_urlsafe(24)
     config={'session_secret':secrets.token_urlsafe(32),'db_name':DB,'db_host':'localhost','db_port':1433,
             'db_users':{r:{'user':'w10_web_'+r,'password':''} for r in ('customer','staff','manager')},

@@ -158,13 +158,6 @@ class Repository:
                   AND (SELECT COUNT(*) FROM dbo.PurchaseOrderItem x WHERE x.PurchaseOrderID=o.PurchaseOrderID)=1
                 ORDER BY o.CreatedAt,i.PurchaseItemID""")
 
-    def purchase_item(self, item_id):
-        return self.one("""SELECT i.PurchaseItemID,i.ProductID,i.OrderedQty,o.PurchaseOrderID,o.OrderStatus,
-                    (SELECT COUNT(*) FROM dbo.PurchaseOrderItem x WHERE x.PurchaseOrderID=o.PurchaseOrderID) AS ItemCount
-                FROM dbo.PurchaseOrderItem i WITH (UPDLOCK,HOLDLOCK)
-                JOIN dbo.PurchaseOrder o WITH (UPDLOCK,HOLDLOCK) ON o.PurchaseOrderID=i.PurchaseOrderID
-                WHERE i.PurchaseItemID=%s""", (item_id,))
-
     def insert_purchase(self, purchase_id, item_id, product_id, supplier_id, quantity, cost, operator_id):
         self.run("""DECLARE @now datetime2(0)=SYSDATETIME();
             INSERT dbo.PurchaseOrder(PurchaseOrderID,SupplierID,CreatedBy,CreatedAt,ApprovedBy,ApprovedAt,OrderStatus)
@@ -173,15 +166,11 @@ class Repository:
         self.run("INSERT dbo.PurchaseOrderItem(PurchaseItemID,PurchaseOrderID,ProductID,OrderedQty,UnitCost) VALUES (%s,%s,%s,%s,%s)",
                  (item_id,purchase_id,product_id,quantity,cost))
 
-    def receive_purchase(self, purchase, batch_id, batch_no, production, expiry, movement_id, operator_id, reason):
-        self.run("""INSERT dbo.InventoryBatch(BatchID,PurchaseItemID,SupplierBatchNo,ProductionDate,ExpiryDate,ReceivedAt,OnHandQty,BatchStatus)
-                    VALUES (%s,%s,%s,%s,%s,SYSDATETIME(),%s,N'合格')""",
-                 (batch_id,purchase["PurchaseItemID"],batch_no,production,expiry,purchase["OrderedQty"]))
-        self.run("""INSERT dbo.InventoryMovement(MovementID,BatchID,MovementType,QuantityDelta,SalesItemID,Reason,OperatorID,OccurredAt)
-                    VALUES (%s,%s,N'采购入库',%s,NULL,%s,%s,SYSDATETIME())""",
-                 (movement_id,batch_id,purchase["OrderedQty"],reason,operator_id))
-        self.run("""UPDATE dbo.PurchaseOrder SET ReceivedBy=%s,ReceivedAt=SYSDATETIME(),OrderStatus=N'已收货'
-                    WHERE PurchaseOrderID=%s""", (operator_id,purchase["PurchaseOrderID"]))
+    def receive_purchase(self, item_id, batch_id, batch_no, production, expiry, movement_id, operator_id, reason):
+        return self.one("""EXEC dbo.sp_ReceivePurchase
+            @PurchaseItemID=%s,@BatchID=%s,@SupplierBatchNo=%s,@ProductionDate=%s,
+            @ExpiryDate=%s,@MovementID=%s,@OperatorID=%s,@Reason=%s""",
+            (item_id, batch_id, batch_no, production, expiry, movement_id, operator_id, reason))
 
     def batches_for_product(self, product_id):
         return self.all(
@@ -237,9 +226,6 @@ class Repository:
 
     def sales_summary(self, start, end):
         return self.all("SELECT * FROM dbo.fn_SalesSummary(%s,%s) ORDER BY ProductID", (start, end))
-
-    def set_operator(self, employee_id):
-        self.run("EXEC sys.sp_set_session_context @key=N'OperatorID',@value=%s", (employee_id,))
 
     def orders(self, customer_id=None):
         if customer_id is None:

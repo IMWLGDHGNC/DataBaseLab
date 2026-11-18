@@ -58,3 +58,9 @@ v1.0之后执行 [week10/migration.sql](week10/migration.sql) → [function.sql]
 ## 第11周 触发器与窗口查询
 
 第10周之后执行 [week11/trigger.sql](week11/trigger.sql)，新增库存审计辅助表与两项集合触发器，可重复安装且保留审计数据。[window_query.sql](week11/window_query.sql)提供商品收入排名、逐订单累计收入及最近三笔订单均额。批量正反例与独立计算见[本周说明](../docs/week11/README.md)、[72项结果](../result/week11/README.md)。
+
+## 第12周 递归查询与业务事务
+
+升级已安装第10、11周的数据库时，重装 [week10/procedure.sql](week10/procedure.sql)，再执行 [recursive_query.sql](week12/recursive_query.sql) → [restock_transaction.sql](week12/restock_transaction.sql) → [permissions.sql](week12/permissions.sql)。此前需有第10周创建的应用角色；已有 Web 授权环境最后应用第12周授权。第12周安装可重复执行。新建 Web 样例库时部署脚本会依次安装。
+
+[test_data.sql](week12/test_data.sql)仅在新建的实验副本运行，准备分类树、P/Q库存、待出库订单和待验收采购单。[order_transaction.sql](week12/order_transaction.sql)调用订单完成过程并核对出库结果。补货调用示例见过程文件底部。自动提交、回滚和重复调用验证见[第12周说明](../docs/week12/README.md)。

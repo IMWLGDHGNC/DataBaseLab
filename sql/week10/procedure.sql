@@ -132,21 +132,23 @@ BEGIN
     BEGIN TRY
         IF @entry=0 BEGIN TRANSACTION; ELSE SAVE TRANSACTION CompleteOrder;
         EXEC dbo.sp_BusinessLock;
-        DECLARE @customer varchar(12),@amount decimal(10,2),@member bit,@now datetime2(0)=SYSDATETIME();
+        DECLARE @customer varchar(12),@status nvarchar(10),@amount decimal(10,2),
+            @member bit,@now datetime2(0)=SYSDATETIME();
         IF NOT EXISTS(SELECT 1 FROM dbo.Employee WHERE EmployeeID=@OperatorID AND ActiveStatus=N'在职')
             THROW 51803,'Active employee required.',1;
-        IF NOT EXISTS(SELECT 1 FROM dbo.SalesOrder WHERE SalesOrderID=@OrderID)
-            THROW 51802,'Order not found.',1;
-        SELECT @customer=CustomerID,@amount=TotalAmount FROM dbo.SalesOrder WITH(UPDLOCK,HOLDLOCK)
-            WHERE SalesOrderID=@OrderID AND OrderStatus=N'待出库';
-        IF @customer IS NULL THROW 51804,'Paid uncompleted order required.',1;
+        SELECT @customer=CustomerID,@status=OrderStatus,@amount=TotalAmount
+            FROM dbo.SalesOrder WITH(UPDLOCK,HOLDLOCK) WHERE SalesOrderID=@OrderID;
+        IF @status IS NULL THROW 51802,'Order not found.',1;
+        IF @status=N'已完成' THROW 51804,'Order has already been completed.',1;
+        IF @status<>N'待出库' THROW 51804,'Paid uncompleted order required.',1;
         IF NOT EXISTS(SELECT 1 FROM dbo.PaymentRecord WHERE SalesOrderID=@OrderID
             AND PaymentStatus=N'成功' AND Amount=@amount)
             THROW 51804,'Successful payment must equal order amount.',1;
         IF NOT EXISTS(SELECT 1 FROM dbo.SalesOrderItem WHERE SalesOrderID=@OrderID)
-            OR @amount<>(SELECT SUM(CONVERT(decimal(18,2),Quantity)*DealUnitPrice)
+            THROW 51804,'Order has no items.',1;
+        IF @amount<>(SELECT SUM(CONVERT(decimal(18,2),Quantity)*DealUnitPrice)
                 FROM dbo.SalesOrderItem WHERE SalesOrderID=@OrderID)
-            THROW 51804,'Order items or amount are inconsistent.',1;
+            THROW 51804,'Order amount does not match its items.',1;
         IF EXISTS(SELECT 1 FROM dbo.SalesOrderItem i OUTER APPLY
             (SELECT SUM(CONVERT(bigint,r.ReservedQty)) Qty FROM dbo.InventoryReservation r
              WHERE r.SalesItemID=i.SalesItemID AND r.ReservationStatus=N'有效') x
@@ -160,15 +162,22 @@ BEGIN
               OR b.OnHandQty<(SELECT SUM(CONVERT(bigint,ReservedQty)) FROM dbo.InventoryReservation
                    WHERE BatchID=b.BatchID AND ReservationStatus=N'有效')))
             THROW 51804,'Reserved batch is unavailable or overcommitted.',1;
-        DECLARE @ship TABLE(ReservationID varchar(12),BatchID varchar(12),SalesItemID varchar(12),Qty int);
-        INSERT @ship SELECT r.ReservationID,r.BatchID,r.SalesItemID,r.ReservedQty
+        DECLARE @ship TABLE(ReservationID varchar(12),BatchID varchar(12),
+            SalesItemID varchar(12),ProductID varchar(12),Qty int);
+        INSERT @ship SELECT r.ReservationID,r.BatchID,r.SalesItemID,i.ProductID,r.ReservedQty
             FROM dbo.InventoryReservation r JOIN dbo.SalesOrderItem i ON i.SalesItemID=r.SalesItemID
             WHERE i.SalesOrderID=@OrderID AND r.ReservationStatus=N'有效';
+        -- One item per SKU; split each SKU's demand by its reserved batches.
+        DECLARE @batchDemand TABLE(BatchID varchar(12) PRIMARY KEY,Qty bigint);
+        INSERT @batchDemand SELECT BatchID,SUM(CONVERT(bigint,Qty)) FROM @ship GROUP BY ProductID,BatchID;
         EXEC sys.sp_set_session_context @key=N'OperatorID',@value=@OperatorID;
         UPDATE r SET ReservationStatus=N'已转出库',EndedAt=@now
             FROM dbo.InventoryReservation r JOIN @ship s ON s.ReservationID=r.ReservationID;
         UPDATE b SET OnHandQty=b.OnHandQty-s.Qty FROM dbo.InventoryBatch b
-            JOIN (SELECT BatchID,SUM(Qty) Qty FROM @ship GROUP BY BatchID) s ON s.BatchID=b.BatchID;
+            JOIN @batchDemand s ON s.BatchID=b.BatchID
+            WHERE b.OnHandQty>=s.Qty;
+        IF ROWCOUNT_BIG()<>(SELECT COUNT_BIG(*) FROM @batchDemand)
+            THROW 51804,'Insufficient stock in one or more reserved batches.',1;
         INSERT dbo.InventoryMovement(MovementID,BatchID,MovementType,QuantityDelta,SalesItemID,Reason,OperatorID,OccurredAt)
             SELECT 'IM'+LEFT(REPLACE(CONVERT(varchar(36),NEWID()),'-',''),10),BatchID,N'销售出库',-Qty,SalesItemID,
                 N'订单确认出库',@OperatorID,@now FROM @ship;
@@ -187,8 +196,9 @@ BEGIN
     END TRY
     BEGIN CATCH
         EXEC sys.sp_set_session_context @key=N'OperatorID',@value=@oldActor;
-        IF XACT_STATE()=-1 OR (@entry=0 AND XACT_STATE()=1) ROLLBACK;
-        ELSE IF XACT_STATE()=1 ROLLBACK TRANSACTION CompleteOrder;
+        IF @entry=0 AND XACT_STATE()<>0 ROLLBACK;
+        ELSE IF @entry>0 AND XACT_STATE()=1 ROLLBACK TRANSACTION CompleteOrder;
+        -- The owner of an uncommittable outer transaction must roll it back.
         THROW;
     END CATCH;
 END;

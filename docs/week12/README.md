@@ -1,0 +1,45 @@
+# 第12周 递归查询与业务事务
+
+本周在 v1.0 上完成分类后代查询、订单完成及模拟补货入库。课程要求见[第十二周任务讲解](../course/第十二周任务讲解.md)，实测数据与提交材料见[验证结果](../../result/week12/README.md)和[实验报告](../reports/第12周实验报告.docx)。
+
+## 分类层级
+
+[recursive_query.sql](../../sql/week12/recursive_query.sql)为现有 `ProductCategory` 增加可空的父级编号。历史分类保留为根节点，`Product.CategoryID` 的关联继续生效。递归 CTE 以给定分类为深度 0，按 `子.ParentCategoryID = 父.CategoryID` 向下展开。只返回深度大于 0 的行，输出分类编号、父级、相对深度和从起点开始的路径。叶子及不存在的编号均返回空结果。父级外键检查引用，自指 CHECK 禁止直接指向自己。路径内已访问的编号会被跳过，`MAXRECURSION 100` 为深链设置上限。
+
+[test_data.sql](../../sql/week12/test_data.sql)建立 `W12ROOT → W12A/W12B` 和 `W12A → W12LEAF`，商品 P、Q 分别挂于 `W12LEAF`、`W12B`。
+
+## 订单完成
+
+[order_transaction.sql](../../sql/week12/order_transaction.sql)展示调用顺序和核对查询。Web 下单写明细和有效预留，模拟支付转为待出库。店员确认出库时调用更新后的 [`sp_CompleteOrder`](../../sql/week10/procedure.sql)。
+
+1. 锁定销售单，检查是否待出库、支付金额、明细及金额合计。每单每商品唯一一条明细，验证该商品的所有有效预留量等于购买量。
+2. 检查预留批次所属商品、质量、有效期和现存量，对各商品的预留按批次汇总。转出库预留后，按 `OnHandQty >= 批次需求` 扣减并核对受影响批次数，写入销售出库流水。
+3. 更新订单状态及完成时间，由第11周完成触发器核对金额、预留、库存和流水。随后为会员写入积分流水并增加余额。库存写入时触发器自动留下审计。
+
+已完成单返回 51804。缺少明细、状态非法或库存不足均回报具体原因。库存的唯一出库入口仍是 `sp_CompleteOrder`。
+
+## 模拟补货入库
+
+管理员创建并审批采购单，人工填写的商品与数量保存在 `PurchaseOrderItem`。店员提交明细编号、批号、日期及验收说明，Web 调用 [`sp_ReceivePurchase`](../../sql/week12/restock_transaction.sql)。
+
+1. 锁定采购单头与明细，确认员工在职、商品存在、整单已批准且只有一个明细、无已有入库批次。数量默认取批准明细，显式传入时必须为正且等于批准数量。
+2. 创建库存批次，审计触发器记录增加量。写入采购入库流水，再为采购单记入收货人、收货时间和已收货状态，统一使用同一个时间戳。
+3. 批次经 `PurchaseItemID` 关联采购单、商品和人工数量，采购明细保留原批准数量。已收货单重复调用返回 51804。第四阶段可以替换采购数量的来源，沿用单据与填充批次的事务。
+
+沿用现有 Web 单商品、整单验收模式。第12周[授权](../../sql/week12/permissions.sql)使店员和管理员通过过程入库，并收回应用角色原直接写入入库表及收货状态的权限。
+
+## 事务边界与实测
+
+两个过程都通过 `sp_BusinessLock` 获取事务级应用锁 `DataBaseLab.WebWrite`，Web 写会话也获取同一把锁。独立调用由过程提交或回滚。Web 调用过程时由写会话负责最终提交，过程使用保存点。外层事务不可提交时由外层调用者回滚。库存审计与业务写入随事务一起提交或回滚。两个过程均还原连接上的操作人上下文。
+
+在 Windows 上按前序专用样例库的命名约定创建空库。
+
+```powershell
+$env:LAB_TEST_DATABASE = 'DataBaseLab_Week6_Week10' + (Get-Date -Format 'yyyyMMddHHmmss')
+./scripts/Run-Week10.ps1 -Database $env:LAB_TEST_DATABASE
+./scripts/Run-Week11.ps1 -Database $env:LAB_TEST_DATABASE
+./scripts/Run-Week12.ps1 -Database $env:LAB_TEST_DATABASE
+python tests/Test-Week12.py
+```
+
+专项脚本自动装入测试数据，在失败前后逐表对比，并用新连接读取正常提交结果。回滚探针在隔离测试库中临时创建。每次失败后核对已恢复到基线，重复调用基于一次已提交的状态。整套复测从新的样例库开始。手工查看时可在另一个新样例库先执行 `test_data.sql`，再运行 `order_transaction.sql`。补货调用参数见 `restock_transaction.sql` 尾部。运行依赖与完整证据见[验证结果](../../result/week12/README.md)。

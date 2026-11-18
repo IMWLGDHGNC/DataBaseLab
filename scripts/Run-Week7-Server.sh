@@ -43,6 +43,9 @@ for file in migration function procedure permissions; do
   sqlcmd_app < "sql/week10/$file.sql"
 done
 sqlcmd_app < sql/week11/trigger.sql
+for file in recursive_query restock_transaction permissions; do
+  sqlcmd_app < "sql/week12/$file.sql"
+done
 
 printf '%s\n' "$CONFIG_FILE" > output/week7/config-path.txt
 chmod 600 output/week7/config-path.txt
