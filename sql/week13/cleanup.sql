@@ -1,0 +1,7 @@
+-- Run in both A and B; do this before running setup.sql to reset the fixture.
+IF @@TRANCOUNT>0 ROLLBACK;
+SET TRANSACTION ISOLATION LEVEL READ COMMITTED;
+SET DEADLOCK_PRIORITY NORMAL;
+SET LOCK_TIMEOUT -1;
+GO
+SELECT @@TRANCOUNT AS TranCount, XACT_STATE() AS XactState;

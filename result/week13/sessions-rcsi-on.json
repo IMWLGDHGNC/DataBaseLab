@@ -1,0 +1,248 @@
+[
+  {
+    "case": "read_committed",
+    "steps": [
+      {
+        "step": "A session",
+        "result": {
+          "SessionID": 76,
+          "IsolationLevel": 2,
+          "TranCount": 0,
+          "SqlServerVersion": "16.0.1000.6",
+          "RCSI": true
+        }
+      },
+      {
+        "step": "B session",
+        "result": {
+          "SessionID": 78,
+          "IsolationLevel": 2,
+          "TranCount": 0,
+          "SqlServerVersion": "16.0.1000.6",
+          "RCSI": true
+        }
+      },
+      {
+        "step": "initial state",
+        "result": {
+          "P": 10,
+          "Q": 8,
+          "ORDER": "Pending",
+          "RECEIPT": "Approved"
+        }
+      },
+      {
+        "step": "stock key mapping",
+        "result": {
+          "P": "(cc9c381108b4)",
+          "Q": "(277dab27e21d)"
+        }
+      },
+      {
+        "step": "A1 start",
+        "result": {
+          "session": "A",
+          "script": "dirty_read_A.sql"
+        }
+      },
+      {
+        "step": "A1 end",
+        "result": []
+      },
+      {
+        "step": "B2 start",
+        "result": {
+          "session": "B",
+          "script": "dirty_read_B.sql"
+        }
+      },
+      {
+        "step": "B2 end",
+        "result": [
+          [
+            {
+              "Qty": 10,
+              "IsolationLevel": 2
+            }
+          ]
+        ]
+      },
+      {
+        "step": "A2 start",
+        "result": {
+          "session": "A",
+          "script": "dirty_read_A.sql"
+        }
+      },
+      {
+        "step": "A2 end",
+        "result": []
+      },
+      {
+        "step": "A cleanup",
+        "result": {
+          "SessionID": 76,
+          "TranCount": 0,
+          "XactState": 0
+        }
+      },
+      {
+        "step": "B cleanup",
+        "result": {
+          "SessionID": 78,
+          "TranCount": 0,
+          "XactState": 0
+        }
+      }
+    ]
+  },
+  {
+    "case": "read_committed_lock_hint",
+    "steps": [
+      {
+        "step": "A session",
+        "result": {
+          "SessionID": 76,
+          "IsolationLevel": 2,
+          "TranCount": 0,
+          "SqlServerVersion": "16.0.1000.6",
+          "RCSI": true
+        }
+      },
+      {
+        "step": "B session",
+        "result": {
+          "SessionID": 78,
+          "IsolationLevel": 2,
+          "TranCount": 0,
+          "SqlServerVersion": "16.0.1000.6",
+          "RCSI": true
+        }
+      },
+      {
+        "step": "initial state",
+        "result": {
+          "P": 10,
+          "Q": 8,
+          "ORDER": "Pending",
+          "RECEIPT": "Approved"
+        }
+      },
+      {
+        "step": "stock key mapping",
+        "result": {
+          "P": "(cc9c381108b4)",
+          "Q": "(277dab27e21d)"
+        }
+      },
+      {
+        "step": "A1 start",
+        "result": {
+          "session": "A",
+          "script": "dirty_read_A.sql"
+        }
+      },
+      {
+        "step": "A1 end",
+        "result": []
+      },
+      {
+        "step": "B3 start",
+        "result": {
+          "session": "B",
+          "script": "dirty_read_B.sql"
+        }
+      },
+      {
+        "step": "DMV observation",
+        "result": {
+          "waiter": "B",
+          "blocker": "A",
+          "product": "P",
+          "sessions": [
+            {
+              "SessionID": 76,
+              "IsolationLevel": 2,
+              "TranCount": 1
+            },
+            {
+              "SessionID": 78,
+              "IsolationLevel": 2,
+              "TranCount": 0
+            }
+          ],
+          "request": {
+            "SessionID": 78,
+            "Blocker": 76,
+            "WaitType": "LCK_M_S",
+            "WaitMs": 66
+          },
+          "locks": [
+            {
+              "SessionID": 76,
+              "ResourceType": "KEY",
+              "TableName": "Stock",
+              "Resource": "(cc9c381108b4)",
+              "Mode": "X",
+              "Status": "GRANT"
+            },
+            {
+              "SessionID": 76,
+              "ResourceType": "KEY",
+              "TableName": "Document",
+              "Resource": "(ed476e6fd1ca)",
+              "Mode": "X",
+              "Status": "GRANT"
+            },
+            {
+              "SessionID": 78,
+              "ResourceType": "KEY",
+              "TableName": "Stock",
+              "Resource": "(cc9c381108b4)",
+              "Mode": "S",
+              "Status": "WAIT"
+            }
+          ]
+        }
+      },
+      {
+        "step": "A2 start",
+        "result": {
+          "session": "A",
+          "script": "dirty_read_A.sql"
+        }
+      },
+      {
+        "step": "A2 end",
+        "result": []
+      },
+      {
+        "step": "B3 end",
+        "result": [
+          [
+            {
+              "Qty": 10,
+              "IsolationLevel": 2
+            }
+          ]
+        ]
+      },
+      {
+        "step": "A cleanup",
+        "result": {
+          "SessionID": 76,
+          "TranCount": 0,
+          "XactState": 0
+        }
+      },
+      {
+        "step": "B cleanup",
+        "result": {
+          "SessionID": 78,
+          "TranCount": 0,
+          "XactState": 0
+        }
+      }
+    ]
+  }
+]

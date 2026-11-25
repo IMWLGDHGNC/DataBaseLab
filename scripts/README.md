@@ -14,7 +14,7 @@
 | [Test-Week3Reproduction.ps1](Test-Week3Reproduction.ps1) | 复验第三周两个独立空库的一致性 | 创建并保留两个新实验库，更新 `docs/verification/` 的历史复现文件；执行后检查 Git 差异 |
 | [Run-Week6.ps1](Run-Week6.ps1) | Windows LocalDB 的第六周隔离复现 | 新建库，从 v0.1 和第五周核对运行到迁移与回归；原始日志保存在被忽略的 `output/week6/` |
 | [Run-Week6-Server.sh](Run-Week6-Server.sh) | 授权的 Linux SQL Server 容器环境 | 私下设置 `DB_CONTAINER` 后新建测试库，使用 `sqlcmd -I` 执行同一顺序；原始日志保存在被忽略的 `output/week6/` |
-| [Run-Week10.ps1](Run-Week10.ps1) | Windows 复现第10至12周的起点 | 新建独立库，准备 v1.0 基线并安装第10周 SQL |
+| [Run-Week10.ps1](Run-Week10.ps1) | Windows 复现第10至13周的起点 | 新建独立库，准备 v1.0 基线并安装第10周 SQL |
 | [Run-Week11.ps1](Run-Week11.ps1) | 已安装第10周 | 在同一实验库安装触发器并展示窗口查询 |
 | [Run-Week12.ps1](Run-Week12.ps1) | 已安装第10、11周 | 在同一实验库更新订单过程并安装递归、补货入库和授权 |
 | [Run-Week7-Server.sh](Run-Week7-Server.sh) | 在授权的 Linux 服务器部署当前 Web 应用 | 在独立库准备 v1.0 基线、受限登录和私有配置，再安装第10至12周应用对象 |
@@ -22,7 +22,7 @@
 
 ## 常用入口
 
-当前 Windows 专项复现见[第10至12周复现步骤](../docs/guides/本地SQL环境.md#第10至12周专项复现)。若只需重跑第一阶段 v0.1 原型，可另选新库名运行以下命令。
+当前 Windows 专项复现见[第三阶段复现步骤](../docs/guides/本地SQL环境.md#第13周与第三阶段复现)。若只需重跑第一阶段 v0.1 原型，可另选新库名运行以下命令。
 
 ```powershell
 $db = 'DataBaseLab_Week4_' + (Get-Date -Format 'yyyyMMddHHmmss')
@@ -58,3 +58,7 @@ powershell.exe -NoProfile -File .\scripts\Invoke-LabSql.ps1 -Database $db -Input
 ## 第12周递归查询与事务验证
 
 在已安装第10、11周的专用库运行 [Run-Week12.ps1](Run-Week12.ps1)，再在同一 `LAB_TEST_DATABASE` 上执行 `python tests/Test-Week12.py`。安装脚本只更新数据库对象。专项验证装入模拟数据并保留已提交的结果，复测时使用新的样例库。Linux Web 新建库入口同样安装第12周对象，手工调用顺序见[第12周说明](../docs/week12/README.md)。
+
+## 第13周双会话复现
+
+按前三周的安装顺序准备独立库，现有安装脚本会加载包含第13周更新的过程。运行 [Test-Week13.py](../tests/Test-Week13.py) 自动重放 A/B 步骤，或按[第13周说明](../docs/week13/README.md)在查询窗口运行。实验表、演示单据和锁观测由专项单独执行。
