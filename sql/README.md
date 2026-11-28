@@ -1,6 +1,6 @@
 # SQL 导航
 
-本目录保存 v0.1 原型、v1.0 应用基线和第10至12周的数据库对象。当前 Web 应用需要安装到第12周。Linux 部署见[应用手册](../app/README.md)，Windows 专项复现见[LocalDB 指南](../docs/guides/本地SQL环境.md)。
+本目录保存 v0.1 原型、v1.0 应用基线及 v2.0 第10至13周的 SQL。当前 Web 安装流程加载第10至12周目录的对象，订单和采购过程已包含第13周的并发改进。Linux 部署见[应用手册](../app/README.md)，Windows 专项复现见[LocalDB 指南](../docs/guides/本地SQL环境.md)。
 
 ## 文件用途
 
@@ -70,3 +70,9 @@ v1.0之后执行 [week10/migration.sql](week10/migration.sql) → [function.sql]
 升级已安装第10、11周的数据库时，重装 [week10/procedure.sql](week10/procedure.sql)，再执行 [recursive_query.sql](week12/recursive_query.sql) → [restock_transaction.sql](week12/restock_transaction.sql) → [permissions.sql](week12/permissions.sql)。此前需有第10周创建的应用角色；已有 Web 授权环境最后应用第12周授权。第12周安装可重复执行。新建 Web 样例库时部署脚本会依次安装。
 
 [test_data.sql](week12/test_data.sql)仅在新建的实验副本运行，准备分类树、P/Q库存、待出库订单和待验收采购单。[order_transaction.sql](week12/order_transaction.sql)调用订单完成过程并核对出库结果。补货调用示例见过程文件底部。自动提交、回滚和重复调用验证见[第12周说明](../docs/week12/README.md)。
+
+## 第13周 并发控制
+
+新库按现有顺序安装。已安装前一版第12周对象的库先重装 [procedure.sql](week10/procedure.sql)，再重装 [restock_transaction.sql](week12/restock_transaction.sql)。两个过程先获取商品键，订单完成按商品和批次编号依序更新。原有事务级应用锁和应用授权继续生效。
+
+专用样例库按 [第13周 A/B 操作表](../docs/week13/README.md#手工重放库存锁实验)运行 [初始化](week13/setup.sql)、各场景 A/B SQL、[锁观察](week13/observe.sql)、[状态查询](week13/state.sql)和[清理](week13/cleanup.sql)。`business_*` 脚本调用实际订单和采购过程。[第三阶段复现](../docs/guides/本地SQL环境.md#第13周与第三阶段复现)提供统一执行入口。

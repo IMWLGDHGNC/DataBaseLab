@@ -1,0 +1,311 @@
+[
+  {
+    "case": "write_wait_completed",
+    "expected": {
+      "P": 13,
+      "Q": 8,
+      "ORDER": "Completed",
+      "RECEIPT": "Received"
+    },
+    "actual": {
+      "P": 13,
+      "Q": 8,
+      "ORDER": "Completed",
+      "RECEIPT": "Received"
+    },
+    "result": "PASS"
+  },
+  {
+    "case": "write_wait_pending",
+    "expected": {
+      "P": 15,
+      "Q": 8,
+      "ORDER": "Pending",
+      "RECEIPT": "Received"
+    },
+    "actual": {
+      "P": 15,
+      "Q": 8,
+      "ORDER": "Pending",
+      "RECEIPT": "Received"
+    },
+    "result": "PASS"
+  },
+  {
+    "case": "read_uncommitted_then_rollback",
+    "expected": "15 before rollback, 10 and Approved after rollback",
+    "actual": {
+      "read": 15,
+      "after_rollback": {
+        "P": 10,
+        "Q": 8,
+        "ORDER": "Pending",
+        "RECEIPT": "Approved"
+      }
+    },
+    "result": "PASS"
+  },
+  {
+    "case": "read_committed",
+    "expected": 10,
+    "actual": 10,
+    "result": "PASS"
+  },
+  {
+    "case": "read_committed_lock_hint",
+    "expected": 10,
+    "actual": 10,
+    "result": "PASS"
+  },
+  {
+    "case": "read_committed_nonrepeatable",
+    "expected": [
+      10,
+      15,
+      15
+    ],
+    "actual": [
+      10,
+      15,
+      15
+    ],
+    "result": "PASS"
+  },
+  {
+    "case": "repeatable_read",
+    "expected": [
+      10,
+      10,
+      15
+    ],
+    "actual": [
+      10,
+      10,
+      15
+    ],
+    "result": "PASS"
+  },
+  {
+    "case": "deadlock_victim",
+    "expected": "1205; no open transaction after cleanup",
+    "actual": {
+      "ErrorNumber": 1205,
+      "BeforeCleanup": -1,
+      "TranCount": 0,
+      "XactState": 0
+    },
+    "result": "PASS"
+  },
+  {
+    "case": "opposite_order_deadlock",
+    "expected": {
+      "P": 8,
+      "Q": 6,
+      "ORDER": "Completed",
+      "RECEIPT": "Approved"
+    },
+    "actual": {
+      "P": 8,
+      "Q": 6,
+      "ORDER": "Completed",
+      "RECEIPT": "Approved"
+    },
+    "result": "PASS"
+  },
+  {
+    "case": "ordered_keys",
+    "expected": {
+      "P": 13,
+      "Q": 11,
+      "ORDER": "Completed",
+      "RECEIPT": "Received"
+    },
+    "actual": {
+      "P": 13,
+      "Q": 11,
+      "ORDER": "Completed",
+      "RECEIPT": "Received"
+    },
+    "result": "PASS"
+  },
+  {
+    "case": "business_receipt_after_commit",
+    "expected": [
+      [
+        {
+          "BatchID": "W13WBC",
+          "OnHandQty": 8
+        },
+        {
+          "BatchID": "W13WRCC",
+          "OnHandQty": 5
+        }
+      ],
+      [
+        {
+          "SaleStatus": "已完成",
+          "ReceiptStatus": "已收货"
+        }
+      ],
+      [
+        {
+          "BatchID": "W13WBC",
+          "QuantityDelta": -2,
+          "MovementType": "销售出库"
+        },
+        {
+          "BatchID": "W13WRCC",
+          "QuantityDelta": 5,
+          "MovementType": "采购入库"
+        }
+      ]
+    ],
+    "actual": [
+      [
+        {
+          "BatchID": "W13WBC",
+          "OnHandQty": 8
+        },
+        {
+          "BatchID": "W13WRCC",
+          "OnHandQty": 5
+        }
+      ],
+      [
+        {
+          "SaleStatus": "已完成",
+          "ReceiptStatus": "已收货"
+        }
+      ],
+      [
+        {
+          "BatchID": "W13WBC",
+          "QuantityDelta": -2,
+          "MovementType": "销售出库"
+        },
+        {
+          "BatchID": "W13WRCC",
+          "QuantityDelta": 5,
+          "MovementType": "采购入库"
+        }
+      ]
+    ],
+    "result": "PASS"
+  },
+  {
+    "case": "business_receipt_after_rollback",
+    "expected": [
+      [
+        {
+          "BatchID": "W13WBR",
+          "OnHandQty": 10
+        },
+        {
+          "BatchID": "W13WRCR",
+          "OnHandQty": 5
+        }
+      ],
+      [
+        {
+          "SaleStatus": "待出库",
+          "ReceiptStatus": "已收货"
+        }
+      ],
+      [
+        {
+          "BatchID": "W13WRCR",
+          "QuantityDelta": 5,
+          "MovementType": "采购入库"
+        }
+      ]
+    ],
+    "actual": [
+      [
+        {
+          "BatchID": "W13WBR",
+          "OnHandQty": 10
+        },
+        {
+          "BatchID": "W13WRCR",
+          "OnHandQty": 5
+        }
+      ],
+      [
+        {
+          "SaleStatus": "待出库",
+          "ReceiptStatus": "已收货"
+        }
+      ],
+      [
+        {
+          "BatchID": "W13WRCR",
+          "QuantityDelta": 5,
+          "MovementType": "采购入库"
+        }
+      ]
+    ],
+    "result": "PASS"
+  },
+  {
+    "case": "second_order_rejected",
+    "expected": "51804 for overcommitted batch; no open transaction",
+    "actual": {
+      "ErrorNumber": 51804,
+      "ErrorMessage": "Reserved batch is unavailable or overcommitted.",
+      "TranCount": 0,
+      "XactState": 0
+    },
+    "result": "PASS"
+  },
+  {
+    "case": "one_order_completed",
+    "expected": "P=4, only A completed with one reservation, shipment, audit and points entry",
+    "actual": [
+      [
+        {
+          "BatchID": "W13BP",
+          "OnHandQty": 4
+        }
+      ],
+      [
+        {
+          "SalesOrderID": "W13OA",
+          "OrderStatus": "已完成",
+          "CompletedAt": "2026-11-25 12:05:06"
+        },
+        {
+          "SalesOrderID": "W13OB",
+          "OrderStatus": "待出库",
+          "CompletedAt": null
+        }
+      ],
+      [
+        {
+          "ReservationID": "W13RA",
+          "ReservedQty": 6,
+          "ReservationStatus": "已转出库"
+        }
+      ],
+      [
+        {
+          "SalesItemID": "W13IA",
+          "QuantityDelta": -6
+        }
+      ],
+      [
+        {
+          "BeforeQty": 10,
+          "AfterQty": 4,
+          "QuantityDelta": -6
+        }
+      ],
+      [
+        {
+          "SalesOrderID": "W13OA",
+          "PointsDelta": 30
+        }
+      ]
+    ],
+    "result": "PASS"
+  }
+]

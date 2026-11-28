@@ -39,6 +39,7 @@ BEGIN
         SET @Quantity=COALESCE(@Quantity,@ordered);
         IF @Quantity<=0 OR @Quantity<>@ordered
             THROW 51801,'Receipt quantity must be positive and equal the approved quantity.',1;
+        EXEC dbo.sp_LockStockProduct @productID;
         IF EXISTS (SELECT 1 FROM dbo.InventoryBatch WITH(UPDLOCK,HOLDLOCK) WHERE PurchaseItemID=@PurchaseItemID)
             THROW 51804,'A receipt batch already exists for this item.',1;
 

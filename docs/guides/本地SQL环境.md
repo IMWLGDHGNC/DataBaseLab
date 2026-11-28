@@ -68,6 +68,29 @@ python tests/Test-Week12.py
 
 第10周脚本负责新建数据库，第11、12周脚本在同一库安装对象。预期最后输出 `WEEK12_PASS 23`。专项测试会装入模拟数据并保留提交结果，重跑整套专项时请新建样例库。课程服务器的 Web 启动与配置见[应用手册](../../app/README.md)。
 
+## 第13周与第三阶段复现
+
+下面的安装顺序会加载含第13周改进的最新过程。完整执行需要 `pyodbc`、可用的 SQL Server ODBC 驱动和 [Web 依赖](../../app/requirements.txt)。
+
+```powershell
+$env:LAB_TEST_DATABASE = 'DataBaseLab_Week6_Week10' + (Get-Date -Format 'yyyyMMddHHmmss')
+./scripts/Run-Week10.ps1 -Database $env:LAB_TEST_DATABASE
+./scripts/Run-Week11.ps1 -Database $env:LAB_TEST_DATABASE
+./scripts/Run-Week12.ps1 -Database $env:LAB_TEST_DATABASE
+python tests/Test-Week10.py
+python tests/Test-Week11.py
+python tests/Test-Week12.py
+python tests/Test-Week13.py
+```
+
+预期各周分别通过 87、72、23、14 项。仅验证并发时，可在安装后直接运行最后一行。专项运行需要能读取数据库的会话与锁 DMV 的权限。手工操作与重置见[第13周操作表](../week13/README.md)。完整 Web 回归入口见[应用手册](../../app/README.md)。
+
+RCSI 使用目标库当前设置。复现开启时的对照，可在另一份专用库完成安装，关闭与该库相连的窗口和安装进程。连接 `master`，将下列库名替换为该独立样例库名后执行，再设置 `LAB_TEST_DATABASE` 并运行第13周专项。
+
+```sql
+ALTER DATABASE [<独立样例库名>] SET READ_COMMITTED_SNAPSHOT ON;
+```
+
 ## 第二阶段 v1.0 基线复现
 
 初始化LocalDB后，在仓库根目录运行：

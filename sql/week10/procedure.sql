@@ -10,6 +10,16 @@ BEGIN
     IF @result<0 THROW 51701,'Business transaction lock unavailable.',1;
 END;
 GO
+-- Order completion and receipt acquire the product key before touching stock.
+CREATE OR ALTER PROCEDURE dbo.sp_LockStockProduct @ProductID varchar(12)
+AS
+BEGIN
+    SET NOCOUNT ON;
+    DECLARE @locked varchar(12);
+    SELECT @locked=ProductID FROM dbo.Product WITH(UPDLOCK,HOLDLOCK) WHERE ProductID=@ProductID;
+    IF @locked IS NULL THROW 51802,'Stock product not found.',1;
+END;
+GO
 CREATE OR ALTER PROCEDURE dbo.sp_SalesStatistics @StartDate date,@EndDate date
 AS
 BEGIN
@@ -154,30 +164,38 @@ BEGIN
              WHERE r.SalesItemID=i.SalesItemID AND r.ReservationStatus=N'有效') x
             WHERE i.SalesOrderID=@OrderID AND (COALESCE(x.Qty,0)<>i.Quantity OR i.Quantity<=0))
             THROW 51804,'Item reservations must exactly match quantity.',1;
-        IF EXISTS(SELECT 1 FROM dbo.InventoryReservation r JOIN dbo.SalesOrderItem i ON i.SalesItemID=r.SalesItemID
-            JOIN dbo.InventoryBatch b WITH(UPDLOCK,HOLDLOCK) ON b.BatchID=r.BatchID
-            JOIN dbo.PurchaseOrderItem p ON p.PurchaseItemID=b.PurchaseItemID
-            WHERE i.SalesOrderID=@OrderID AND r.ReservationStatus=N'有效'
-            AND (p.ProductID<>i.ProductID OR b.BatchStatus<>N'合格' OR b.ExpiryDate<=CONVERT(date,@now)
-              OR b.OnHandQty<(SELECT SUM(CONVERT(bigint,ReservedQty)) FROM dbo.InventoryReservation
-                   WHERE BatchID=b.BatchID AND ReservationStatus=N'有效')))
-            THROW 51804,'Reserved batch is unavailable or overcommitted.',1;
         DECLARE @ship TABLE(ReservationID varchar(12),BatchID varchar(12),
             SalesItemID varchar(12),ProductID varchar(12),Qty int);
         INSERT @ship SELECT r.ReservationID,r.BatchID,r.SalesItemID,i.ProductID,r.ReservedQty
             FROM dbo.InventoryReservation r JOIN dbo.SalesOrderItem i ON i.SalesItemID=r.SalesItemID
             WHERE i.SalesOrderID=@OrderID AND r.ReservationStatus=N'有效';
-        -- One item per SKU; split each SKU's demand by its reserved batches.
-        DECLARE @batchDemand TABLE(BatchID varchar(12) PRIMARY KEY,Qty bigint);
-        INSERT @batchDemand SELECT BatchID,SUM(CONVERT(bigint,Qty)) FROM @ship GROUP BY ProductID,BatchID;
+        -- Separate key lookups and updates make the access order explicit.
+        DECLARE @productID varchar(12),@batchID varchar(12),@qty bigint;
+        DECLARE shipment CURSOR LOCAL FAST_FORWARD FOR
+            SELECT ProductID,BatchID,SUM(CONVERT(bigint,Qty))
+            FROM @ship GROUP BY ProductID,BatchID ORDER BY ProductID,BatchID;
         EXEC sys.sp_set_session_context @key=N'OperatorID',@value=@OperatorID;
-        UPDATE r SET ReservationStatus=N'已转出库',EndedAt=@now
-            FROM dbo.InventoryReservation r JOIN @ship s ON s.ReservationID=r.ReservationID;
-        UPDATE b SET OnHandQty=b.OnHandQty-s.Qty FROM dbo.InventoryBatch b
-            JOIN @batchDemand s ON s.BatchID=b.BatchID
-            WHERE b.OnHandQty>=s.Qty;
-        IF ROWCOUNT_BIG()<>(SELECT COUNT_BIG(*) FROM @batchDemand)
-            THROW 51804,'Insufficient stock in one or more reserved batches.',1;
+        OPEN shipment;
+        FETCH NEXT FROM shipment INTO @productID,@batchID,@qty;
+        WHILE @@FETCH_STATUS=0
+        BEGIN
+            EXEC dbo.sp_LockStockProduct @productID;
+            IF NOT EXISTS(SELECT 1 FROM dbo.InventoryBatch b WITH(UPDLOCK,HOLDLOCK)
+                JOIN dbo.PurchaseOrderItem p ON p.PurchaseItemID=b.PurchaseItemID
+                WHERE b.BatchID=@batchID AND p.ProductID=@productID
+                AND b.BatchStatus=N'合格' AND b.ExpiryDate>CONVERT(date,@now)
+                AND b.OnHandQty>=(SELECT SUM(CONVERT(bigint,ReservedQty)) FROM dbo.InventoryReservation
+                    WHERE BatchID=@batchID AND ReservationStatus=N'有效'))
+                THROW 51804,'Reserved batch is unavailable or overcommitted.',1;
+            UPDATE r SET ReservationStatus=N'已转出库',EndedAt=@now
+                FROM dbo.InventoryReservation r JOIN @ship s ON s.ReservationID=r.ReservationID
+                WHERE s.ProductID=@productID AND s.BatchID=@batchID;
+            UPDATE dbo.InventoryBatch SET OnHandQty=OnHandQty-@qty WHERE BatchID=@batchID AND OnHandQty>=@qty;
+            IF @@ROWCOUNT<>1 THROW 51804,'Insufficient stock in one or more reserved batches.',1;
+            FETCH NEXT FROM shipment INTO @productID,@batchID,@qty;
+        END;
+        CLOSE shipment;
+        DEALLOCATE shipment;
         INSERT dbo.InventoryMovement(MovementID,BatchID,MovementType,QuantityDelta,SalesItemID,Reason,OperatorID,OccurredAt)
             SELECT 'IM'+LEFT(REPLACE(CONVERT(varchar(36),NEWID()),'-',''),10),BatchID,N'销售出库',-Qty,SalesItemID,
                 N'订单确认出库',@OperatorID,@now FROM @ship;
