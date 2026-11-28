@@ -107,6 +107,24 @@ BEGIN
         THROW 51812,'Completion inventory and shipment source are inconsistent.',1;
 END;
 GO
+-- Keep completed-order item snapshots immutable even when a caller writes
+-- directly to the child table instead of updating SalesOrder.
+CREATE OR ALTER TRIGGER dbo.tr_CompletedOrderItems ON dbo.SalesOrderItem
+AFTER INSERT,UPDATE,DELETE
+AS
+BEGIN
+    IF ROWCOUNT_BIG()=0 RETURN;
+    SET NOCOUNT ON;
+    IF EXISTS (
+        SELECT 1 FROM (
+            SELECT SalesOrderID FROM inserted
+            UNION SELECT SalesOrderID FROM deleted
+        ) affected
+        JOIN dbo.SalesOrder o ON o.SalesOrderID=affected.SalesOrderID
+        WHERE o.OrderStatus=N'已完成'
+    ) THROW 51812,'Completed order items are immutable.',1;
+END;
+GO
 IF DATABASE_PRINCIPAL_ID(N'app_web_staff') IS NOT NULL
     GRANT SELECT ON dbo.InventoryAudit TO app_web_staff;
 IF DATABASE_PRINCIPAL_ID(N'app_web_manager') IS NOT NULL

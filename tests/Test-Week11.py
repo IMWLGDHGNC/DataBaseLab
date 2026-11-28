@@ -51,6 +51,10 @@ c.error('inventory_source_immutable',"UPDATE dbo.InventoryBatch SET PurchaseItem
 c.error('completed_order_repeat_trigger',"UPDATE dbo.SalesOrder SET OrderStatus=N'已完成' WHERE SalesOrderID='ST00'",expected=51812)
 c.error('completed_order_reverse_trigger',"UPDATE dbo.SalesOrder SET OrderStatus=N'待出库',CompletedAt=NULL WHERE SalesOrderID='ST00'",expected=51812)
 c.error('completed_amount_immutable',"UPDATE dbo.SalesOrder SET TotalAmount=49 WHERE SalesOrderID='ST00'",expected=51812)
+c.error('completed_item_quantity_immutable',
+        "UPDATE dbo.SalesOrderItem SET Quantity=Quantity+1 WHERE SalesOrderID='ST00'",expected=51812)
+c.error('completed_item_price_immutable',
+        "UPDATE dbo.SalesOrderItem SET DealUnitPrice=DealUnitPrice+1 WHERE SalesOrderID='ST00'",expected=51812)
 c.error('direct_completion_without_shipment',"UPDATE dbo.SalesOrder SET OrderStatus=N'已完成',CompletedAt=SYSDATETIME() WHERE SalesOrderID='ST02'",expected=51812)
 c.error('completed_insert_refused',"""INSERT dbo.SalesOrder(SalesOrderID,CustomerID,CreatedAt,OrderStatus,CompletedAt,RecipientName,RecipientPhone,ShippingAddress,TotalAmount)
     VALUES('W11INVALID','C00',SYSDATETIME(),N'已完成',SYSDATETIME(),N'模拟','10000000000',N'模拟',1)""",expected=51812)

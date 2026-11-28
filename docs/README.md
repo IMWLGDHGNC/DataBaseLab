@@ -12,6 +12,7 @@
 | 测试、截图与历史证据 | [结果导航](../result/README.md)，先看最新验证，再看历史记录 |
 | 本机和服务器环境 | [LocalDB环境](guides/本地SQL环境.md)、[服务器环境](guides/服务器SQL环境.md) |
 | 第三阶段进展与报告 | [第三阶段报告](reports/第三阶段报告.md)、[第10周过程与函数](week10/README.md)、[第11周触发器与窗口](week11/README.md)、[第12周递归与事务](week12/README.md)、[第13周并发](week13/README.md) |
+| 第三阶段 Windows 验收 | [运行与取证清单](submission/第三阶段Windows验收清单.md)；实名分工和实际人工结论保存在私下提交材料 |
 | 第二阶段 v1.0 提交材料 | [第5–9周清单](submission/第5-9周提交核对.md)、[第二阶段报告](reports/第二阶段报告.md) |
 | 第一阶段提交记录 | [v0.1复核清单](submission/复核清单.md)、[第一阶段报告](reports/阶段报告-v0.1.md) |
 | 分工、AI与协作规则 | [组内分工](submission/组内分工.md)、[AI记录](../ai_log.md)、[仓库规则](../AGENTS.md)、[公开材料规则](guides/公开材料与敏感信息规则.md) |
