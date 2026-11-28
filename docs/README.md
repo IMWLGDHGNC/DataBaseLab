@@ -12,7 +12,7 @@
 | 测试、截图与历史证据 | [结果导航](../result/README.md)，先看最新验证，再看历史记录 |
 | 本机和服务器环境 | [LocalDB环境](guides/本地SQL环境.md)、[服务器环境](guides/服务器SQL环境.md) |
 | 第三阶段进展与报告 | [第三阶段报告](reports/第三阶段报告.md)、[第10周过程与函数](week10/README.md)、[第11周触发器与窗口](week11/README.md)、[第12周递归与事务](week12/README.md)、[第13周并发](week13/README.md) |
-| 第三阶段 Windows 验收 | [运行与取证清单](submission/第三阶段Windows验收清单.md)；实名分工和实际人工结论保存在私下提交材料 |
+| 第三阶段 Windows 验收 | [运行与取证清单](submission/第三阶段Windows验收清单.md)、[2026-11-28 本机结果](../result/third-stage/windows-20261128/README.md)；实名分工和实际人工结论保存在私下提交材料 |
 | 第二阶段 v1.0 提交材料 | [第5–9周清单](submission/第5-9周提交核对.md)、[第二阶段报告](reports/第二阶段报告.md) |
 | 第一阶段提交记录 | [v0.1复核清单](submission/复核清单.md)、[第一阶段报告](reports/阶段报告-v0.1.md) |
 | 分工、AI与协作规则 | [组内分工](submission/组内分工.md)、[AI记录](../ai_log.md)、[仓库规则](../AGENTS.md)、[公开材料规则](guides/公开材料与敏感信息规则.md) |
@@ -29,7 +29,7 @@
 | 第6周：规范化 | [第六周讲解](course/第六周任务讲解.md) | [分析与迁移](week6/README.md)、[目标ER](week6/Week6-ER.md)、[字典差异](week6/Week6-数据字典.md)、[报告素材](week6/Week6-报告素材.md) | [迁移比较、回归与反例](../result/week6/README.md) |
 | 第7–9周：Web应用 | [第7–9周讲解](course/第7-9周任务讲解.md) | [分层、权限与事务](week7-9/README.md)、[操作手册](../app/README.md) | [服务器103项集成检查与21项角色流程](../result/week7/README.md) |
 | 第10周：过程与函数 | [第10周讲解](course/第10周任务讲解.md) | [对象、事务与应用集成](week10/README.md) | [87项专项及103项Web回归](../result/week10/README.md)，人工审核待确认 |
-| 第11周：触发器与窗口 | [第11周讲解](course/第11周任务讲解.md) | [审计、完成规则与窗口口径](week11/README.md) | [72项专项及103项Web回归](../result/week11/README.md)，人工审核待确认 |
+| 第11周：触发器与窗口 | [第11周讲解](course/第11周任务讲解.md) | [审计、完成规则与窗口口径](week11/README.md) | [当前76项专项及103项Web回归](../result/third-stage/windows-20261128/README.md#新库与回归)，人工审核待确认 |
 | 第12周：递归查询与业务事务 | [第十二周讲解](course/第十二周任务讲解.md) | [分类、事务与阶段报告材料](week12/README.md) | [23 项专项和 Web 回归](../result/week12/README.md)，人工审核待确认 |
 | 第13周：并发控制 | [第十三周讲解](course/第十三周任务讲解.md) | [双会话实验及真实业务回归](week13/README.md)、[第三阶段报告](reports/第三阶段报告.md) | [14 项专项及阶段回归](../result/week13/README.md)，人工审核待确认 |
 

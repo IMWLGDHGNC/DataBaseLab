@@ -63,7 +63,7 @@ v1.0之后执行 [week10/migration.sql](week10/migration.sql) → [function.sql]
 
 ## 第11周 触发器与窗口查询
 
-第10周之后执行 [week11/trigger.sql](week11/trigger.sql)，新增库存审计辅助表与两项集合触发器，可重复安装且保留审计数据。[window_query.sql](week11/window_query.sql)提供商品收入排名、逐订单累计收入及最近三笔订单均额。批量正反例与独立计算见[本周说明](../docs/week11/README.md)、[72项结果](../result/week11/README.md)。
+第10周之后执行 [week11/trigger.sql](week11/trigger.sql)，新增库存审计辅助表与三项集合触发器，可重复安装且保留审计数据。[window_query.sql](week11/window_query.sql)提供商品收入排名、逐订单累计收入及最近三笔订单均额。批量正反例与独立计算见[本周说明](../docs/week11/README.md)及[当前76项复跑结果](../result/third-stage/windows-20261128/README.md#新库与回归)。
 
 ## 第12周 递归查询与业务事务
 

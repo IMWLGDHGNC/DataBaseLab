@@ -51,6 +51,6 @@ DataBaseLab/
 | [第三阶段报告](docs/reports/第三阶段报告.md) | 第10至13周对象、实验流程、结果与组员补写入口 |
 | [组内分工](docs/submission/组内分工.md) / [ai_log.md](ai_log.md) | 实际贡献、AI辅助与审核记录 |
 
-当前 LocalDB 验证包括 **14 项第13周专项**和 **103 项 Web 回归**，见[第13周结果](result/week13/README.md)。课程服务器的 **103 项集成检查**和 **21 项三角色核对**对应[第7–9周版本](result/week7/README.md)。
+当前 Windows LocalDB 验证包括第10至13周的 **87、76、23、14 项专项**和 **103 项 Web 回归**，见[第三阶段 Windows 验收](result/third-stage/windows-20261128/README.md)。课程服务器的 **103 项集成检查**和 **21 项三角色核对**对应[第7–9周版本](result/week7/README.md)。
 
 参与修改前阅读[仓库规则](AGENTS.md)和[公开材料规则](docs/guides/公开材料与敏感信息规则.md)。署名报告、私下提交包和凭据保存在公开仓库之外。

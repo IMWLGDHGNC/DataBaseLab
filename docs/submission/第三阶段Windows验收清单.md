@@ -2,6 +2,8 @@
 
 本清单用于第10—13周课程展示和报告取证。只在新建的独立样例库运行；测试会提交模拟订单、采购、库存与审计数据。历史 `result/week10/` 至 `result/week13/` 是旧版本的已保存证据，不能替代本次运行。
 
+2026-11-28 已在 Windows 从新库执行整套自动验收和独立三会话复跑。第11周实际通过 76 项。本轮使用的驱动、通过标记及证据见[本机验收结果](../../result/third-stage/windows-20261128/README.md)。组员人工验收记录留在私下提交包。
+
 ## 1. 准备机器与版本
 
 - 使用 Windows、SQL Server 2022 Express LocalDB、Python 3.12、可用的 SQL Server ODBC Driver 17/18、PowerShell。按[本地环境指南](../guides/本地SQL环境.md)安装并以同一 Windows 用户执行 `scripts/Initialize-LocalDB.ps1`。第10/11周 Web 集成测试还需 `app/requirements.txt`；Python 测试需要 `pyodbc`。
@@ -20,10 +22,10 @@ $env:LAB_TEST_DATABASE = 'DataBaseLab_Week6_Week10' + (Get-Date -Format 'yyyyMMd
 ./scripts/Run-Week10.ps1 -Database $env:LAB_TEST_DATABASE
 ./scripts/Run-Week11.ps1 -Database $env:LAB_TEST_DATABASE
 ./scripts/Run-Week12.ps1 -Database $env:LAB_TEST_DATABASE
-python tests/Test-Week10.py
-python tests/Test-Week11.py
-python tests/Test-Week12.py
-python tests/Test-Week13.py
+foreach ($week in 10..13) {
+    python "tests/Test-Week$week.py"
+    if ($LASTEXITCODE -ne 0) { throw "Week $week failed" }
+}
 Stop-Transcript
 ```
 

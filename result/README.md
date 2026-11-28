@@ -1,6 +1,10 @@
 # 实验结果导航
 
-本目录按验证对应的代码版本保存实测证据。当前自动验证见第13周。各周运行步骤见[脚本导航](../scripts/README.md)，安装顺序见 [SQL 导航](../sql/README.md)。
+本目录按验证对应的代码版本保存实测证据。当前全量复跑见[第三阶段 Windows 验收](third-stage/windows-20261128/README.md)。各周运行步骤见[脚本导航](../scripts/README.md)，安装顺序见 [SQL 导航](../sql/README.md)。
+
+## 第三阶段 Windows 验收
+
+[2026-11-28 结果](third-stage/windows-20261128/README.md)对 GitHub 上合入已完成订单明细保护后的版本从头复跑。第10至13周分别通过 87、76、23、14 项，Web 回归 103 项。两套 RCSI 对照分别执行于新建的独立样例库。
 
 ## 第13周并发控制
 

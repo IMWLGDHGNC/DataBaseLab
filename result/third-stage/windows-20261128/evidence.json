@@ -1,0 +1,2994 @@
+{
+  "tested_commit": "8fe2763d108ee0070fdfce6729c5e2d5e553c88b",
+  "specialized_checks": {
+    "10": 87,
+    "11": 76,
+    "12": 23,
+    "13": 14
+  },
+  "web_checks": 103,
+  "completed_item_protection": [
+    {
+      "case": "completed_item_quantity_immutable",
+      "expected": 51812,
+      "actual": 51812,
+      "result": "PASS",
+      "input": {
+        "sql": "UPDATE dbo.SalesOrderItem SET Quantity=Quantity+1 WHERE SalesOrderID='ST00'",
+        "parameters": []
+      }
+    },
+    {
+      "case": "completed_item_quantity_immutable_no_partial_data",
+      "expected": "all dbo table digests unchanged",
+      "actual": "all dbo table digests unchanged",
+      "result": "PASS"
+    },
+    {
+      "case": "completed_item_price_immutable",
+      "expected": 51812,
+      "actual": 51812,
+      "result": "PASS",
+      "input": {
+        "sql": "UPDATE dbo.SalesOrderItem SET DealUnitPrice=DealUnitPrice+1 WHERE SalesOrderID='ST00'",
+        "parameters": []
+      }
+    },
+    {
+      "case": "completed_item_price_immutable_no_partial_data",
+      "expected": "all dbo table digests unchanged",
+      "actual": "all dbo table digests unchanged",
+      "result": "PASS"
+    }
+  ],
+  "category_queries": [
+    {
+      "case": "category_W12ROOT",
+      "expected": [
+        [
+          "W12A",
+          "W12ROOT",
+          1,
+          "/W12ROOT/W12A"
+        ],
+        [
+          "W12B",
+          "W12ROOT",
+          1,
+          "/W12ROOT/W12B"
+        ],
+        [
+          "W12LEAF",
+          "W12A",
+          2,
+          "/W12ROOT/W12A/W12LEAF"
+        ]
+      ],
+      "actual": [
+        {
+          "CategoryID": "W12A",
+          "ParentCategoryID": "W12ROOT",
+          "Depth": 1,
+          "CategoryPath": "/W12ROOT/W12A"
+        },
+        {
+          "CategoryID": "W12B",
+          "ParentCategoryID": "W12ROOT",
+          "Depth": 1,
+          "CategoryPath": "/W12ROOT/W12B"
+        },
+        {
+          "CategoryID": "W12LEAF",
+          "ParentCategoryID": "W12A",
+          "Depth": 2,
+          "CategoryPath": "/W12ROOT/W12A/W12LEAF"
+        }
+      ],
+      "result": "PASS"
+    },
+    {
+      "case": "category_W12A",
+      "expected": [
+        [
+          "W12LEAF",
+          "W12A",
+          1,
+          "/W12A/W12LEAF"
+        ]
+      ],
+      "actual": [
+        {
+          "CategoryID": "W12LEAF",
+          "ParentCategoryID": "W12A",
+          "Depth": 1,
+          "CategoryPath": "/W12A/W12LEAF"
+        }
+      ],
+      "result": "PASS"
+    },
+    {
+      "case": "category_W12LEAF",
+      "expected": [],
+      "actual": [],
+      "result": "PASS"
+    },
+    {
+      "case": "category_W12NONE",
+      "expected": [],
+      "actual": [],
+      "result": "PASS"
+    }
+  ],
+  "transaction_checks": [
+    {
+      "case": "order_midway_rollback",
+      "expected": {
+        "error": 51920,
+        "message_fragment": "after stock",
+        "open_transactions": 0,
+        "xact_state": 0,
+        "state_before_caller_cleanup": 0,
+        "all_dbo_tables_restored": true
+      },
+      "actual": {
+        "error": 51920,
+        "message": "Injected after stock, audit, movement and order status writes.",
+        "open_transactions": 0,
+        "xact_state": 0,
+        "state_before_caller_cleanup": 0,
+        "all_dbo_tables_restored": true,
+        "after": {
+          "order": {
+            "OrderStatus": "待出库",
+            "TotalAmount": "27.00",
+            "CompletedAt": null
+          },
+          "items": [
+            {
+              "ProductID": "W12P",
+              "Quantity": 3,
+              "DealUnitPrice": "5.00"
+            },
+            {
+              "ProductID": "W12Q",
+              "Quantity": 4,
+              "DealUnitPrice": "3.00"
+            }
+          ],
+          "payment": {
+            "PaymentStatus": "成功",
+            "Amount": "27.00"
+          },
+          "reservations": [
+            {
+              "BatchID": "W12BP",
+              "ReservedQty": 3,
+              "ReservationStatus": "有效",
+              "EndedAt": null
+            },
+            {
+              "BatchID": "W12BQ",
+              "ReservedQty": 4,
+              "ReservationStatus": "有效",
+              "EndedAt": null
+            }
+          ],
+          "stock": [
+            {
+              "BatchID": "W12BP",
+              "OnHandQty": 20
+            },
+            {
+              "BatchID": "W12BQ",
+              "OnHandQty": 15
+            }
+          ],
+          "movements": [],
+          "audit": [],
+          "points": [],
+          "balance": 72
+        }
+      },
+      "result": "PASS",
+      "initial": {
+        "order": {
+          "OrderStatus": "待出库",
+          "TotalAmount": "27.00",
+          "CompletedAt": null
+        },
+        "items": [
+          {
+            "ProductID": "W12P",
+            "Quantity": 3,
+            "DealUnitPrice": "5.00"
+          },
+          {
+            "ProductID": "W12Q",
+            "Quantity": 4,
+            "DealUnitPrice": "3.00"
+          }
+        ],
+        "payment": {
+          "PaymentStatus": "成功",
+          "Amount": "27.00"
+        },
+        "reservations": [
+          {
+            "BatchID": "W12BP",
+            "ReservedQty": 3,
+            "ReservationStatus": "有效",
+            "EndedAt": null
+          },
+          {
+            "BatchID": "W12BQ",
+            "ReservedQty": 4,
+            "ReservationStatus": "有效",
+            "EndedAt": null
+          }
+        ],
+        "stock": [
+          {
+            "BatchID": "W12BP",
+            "OnHandQty": 20
+          },
+          {
+            "BatchID": "W12BQ",
+            "OnHandQty": 15
+          }
+        ],
+        "movements": [],
+        "audit": [],
+        "points": [],
+        "balance": 72
+      },
+      "operation": {
+        "sql": "EXEC dbo.sp_CompleteOrder ?,'P00';",
+        "parameters": [
+          "W12SALE"
+        ]
+      }
+    },
+    {
+      "case": "order_committed_visible_to_new_connection",
+      "expected": "P=17 Q=11, completed 27.00, reserves consumed, two movements and audit rows, +27 points",
+      "actual": {
+        "order": {
+          "OrderStatus": "已完成",
+          "TotalAmount": "27.00",
+          "CompletedAt": "2026-11-28 16:02:35"
+        },
+        "items": [
+          {
+            "ProductID": "W12P",
+            "Quantity": 3,
+            "DealUnitPrice": "5.00"
+          },
+          {
+            "ProductID": "W12Q",
+            "Quantity": 4,
+            "DealUnitPrice": "3.00"
+          }
+        ],
+        "payment": {
+          "PaymentStatus": "成功",
+          "Amount": "27.00"
+        },
+        "reservations": [
+          {
+            "BatchID": "W12BP",
+            "ReservedQty": 3,
+            "ReservationStatus": "已转出库",
+            "EndedAt": "2026-11-28 16:02:35"
+          },
+          {
+            "BatchID": "W12BQ",
+            "ReservedQty": 4,
+            "ReservationStatus": "已转出库",
+            "EndedAt": "2026-11-28 16:02:35"
+          }
+        ],
+        "stock": [
+          {
+            "BatchID": "W12BP",
+            "OnHandQty": 17
+          },
+          {
+            "BatchID": "W12BQ",
+            "OnHandQty": 11
+          }
+        ],
+        "movements": [
+          {
+            "BatchID": "W12BP",
+            "QuantityDelta": -3,
+            "OperatorID": "P00"
+          },
+          {
+            "BatchID": "W12BQ",
+            "QuantityDelta": -4,
+            "OperatorID": "P00"
+          }
+        ],
+        "audit": [
+          {
+            "BatchID": "W12BP",
+            "BeforeQty": 20,
+            "AfterQty": 17,
+            "QuantityDelta": -3,
+            "OperatorID": "P00"
+          },
+          {
+            "BatchID": "W12BQ",
+            "BeforeQty": 15,
+            "AfterQty": 11,
+            "QuantityDelta": -4,
+            "OperatorID": "P00"
+          }
+        ],
+        "points": [
+          {
+            "PointsDelta": 27,
+            "BasedAmount": "27.00"
+          }
+        ],
+        "balance": 99
+      },
+      "result": "PASS",
+      "initial": {
+        "order": {
+          "OrderStatus": "待出库",
+          "TotalAmount": "27.00",
+          "CompletedAt": null
+        },
+        "items": [
+          {
+            "ProductID": "W12P",
+            "Quantity": 3,
+            "DealUnitPrice": "5.00"
+          },
+          {
+            "ProductID": "W12Q",
+            "Quantity": 4,
+            "DealUnitPrice": "3.00"
+          }
+        ],
+        "payment": {
+          "PaymentStatus": "成功",
+          "Amount": "27.00"
+        },
+        "reservations": [
+          {
+            "BatchID": "W12BP",
+            "ReservedQty": 3,
+            "ReservationStatus": "有效",
+            "EndedAt": null
+          },
+          {
+            "BatchID": "W12BQ",
+            "ReservedQty": 4,
+            "ReservationStatus": "有效",
+            "EndedAt": null
+          }
+        ],
+        "stock": [
+          {
+            "BatchID": "W12BP",
+            "OnHandQty": 20
+          },
+          {
+            "BatchID": "W12BQ",
+            "OnHandQty": 15
+          }
+        ],
+        "movements": [],
+        "audit": [],
+        "points": [],
+        "balance": 72
+      },
+      "operation": "order_transaction.sql"
+    },
+    {
+      "case": "order_repeat",
+      "expected": {
+        "error": 51804,
+        "message_fragment": "already been completed",
+        "open_transactions": 0,
+        "xact_state": 0,
+        "state_before_caller_cleanup": 0,
+        "all_dbo_tables_restored": true
+      },
+      "actual": {
+        "error": 51804,
+        "message": "Order has already been completed.",
+        "open_transactions": 0,
+        "xact_state": 0,
+        "state_before_caller_cleanup": 0,
+        "all_dbo_tables_restored": true,
+        "after": {
+          "order": {
+            "OrderStatus": "已完成",
+            "TotalAmount": "27.00",
+            "CompletedAt": "2026-11-28 16:02:35"
+          },
+          "items": [
+            {
+              "ProductID": "W12P",
+              "Quantity": 3,
+              "DealUnitPrice": "5.00"
+            },
+            {
+              "ProductID": "W12Q",
+              "Quantity": 4,
+              "DealUnitPrice": "3.00"
+            }
+          ],
+          "payment": {
+            "PaymentStatus": "成功",
+            "Amount": "27.00"
+          },
+          "reservations": [
+            {
+              "BatchID": "W12BP",
+              "ReservedQty": 3,
+              "ReservationStatus": "已转出库",
+              "EndedAt": "2026-11-28 16:02:35"
+            },
+            {
+              "BatchID": "W12BQ",
+              "ReservedQty": 4,
+              "ReservationStatus": "已转出库",
+              "EndedAt": "2026-11-28 16:02:35"
+            }
+          ],
+          "stock": [
+            {
+              "BatchID": "W12BP",
+              "OnHandQty": 17
+            },
+            {
+              "BatchID": "W12BQ",
+              "OnHandQty": 11
+            }
+          ],
+          "movements": [
+            {
+              "BatchID": "W12BP",
+              "QuantityDelta": -3,
+              "OperatorID": "P00"
+            },
+            {
+              "BatchID": "W12BQ",
+              "QuantityDelta": -4,
+              "OperatorID": "P00"
+            }
+          ],
+          "audit": [
+            {
+              "BatchID": "W12BP",
+              "BeforeQty": 20,
+              "AfterQty": 17,
+              "QuantityDelta": -3,
+              "OperatorID": "P00"
+            },
+            {
+              "BatchID": "W12BQ",
+              "BeforeQty": 15,
+              "AfterQty": 11,
+              "QuantityDelta": -4,
+              "OperatorID": "P00"
+            }
+          ],
+          "points": [
+            {
+              "PointsDelta": 27,
+              "BasedAmount": "27.00"
+            }
+          ],
+          "balance": 99
+        }
+      },
+      "result": "PASS",
+      "initial": {
+        "order": {
+          "OrderStatus": "已完成",
+          "TotalAmount": "27.00",
+          "CompletedAt": "2026-11-28 16:02:35"
+        },
+        "items": [
+          {
+            "ProductID": "W12P",
+            "Quantity": 3,
+            "DealUnitPrice": "5.00"
+          },
+          {
+            "ProductID": "W12Q",
+            "Quantity": 4,
+            "DealUnitPrice": "3.00"
+          }
+        ],
+        "payment": {
+          "PaymentStatus": "成功",
+          "Amount": "27.00"
+        },
+        "reservations": [
+          {
+            "BatchID": "W12BP",
+            "ReservedQty": 3,
+            "ReservationStatus": "已转出库",
+            "EndedAt": "2026-11-28 16:02:35"
+          },
+          {
+            "BatchID": "W12BQ",
+            "ReservedQty": 4,
+            "ReservationStatus": "已转出库",
+            "EndedAt": "2026-11-28 16:02:35"
+          }
+        ],
+        "stock": [
+          {
+            "BatchID": "W12BP",
+            "OnHandQty": 17
+          },
+          {
+            "BatchID": "W12BQ",
+            "OnHandQty": 11
+          }
+        ],
+        "movements": [
+          {
+            "BatchID": "W12BP",
+            "QuantityDelta": -3,
+            "OperatorID": "P00"
+          },
+          {
+            "BatchID": "W12BQ",
+            "QuantityDelta": -4,
+            "OperatorID": "P00"
+          }
+        ],
+        "audit": [
+          {
+            "BatchID": "W12BP",
+            "BeforeQty": 20,
+            "AfterQty": 17,
+            "QuantityDelta": -3,
+            "OperatorID": "P00"
+          },
+          {
+            "BatchID": "W12BQ",
+            "BeforeQty": 15,
+            "AfterQty": 11,
+            "QuantityDelta": -4,
+            "OperatorID": "P00"
+          }
+        ],
+        "points": [
+          {
+            "PointsDelta": 27,
+            "BasedAmount": "27.00"
+          }
+        ],
+        "balance": 99
+      },
+      "operation": {
+        "sql": "EXEC dbo.sp_CompleteOrder ?,'P00';",
+        "parameters": [
+          "W12SALE"
+        ]
+      }
+    },
+    {
+      "case": "restock_midway_rollback",
+      "expected": {
+        "error": 51921,
+        "message_fragment": "before receipt status",
+        "open_transactions": 0,
+        "xact_state": 0,
+        "state_before_caller_cleanup": 0,
+        "all_dbo_tables_restored": true
+      },
+      "actual": {
+        "error": 51921,
+        "message": "Injected after stock and audit writes and before receipt status update.",
+        "open_transactions": 0,
+        "xact_state": 0,
+        "state_before_caller_cleanup": 0,
+        "all_dbo_tables_restored": true,
+        "after": {
+          "purchase": {
+            "OrderStatus": "已批准",
+            "ReceivedAt": null,
+            "ReceivedBy": null
+          },
+          "item": {
+            "PurchaseOrderID": "W12PUR",
+            "PurchaseItemID": "W12RI",
+            "ProductID": "W12Q",
+            "OrderedQty": 7
+          },
+          "stock": [
+            {
+              "BatchID": "W12BQ",
+              "PurchaseItemID": "W12IQ",
+              "OnHandQty": 11,
+              "ReceivedAt": "2026-11-28 16:02:35"
+            }
+          ],
+          "movements": [],
+          "audit": []
+        }
+      },
+      "result": "PASS",
+      "initial": {
+        "purchase": {
+          "OrderStatus": "已批准",
+          "ReceivedAt": null,
+          "ReceivedBy": null
+        },
+        "item": {
+          "PurchaseOrderID": "W12PUR",
+          "PurchaseItemID": "W12RI",
+          "ProductID": "W12Q",
+          "OrderedQty": 7
+        },
+        "stock": [
+          {
+            "BatchID": "W12BQ",
+            "PurchaseItemID": "W12IQ",
+            "OnHandQty": 11,
+            "ReceivedAt": "2026-11-28 16:02:35"
+          }
+        ],
+        "movements": [],
+        "audit": []
+      },
+      "operation": {
+        "sql": "DECLARE @today date=CONVERT(date,GETDATE()), @expiry date=DATEADD(day,365,GETDATE());\nEXEC dbo.sp_ReceivePurchase ?,'W12BR','W12-RESTOCK',@today,@expiry,'W12MR','P00',N'模拟验收',?;",
+        "parameters": [
+          "W12RI",
+          7
+        ]
+      }
+    },
+    {
+      "case": "restock_committed_visible_to_new_connection",
+      "expected": "Q increases 11→18, received with one batch, movement and audit row",
+      "actual": {
+        "purchase": {
+          "OrderStatus": "已收货",
+          "ReceivedAt": "2026-11-28 16:02:36",
+          "ReceivedBy": "P00"
+        },
+        "item": {
+          "PurchaseOrderID": "W12PUR",
+          "PurchaseItemID": "W12RI",
+          "ProductID": "W12Q",
+          "OrderedQty": 7
+        },
+        "stock": [
+          {
+            "BatchID": "W12BQ",
+            "PurchaseItemID": "W12IQ",
+            "OnHandQty": 11,
+            "ReceivedAt": "2026-11-28 16:02:35"
+          },
+          {
+            "BatchID": "W12BR",
+            "PurchaseItemID": "W12RI",
+            "OnHandQty": 7,
+            "ReceivedAt": "2026-11-28 16:02:36"
+          }
+        ],
+        "movements": [
+          {
+            "BatchID": "W12BR",
+            "QuantityDelta": 7,
+            "MovementType": "采购入库",
+            "OperatorID": "P00",
+            "OccurredAt": "2026-11-28 16:02:36"
+          }
+        ],
+        "audit": [
+          {
+            "BatchID": "W12BR",
+            "ProductID": "W12Q",
+            "BeforeQty": null,
+            "AfterQty": 7,
+            "QuantityDelta": 7,
+            "OperatorID": "P00"
+          }
+        ]
+      },
+      "result": "PASS",
+      "initial": {
+        "purchase": {
+          "OrderStatus": "已批准",
+          "ReceivedAt": null,
+          "ReceivedBy": null
+        },
+        "item": {
+          "PurchaseOrderID": "W12PUR",
+          "PurchaseItemID": "W12RI",
+          "ProductID": "W12Q",
+          "OrderedQty": 7
+        },
+        "stock": [
+          {
+            "BatchID": "W12BQ",
+            "PurchaseItemID": "W12IQ",
+            "OnHandQty": 11,
+            "ReceivedAt": "2026-11-28 16:02:35"
+          }
+        ],
+        "movements": [],
+        "audit": []
+      },
+      "operation": {
+        "sql": "DECLARE @today date=CONVERT(date,GETDATE()), @expiry date=DATEADD(day,365,GETDATE());\nEXEC dbo.sp_ReceivePurchase ?,'W12BR','W12-RESTOCK',@today,@expiry,'W12MR','P00',N'模拟验收',?;",
+        "parameters": [
+          "W12RI",
+          7
+        ]
+      }
+    },
+    {
+      "case": "restock_repeat",
+      "expected": {
+        "error": 51804,
+        "message_fragment": "already been received",
+        "open_transactions": 0,
+        "xact_state": 0,
+        "state_before_caller_cleanup": 0,
+        "all_dbo_tables_restored": true
+      },
+      "actual": {
+        "error": 51804,
+        "message": "Purchase order has already been received.",
+        "open_transactions": 0,
+        "xact_state": 0,
+        "state_before_caller_cleanup": 0,
+        "all_dbo_tables_restored": true,
+        "after": {
+          "purchase": {
+            "OrderStatus": "已收货",
+            "ReceivedAt": "2026-11-28 16:02:36",
+            "ReceivedBy": "P00"
+          },
+          "item": {
+            "PurchaseOrderID": "W12PUR",
+            "PurchaseItemID": "W12RI",
+            "ProductID": "W12Q",
+            "OrderedQty": 7
+          },
+          "stock": [
+            {
+              "BatchID": "W12BQ",
+              "PurchaseItemID": "W12IQ",
+              "OnHandQty": 11,
+              "ReceivedAt": "2026-11-28 16:02:35"
+            },
+            {
+              "BatchID": "W12BR",
+              "PurchaseItemID": "W12RI",
+              "OnHandQty": 7,
+              "ReceivedAt": "2026-11-28 16:02:36"
+            }
+          ],
+          "movements": [
+            {
+              "BatchID": "W12BR",
+              "QuantityDelta": 7,
+              "MovementType": "采购入库",
+              "OperatorID": "P00",
+              "OccurredAt": "2026-11-28 16:02:36"
+            }
+          ],
+          "audit": [
+            {
+              "BatchID": "W12BR",
+              "ProductID": "W12Q",
+              "BeforeQty": null,
+              "AfterQty": 7,
+              "QuantityDelta": 7,
+              "OperatorID": "P00"
+            }
+          ]
+        }
+      },
+      "result": "PASS",
+      "initial": {
+        "purchase": {
+          "OrderStatus": "已收货",
+          "ReceivedAt": "2026-11-28 16:02:36",
+          "ReceivedBy": "P00"
+        },
+        "item": {
+          "PurchaseOrderID": "W12PUR",
+          "PurchaseItemID": "W12RI",
+          "ProductID": "W12Q",
+          "OrderedQty": 7
+        },
+        "stock": [
+          {
+            "BatchID": "W12BQ",
+            "PurchaseItemID": "W12IQ",
+            "OnHandQty": 11,
+            "ReceivedAt": "2026-11-28 16:02:35"
+          },
+          {
+            "BatchID": "W12BR",
+            "PurchaseItemID": "W12RI",
+            "OnHandQty": 7,
+            "ReceivedAt": "2026-11-28 16:02:36"
+          }
+        ],
+        "movements": [
+          {
+            "BatchID": "W12BR",
+            "QuantityDelta": 7,
+            "MovementType": "采购入库",
+            "OperatorID": "P00",
+            "OccurredAt": "2026-11-28 16:02:36"
+          }
+        ],
+        "audit": [
+          {
+            "BatchID": "W12BR",
+            "ProductID": "W12Q",
+            "BeforeQty": null,
+            "AfterQty": 7,
+            "QuantityDelta": 7,
+            "OperatorID": "P00"
+          }
+        ]
+      },
+      "operation": {
+        "sql": "DECLARE @today date=CONVERT(date,GETDATE()), @expiry date=DATEADD(day,365,GETDATE());\nEXEC dbo.sp_ReceivePurchase ?,'W12BR','W12-RESTOCK',@today,@expiry,'W12MR','P00',N'模拟验收',?;",
+        "parameters": [
+          "W12RI",
+          7
+        ]
+      }
+    }
+  ],
+  "concurrency": {
+    "off": {
+      "SPIDs": {
+        "observer": 103,
+        "A": 53,
+        "B": 105
+      },
+      "cases": [
+        {
+          "case": "write_wait_completed",
+          "steps": [
+            {
+              "step": "A session",
+              "result": {
+                "SessionID": 53,
+                "IsolationLevel": 2,
+                "TranCount": 0,
+                "SqlServerVersion": "16.0.1000.6",
+                "RCSI": false
+              }
+            },
+            {
+              "step": "B session",
+              "result": {
+                "SessionID": 105,
+                "IsolationLevel": 2,
+                "TranCount": 0,
+                "SqlServerVersion": "16.0.1000.6",
+                "RCSI": false
+              }
+            },
+            {
+              "step": "initial state",
+              "result": {
+                "P": 10,
+                "Q": 8,
+                "ORDER": "Pending",
+                "RECEIPT": "Approved"
+              }
+            },
+            {
+              "step": "stock key mapping",
+              "result": {
+                "P": "(cc9c381108b4)",
+                "Q": "(277dab27e21d)"
+              }
+            },
+            {
+              "step": "A1 start",
+              "result": {
+                "session": "A",
+                "script": "lock_wait_A.sql"
+              }
+            },
+            {
+              "step": "A1 end",
+              "result": []
+            },
+            {
+              "step": "B1 start",
+              "result": {
+                "session": "B",
+                "script": "lock_wait_B.sql"
+              }
+            },
+            {
+              "step": "DMV observation",
+              "result": {
+                "waiter": "B",
+                "blocker": "A",
+                "product": "P",
+                "sessions": [
+                  {
+                    "SessionID": 53,
+                    "IsolationLevel": 2,
+                    "TranCount": 1
+                  },
+                  {
+                    "SessionID": 105,
+                    "IsolationLevel": 2,
+                    "TranCount": 2
+                  }
+                ],
+                "request": {
+                  "SessionID": 105,
+                  "Blocker": 53,
+                  "WaitType": "LCK_M_X",
+                  "WaitMs": 11
+                },
+                "locks": [
+                  {
+                    "SessionID": 53,
+                    "ResourceType": "KEY",
+                    "TableName": "Stock",
+                    "Resource": "(cc9c381108b4)",
+                    "Mode": "X",
+                    "Status": "GRANT"
+                  },
+                  {
+                    "SessionID": 105,
+                    "ResourceType": "KEY",
+                    "TableName": "Stock",
+                    "Resource": "(cc9c381108b4)",
+                    "Mode": "X",
+                    "Status": "WAIT"
+                  }
+                ]
+              }
+            },
+            {
+              "step": "A2 start",
+              "result": {
+                "session": "A",
+                "script": "lock_wait_A.sql"
+              }
+            },
+            {
+              "step": "A2 end",
+              "result": []
+            },
+            {
+              "step": "B1 end",
+              "result": []
+            },
+            {
+              "step": "B2 start",
+              "result": {
+                "session": "B",
+                "script": "lock_wait_B.sql"
+              }
+            },
+            {
+              "step": "B2 end",
+              "result": []
+            },
+            {
+              "step": "final state",
+              "result": {
+                "P": 13,
+                "Q": 8,
+                "ORDER": "Completed",
+                "RECEIPT": "Received"
+              }
+            },
+            {
+              "step": "A cleanup",
+              "result": {
+                "SessionID": 53,
+                "TranCount": 0,
+                "XactState": 0
+              }
+            },
+            {
+              "step": "B cleanup",
+              "result": {
+                "SessionID": 105,
+                "TranCount": 0,
+                "XactState": 0
+              }
+            }
+          ]
+        },
+        {
+          "case": "write_wait_pending",
+          "steps": [
+            {
+              "step": "A session",
+              "result": {
+                "SessionID": 53,
+                "IsolationLevel": 2,
+                "TranCount": 0,
+                "SqlServerVersion": "16.0.1000.6",
+                "RCSI": false
+              }
+            },
+            {
+              "step": "B session",
+              "result": {
+                "SessionID": 105,
+                "IsolationLevel": 2,
+                "TranCount": 0,
+                "SqlServerVersion": "16.0.1000.6",
+                "RCSI": false
+              }
+            },
+            {
+              "step": "initial state",
+              "result": {
+                "P": 10,
+                "Q": 8,
+                "ORDER": "Pending",
+                "RECEIPT": "Approved"
+              }
+            },
+            {
+              "step": "stock key mapping",
+              "result": {
+                "P": "(cc9c381108b4)",
+                "Q": "(277dab27e21d)"
+              }
+            },
+            {
+              "step": "A1 start",
+              "result": {
+                "session": "A",
+                "script": "lock_wait_A.sql"
+              }
+            },
+            {
+              "step": "A1 end",
+              "result": []
+            },
+            {
+              "step": "B1 start",
+              "result": {
+                "session": "B",
+                "script": "lock_wait_B.sql"
+              }
+            },
+            {
+              "step": "DMV observation",
+              "result": {
+                "waiter": "B",
+                "blocker": "A",
+                "product": "P",
+                "sessions": [
+                  {
+                    "SessionID": 53,
+                    "IsolationLevel": 2,
+                    "TranCount": 1
+                  },
+                  {
+                    "SessionID": 105,
+                    "IsolationLevel": 2,
+                    "TranCount": 2
+                  }
+                ],
+                "request": {
+                  "SessionID": 105,
+                  "Blocker": 53,
+                  "WaitType": "LCK_M_X",
+                  "WaitMs": 56
+                },
+                "locks": [
+                  {
+                    "SessionID": 53,
+                    "ResourceType": "KEY",
+                    "TableName": "Stock",
+                    "Resource": "(cc9c381108b4)",
+                    "Mode": "X",
+                    "Status": "GRANT"
+                  },
+                  {
+                    "SessionID": 105,
+                    "ResourceType": "KEY",
+                    "TableName": "Stock",
+                    "Resource": "(cc9c381108b4)",
+                    "Mode": "X",
+                    "Status": "WAIT"
+                  }
+                ]
+              }
+            },
+            {
+              "step": "A3 start",
+              "result": {
+                "session": "A",
+                "script": "lock_wait_A.sql"
+              }
+            },
+            {
+              "step": "A3 end",
+              "result": []
+            },
+            {
+              "step": "B1 end",
+              "result": []
+            },
+            {
+              "step": "B2 start",
+              "result": {
+                "session": "B",
+                "script": "lock_wait_B.sql"
+              }
+            },
+            {
+              "step": "B2 end",
+              "result": []
+            },
+            {
+              "step": "final state",
+              "result": {
+                "P": 15,
+                "Q": 8,
+                "ORDER": "Pending",
+                "RECEIPT": "Received"
+              }
+            },
+            {
+              "step": "A cleanup",
+              "result": {
+                "SessionID": 53,
+                "TranCount": 0,
+                "XactState": 0
+              }
+            },
+            {
+              "step": "B cleanup",
+              "result": {
+                "SessionID": 105,
+                "TranCount": 0,
+                "XactState": 0
+              }
+            }
+          ]
+        },
+        {
+          "case": "dirty_read",
+          "steps": [
+            {
+              "step": "A session",
+              "result": {
+                "SessionID": 53,
+                "IsolationLevel": 2,
+                "TranCount": 0,
+                "SqlServerVersion": "16.0.1000.6",
+                "RCSI": false
+              }
+            },
+            {
+              "step": "B session",
+              "result": {
+                "SessionID": 105,
+                "IsolationLevel": 2,
+                "TranCount": 0,
+                "SqlServerVersion": "16.0.1000.6",
+                "RCSI": false
+              }
+            },
+            {
+              "step": "initial state",
+              "result": {
+                "P": 10,
+                "Q": 8,
+                "ORDER": "Pending",
+                "RECEIPT": "Approved"
+              }
+            },
+            {
+              "step": "stock key mapping",
+              "result": {
+                "P": "(cc9c381108b4)",
+                "Q": "(277dab27e21d)"
+              }
+            },
+            {
+              "step": "A1 start",
+              "result": {
+                "session": "A",
+                "script": "dirty_read_A.sql"
+              }
+            },
+            {
+              "step": "A1 end",
+              "result": []
+            },
+            {
+              "step": "B1 start",
+              "result": {
+                "session": "B",
+                "script": "dirty_read_B.sql"
+              }
+            },
+            {
+              "step": "B1 end",
+              "result": [
+                [
+                  {
+                    "Qty": 15,
+                    "IsolationLevel": 1
+                  }
+                ]
+              ]
+            },
+            {
+              "step": "A2 start",
+              "result": {
+                "session": "A",
+                "script": "dirty_read_A.sql"
+              }
+            },
+            {
+              "step": "A2 end",
+              "result": []
+            },
+            {
+              "step": "A cleanup",
+              "result": {
+                "SessionID": 53,
+                "TranCount": 0,
+                "XactState": 0
+              }
+            },
+            {
+              "step": "B cleanup",
+              "result": {
+                "SessionID": 105,
+                "TranCount": 0,
+                "XactState": 0
+              }
+            }
+          ]
+        },
+        {
+          "case": "read_committed",
+          "steps": [
+            {
+              "step": "A session",
+              "result": {
+                "SessionID": 53,
+                "IsolationLevel": 2,
+                "TranCount": 0,
+                "SqlServerVersion": "16.0.1000.6",
+                "RCSI": false
+              }
+            },
+            {
+              "step": "B session",
+              "result": {
+                "SessionID": 105,
+                "IsolationLevel": 2,
+                "TranCount": 0,
+                "SqlServerVersion": "16.0.1000.6",
+                "RCSI": false
+              }
+            },
+            {
+              "step": "initial state",
+              "result": {
+                "P": 10,
+                "Q": 8,
+                "ORDER": "Pending",
+                "RECEIPT": "Approved"
+              }
+            },
+            {
+              "step": "stock key mapping",
+              "result": {
+                "P": "(cc9c381108b4)",
+                "Q": "(277dab27e21d)"
+              }
+            },
+            {
+              "step": "A1 start",
+              "result": {
+                "session": "A",
+                "script": "dirty_read_A.sql"
+              }
+            },
+            {
+              "step": "A1 end",
+              "result": []
+            },
+            {
+              "step": "B2 start",
+              "result": {
+                "session": "B",
+                "script": "dirty_read_B.sql"
+              }
+            },
+            {
+              "step": "DMV observation",
+              "result": {
+                "waiter": "B",
+                "blocker": "A",
+                "product": "P",
+                "sessions": [
+                  {
+                    "SessionID": 53,
+                    "IsolationLevel": 2,
+                    "TranCount": 1
+                  },
+                  {
+                    "SessionID": 105,
+                    "IsolationLevel": 2,
+                    "TranCount": 0
+                  }
+                ],
+                "request": {
+                  "SessionID": 105,
+                  "Blocker": 53,
+                  "WaitType": "LCK_M_S",
+                  "WaitMs": 57
+                },
+                "locks": [
+                  {
+                    "SessionID": 53,
+                    "ResourceType": "KEY",
+                    "TableName": "Stock",
+                    "Resource": "(cc9c381108b4)",
+                    "Mode": "X",
+                    "Status": "GRANT"
+                  },
+                  {
+                    "SessionID": 53,
+                    "ResourceType": "KEY",
+                    "TableName": "Document",
+                    "Resource": "(ed476e6fd1ca)",
+                    "Mode": "X",
+                    "Status": "GRANT"
+                  },
+                  {
+                    "SessionID": 105,
+                    "ResourceType": "KEY",
+                    "TableName": "Stock",
+                    "Resource": "(cc9c381108b4)",
+                    "Mode": "S",
+                    "Status": "WAIT"
+                  }
+                ]
+              }
+            },
+            {
+              "step": "A2 start",
+              "result": {
+                "session": "A",
+                "script": "dirty_read_A.sql"
+              }
+            },
+            {
+              "step": "A2 end",
+              "result": []
+            },
+            {
+              "step": "B2 end",
+              "result": [
+                [
+                  {
+                    "Qty": 10,
+                    "IsolationLevel": 2
+                  }
+                ]
+              ]
+            },
+            {
+              "step": "A cleanup",
+              "result": {
+                "SessionID": 53,
+                "TranCount": 0,
+                "XactState": 0
+              }
+            },
+            {
+              "step": "B cleanup",
+              "result": {
+                "SessionID": 105,
+                "TranCount": 0,
+                "XactState": 0
+              }
+            }
+          ]
+        },
+        {
+          "case": "read_committed_lock_hint",
+          "steps": [
+            {
+              "step": "A session",
+              "result": {
+                "SessionID": 53,
+                "IsolationLevel": 2,
+                "TranCount": 0,
+                "SqlServerVersion": "16.0.1000.6",
+                "RCSI": false
+              }
+            },
+            {
+              "step": "B session",
+              "result": {
+                "SessionID": 105,
+                "IsolationLevel": 2,
+                "TranCount": 0,
+                "SqlServerVersion": "16.0.1000.6",
+                "RCSI": false
+              }
+            },
+            {
+              "step": "initial state",
+              "result": {
+                "P": 10,
+                "Q": 8,
+                "ORDER": "Pending",
+                "RECEIPT": "Approved"
+              }
+            },
+            {
+              "step": "stock key mapping",
+              "result": {
+                "P": "(cc9c381108b4)",
+                "Q": "(277dab27e21d)"
+              }
+            },
+            {
+              "step": "A1 start",
+              "result": {
+                "session": "A",
+                "script": "dirty_read_A.sql"
+              }
+            },
+            {
+              "step": "A1 end",
+              "result": []
+            },
+            {
+              "step": "B3 start",
+              "result": {
+                "session": "B",
+                "script": "dirty_read_B.sql"
+              }
+            },
+            {
+              "step": "DMV observation",
+              "result": {
+                "waiter": "B",
+                "blocker": "A",
+                "product": "P",
+                "sessions": [
+                  {
+                    "SessionID": 53,
+                    "IsolationLevel": 2,
+                    "TranCount": 1
+                  },
+                  {
+                    "SessionID": 105,
+                    "IsolationLevel": 2,
+                    "TranCount": 0
+                  }
+                ],
+                "request": {
+                  "SessionID": 105,
+                  "Blocker": 53,
+                  "WaitType": "LCK_M_S",
+                  "WaitMs": 51
+                },
+                "locks": [
+                  {
+                    "SessionID": 53,
+                    "ResourceType": "KEY",
+                    "TableName": "Stock",
+                    "Resource": "(cc9c381108b4)",
+                    "Mode": "X",
+                    "Status": "GRANT"
+                  },
+                  {
+                    "SessionID": 53,
+                    "ResourceType": "KEY",
+                    "TableName": "Document",
+                    "Resource": "(ed476e6fd1ca)",
+                    "Mode": "X",
+                    "Status": "GRANT"
+                  },
+                  {
+                    "SessionID": 105,
+                    "ResourceType": "KEY",
+                    "TableName": "Stock",
+                    "Resource": "(cc9c381108b4)",
+                    "Mode": "S",
+                    "Status": "WAIT"
+                  }
+                ]
+              }
+            },
+            {
+              "step": "A2 start",
+              "result": {
+                "session": "A",
+                "script": "dirty_read_A.sql"
+              }
+            },
+            {
+              "step": "A2 end",
+              "result": []
+            },
+            {
+              "step": "B3 end",
+              "result": [
+                [
+                  {
+                    "Qty": 10,
+                    "IsolationLevel": 2
+                  }
+                ]
+              ]
+            },
+            {
+              "step": "A cleanup",
+              "result": {
+                "SessionID": 53,
+                "TranCount": 0,
+                "XactState": 0
+              }
+            },
+            {
+              "step": "B cleanup",
+              "result": {
+                "SessionID": 105,
+                "TranCount": 0,
+                "XactState": 0
+              }
+            }
+          ]
+        },
+        {
+          "case": "read_committed_nonrepeatable",
+          "steps": [
+            {
+              "step": "A session",
+              "result": {
+                "SessionID": 53,
+                "IsolationLevel": 2,
+                "TranCount": 0,
+                "SqlServerVersion": "16.0.1000.6",
+                "RCSI": false
+              }
+            },
+            {
+              "step": "B session",
+              "result": {
+                "SessionID": 105,
+                "IsolationLevel": 2,
+                "TranCount": 0,
+                "SqlServerVersion": "16.0.1000.6",
+                "RCSI": false
+              }
+            },
+            {
+              "step": "initial state",
+              "result": {
+                "P": 10,
+                "Q": 8,
+                "ORDER": "Pending",
+                "RECEIPT": "Approved"
+              }
+            },
+            {
+              "step": "stock key mapping",
+              "result": {
+                "P": "(cc9c381108b4)",
+                "Q": "(277dab27e21d)"
+              }
+            },
+            {
+              "step": "A1 start",
+              "result": {
+                "session": "A",
+                "script": "repeatable_read_A.sql"
+              }
+            },
+            {
+              "step": "A1 end",
+              "result": [
+                [
+                  {
+                    "Qty": 10,
+                    "IsolationLevel": 2
+                  }
+                ]
+              ]
+            },
+            {
+              "step": "B1 start",
+              "result": {
+                "session": "B",
+                "script": "repeatable_read_B.sql"
+              }
+            },
+            {
+              "step": "B1 end",
+              "result": []
+            },
+            {
+              "step": "A2 start",
+              "result": {
+                "session": "A",
+                "script": "repeatable_read_A.sql"
+              }
+            },
+            {
+              "step": "A2 end",
+              "result": [
+                [
+                  {
+                    "Qty": 15,
+                    "IsolationLevel": 2
+                  }
+                ]
+              ]
+            },
+            {
+              "step": "A cleanup",
+              "result": {
+                "SessionID": 53,
+                "TranCount": 0,
+                "XactState": 0
+              }
+            },
+            {
+              "step": "B cleanup",
+              "result": {
+                "SessionID": 105,
+                "TranCount": 0,
+                "XactState": 0
+              }
+            }
+          ]
+        },
+        {
+          "case": "repeatable_read",
+          "steps": [
+            {
+              "step": "A session",
+              "result": {
+                "SessionID": 53,
+                "IsolationLevel": 2,
+                "TranCount": 0,
+                "SqlServerVersion": "16.0.1000.6",
+                "RCSI": false
+              }
+            },
+            {
+              "step": "B session",
+              "result": {
+                "SessionID": 105,
+                "IsolationLevel": 2,
+                "TranCount": 0,
+                "SqlServerVersion": "16.0.1000.6",
+                "RCSI": false
+              }
+            },
+            {
+              "step": "initial state",
+              "result": {
+                "P": 10,
+                "Q": 8,
+                "ORDER": "Pending",
+                "RECEIPT": "Approved"
+              }
+            },
+            {
+              "step": "stock key mapping",
+              "result": {
+                "P": "(cc9c381108b4)",
+                "Q": "(277dab27e21d)"
+              }
+            },
+            {
+              "step": "A3 start",
+              "result": {
+                "session": "A",
+                "script": "repeatable_read_A.sql"
+              }
+            },
+            {
+              "step": "A3 end",
+              "result": [
+                [
+                  {
+                    "Qty": 10,
+                    "IsolationLevel": 3
+                  }
+                ]
+              ]
+            },
+            {
+              "step": "B1 start",
+              "result": {
+                "session": "B",
+                "script": "repeatable_read_B.sql"
+              }
+            },
+            {
+              "step": "DMV observation",
+              "result": {
+                "waiter": "B",
+                "blocker": "A",
+                "product": "P",
+                "sessions": [
+                  {
+                    "SessionID": 53,
+                    "IsolationLevel": 3,
+                    "TranCount": 1
+                  },
+                  {
+                    "SessionID": 105,
+                    "IsolationLevel": 2,
+                    "TranCount": 2
+                  }
+                ],
+                "request": {
+                  "SessionID": 105,
+                  "Blocker": 53,
+                  "WaitType": "LCK_M_X",
+                  "WaitMs": 0
+                },
+                "locks": [
+                  {
+                    "SessionID": 53,
+                    "ResourceType": "KEY",
+                    "TableName": "Stock",
+                    "Resource": "(cc9c381108b4)",
+                    "Mode": "S",
+                    "Status": "GRANT"
+                  },
+                  {
+                    "SessionID": 105,
+                    "ResourceType": "KEY",
+                    "TableName": "Stock",
+                    "Resource": "(cc9c381108b4)",
+                    "Mode": "X",
+                    "Status": "WAIT"
+                  }
+                ]
+              }
+            },
+            {
+              "step": "A4 start",
+              "result": {
+                "session": "A",
+                "script": "repeatable_read_A.sql"
+              }
+            },
+            {
+              "step": "A4 end",
+              "result": [
+                [
+                  {
+                    "Qty": 10,
+                    "IsolationLevel": 3
+                  }
+                ]
+              ]
+            },
+            {
+              "step": "B1 end",
+              "result": []
+            },
+            {
+              "step": "A cleanup",
+              "result": {
+                "SessionID": 53,
+                "TranCount": 0,
+                "XactState": 0
+              }
+            },
+            {
+              "step": "B cleanup",
+              "result": {
+                "SessionID": 105,
+                "TranCount": 0,
+                "XactState": 0
+              }
+            }
+          ]
+        },
+        {
+          "case": "opposite_order_deadlock",
+          "steps": [
+            {
+              "step": "A session",
+              "result": {
+                "SessionID": 53,
+                "IsolationLevel": 2,
+                "TranCount": 0,
+                "SqlServerVersion": "16.0.1000.6",
+                "RCSI": false
+              }
+            },
+            {
+              "step": "B session",
+              "result": {
+                "SessionID": 105,
+                "IsolationLevel": 2,
+                "TranCount": 0,
+                "SqlServerVersion": "16.0.1000.6",
+                "RCSI": false
+              }
+            },
+            {
+              "step": "initial state",
+              "result": {
+                "P": 10,
+                "Q": 8,
+                "ORDER": "Pending",
+                "RECEIPT": "Approved"
+              }
+            },
+            {
+              "step": "stock key mapping",
+              "result": {
+                "P": "(cc9c381108b4)",
+                "Q": "(277dab27e21d)"
+              }
+            },
+            {
+              "step": "A1 start",
+              "result": {
+                "session": "A",
+                "script": "deadlock_A.sql"
+              }
+            },
+            {
+              "step": "A1 end",
+              "result": []
+            },
+            {
+              "step": "B1 start",
+              "result": {
+                "session": "B",
+                "script": "deadlock_B.sql"
+              }
+            },
+            {
+              "step": "B1 end",
+              "result": []
+            },
+            {
+              "step": "A2 start",
+              "result": {
+                "session": "A",
+                "script": "deadlock_A.sql"
+              }
+            },
+            {
+              "step": "DMV observation",
+              "result": {
+                "waiter": "A",
+                "blocker": "B",
+                "product": "Q",
+                "sessions": [
+                  {
+                    "SessionID": 53,
+                    "IsolationLevel": 2,
+                    "TranCount": 2
+                  },
+                  {
+                    "SessionID": 105,
+                    "IsolationLevel": 2,
+                    "TranCount": 1
+                  }
+                ],
+                "request": {
+                  "SessionID": 53,
+                  "Blocker": 105,
+                  "WaitType": "LCK_M_U",
+                  "WaitMs": 58
+                },
+                "locks": [
+                  {
+                    "SessionID": 53,
+                    "ResourceType": "KEY",
+                    "TableName": "Stock",
+                    "Resource": "(277dab27e21d)",
+                    "Mode": "U",
+                    "Status": "WAIT"
+                  },
+                  {
+                    "SessionID": 53,
+                    "ResourceType": "KEY",
+                    "TableName": "Stock",
+                    "Resource": "(cc9c381108b4)",
+                    "Mode": "X",
+                    "Status": "GRANT"
+                  },
+                  {
+                    "SessionID": 105,
+                    "ResourceType": "KEY",
+                    "TableName": "Stock",
+                    "Resource": "(277dab27e21d)",
+                    "Mode": "X",
+                    "Status": "GRANT"
+                  }
+                ]
+              }
+            },
+            {
+              "step": "B2 start",
+              "result": {
+                "session": "B",
+                "script": "deadlock_B.sql"
+              }
+            },
+            {
+              "step": "B2 end",
+              "result": [
+                [
+                  {
+                    "ErrorNumber": 1205,
+                    "BeforeCleanup": -1,
+                    "TranCount": 0,
+                    "XactState": 0
+                  }
+                ]
+              ]
+            },
+            {
+              "step": "A2 end",
+              "result": []
+            },
+            {
+              "step": "A3 start",
+              "result": {
+                "session": "A",
+                "script": "deadlock_A.sql"
+              }
+            },
+            {
+              "step": "A3 end",
+              "result": []
+            },
+            {
+              "step": "final state",
+              "result": {
+                "P": 8,
+                "Q": 6,
+                "ORDER": "Completed",
+                "RECEIPT": "Approved"
+              }
+            },
+            {
+              "step": "A cleanup",
+              "result": {
+                "SessionID": 53,
+                "TranCount": 0,
+                "XactState": 0
+              }
+            },
+            {
+              "step": "B cleanup",
+              "result": {
+                "SessionID": 105,
+                "TranCount": 0,
+                "XactState": 0
+              }
+            }
+          ]
+        },
+        {
+          "case": "ordered_keys",
+          "steps": [
+            {
+              "step": "A session",
+              "result": {
+                "SessionID": 53,
+                "IsolationLevel": 2,
+                "TranCount": 0,
+                "SqlServerVersion": "16.0.1000.6",
+                "RCSI": false
+              }
+            },
+            {
+              "step": "B session",
+              "result": {
+                "SessionID": 105,
+                "IsolationLevel": 2,
+                "TranCount": 0,
+                "SqlServerVersion": "16.0.1000.6",
+                "RCSI": false
+              }
+            },
+            {
+              "step": "initial state",
+              "result": {
+                "P": 10,
+                "Q": 8,
+                "ORDER": "Pending",
+                "RECEIPT": "Approved"
+              }
+            },
+            {
+              "step": "stock key mapping",
+              "result": {
+                "P": "(cc9c381108b4)",
+                "Q": "(277dab27e21d)"
+              }
+            },
+            {
+              "step": "A1 start",
+              "result": {
+                "session": "A",
+                "script": "ordered_A.sql"
+              }
+            },
+            {
+              "step": "A1 end",
+              "result": []
+            },
+            {
+              "step": "B1 start",
+              "result": {
+                "session": "B",
+                "script": "ordered_B.sql"
+              }
+            },
+            {
+              "step": "DMV observation",
+              "result": {
+                "waiter": "B",
+                "blocker": "A",
+                "product": "P",
+                "sessions": [
+                  {
+                    "SessionID": 53,
+                    "IsolationLevel": 2,
+                    "TranCount": 1
+                  },
+                  {
+                    "SessionID": 105,
+                    "IsolationLevel": 2,
+                    "TranCount": 2
+                  }
+                ],
+                "request": {
+                  "SessionID": 105,
+                  "Blocker": 53,
+                  "WaitType": "LCK_M_X",
+                  "WaitMs": 55
+                },
+                "locks": [
+                  {
+                    "SessionID": 53,
+                    "ResourceType": "KEY",
+                    "TableName": "Stock",
+                    "Resource": "(cc9c381108b4)",
+                    "Mode": "X",
+                    "Status": "GRANT"
+                  },
+                  {
+                    "SessionID": 105,
+                    "ResourceType": "KEY",
+                    "TableName": "Stock",
+                    "Resource": "(cc9c381108b4)",
+                    "Mode": "X",
+                    "Status": "WAIT"
+                  }
+                ]
+              }
+            },
+            {
+              "step": "A2 start",
+              "result": {
+                "session": "A",
+                "script": "ordered_A.sql"
+              }
+            },
+            {
+              "step": "A2 end",
+              "result": []
+            },
+            {
+              "step": "B1 end",
+              "result": []
+            },
+            {
+              "step": "B2 start",
+              "result": {
+                "session": "B",
+                "script": "ordered_B.sql"
+              }
+            },
+            {
+              "step": "B2 end",
+              "result": []
+            },
+            {
+              "step": "final state",
+              "result": {
+                "P": 13,
+                "Q": 11,
+                "ORDER": "Completed",
+                "RECEIPT": "Received"
+              }
+            },
+            {
+              "step": "A cleanup",
+              "result": {
+                "SessionID": 53,
+                "TranCount": 0,
+                "XactState": 0
+              }
+            },
+            {
+              "step": "B cleanup",
+              "result": {
+                "SessionID": 105,
+                "TranCount": 0,
+                "XactState": 0
+              }
+            }
+          ]
+        },
+        {
+          "case": "business_receipt_after_commit",
+          "steps": [
+            {
+              "step": "A session",
+              "result": {
+                "SessionID": 53,
+                "IsolationLevel": 2,
+                "TranCount": 0,
+                "SqlServerVersion": "16.0.1000.6",
+                "RCSI": false
+              }
+            },
+            {
+              "step": "B session",
+              "result": {
+                "SessionID": 105,
+                "IsolationLevel": 2,
+                "TranCount": 0,
+                "SqlServerVersion": "16.0.1000.6",
+                "RCSI": false
+              }
+            },
+            {
+              "step": "initial business state",
+              "result": [
+                [
+                  {
+                    "BatchID": "W13WBC",
+                    "OnHandQty": 10
+                  }
+                ],
+                [
+                  {
+                    "SaleStatus": "待出库",
+                    "ReceiptStatus": "已批准"
+                  }
+                ],
+                []
+              ]
+            },
+            {
+              "step": "A1 start",
+              "result": {
+                "session": "A",
+                "script": "business_wait_A.sql"
+              }
+            },
+            {
+              "step": "A1 end",
+              "result": [
+                [
+                  {
+                    "OrderID": "W13WSC",
+                    "OrderStatus": "已完成"
+                  }
+                ]
+              ]
+            },
+            {
+              "step": "B1 start",
+              "result": {
+                "session": "B",
+                "script": "business_wait_B.sql"
+              }
+            },
+            {
+              "step": "DMV observation",
+              "result": {
+                "waiter": "B",
+                "blocker": "A",
+                "product": null,
+                "sessions": [
+                  {
+                    "SessionID": 53,
+                    "IsolationLevel": 2,
+                    "TranCount": 1
+                  },
+                  {
+                    "SessionID": 105,
+                    "IsolationLevel": 2,
+                    "TranCount": 1
+                  }
+                ],
+                "request": {
+                  "SessionID": 105,
+                  "Blocker": 53,
+                  "WaitType": "LCK_M_X",
+                  "WaitMs": 55
+                },
+                "locks": [
+                  {
+                    "SessionID": 53,
+                    "ResourceType": "APPLICATION",
+                    "TableName": null,
+                    "Resource": "0:[DataBaseLab.WebWrite]:(a6f91be2)",
+                    "Mode": "X",
+                    "Status": "GRANT"
+                  },
+                  {
+                    "SessionID": 105,
+                    "ResourceType": "APPLICATION",
+                    "TableName": null,
+                    "Resource": "0:[DataBaseLab.WebWrite]:(a6f91be2)",
+                    "Mode": "X",
+                    "Status": "WAIT"
+                  }
+                ]
+              }
+            },
+            {
+              "step": "A2 start",
+              "result": {
+                "session": "A",
+                "script": "business_wait_A.sql"
+              }
+            },
+            {
+              "step": "A2 end",
+              "result": []
+            },
+            {
+              "step": "B1 end",
+              "result": [
+                [
+                  {
+                    "PurchaseOrderID": "W13WPC",
+                    "BatchID": "W13WRCC",
+                    "ProductID": "W13PC",
+                    "ReceivedQty": 5,
+                    "OrderStatus": "已收货"
+                  }
+                ]
+              ]
+            },
+            {
+              "step": "final business state",
+              "result": [
+                [
+                  {
+                    "BatchID": "W13WBC",
+                    "OnHandQty": 8
+                  },
+                  {
+                    "BatchID": "W13WRCC",
+                    "OnHandQty": 5
+                  }
+                ],
+                [
+                  {
+                    "SaleStatus": "已完成",
+                    "ReceiptStatus": "已收货"
+                  }
+                ],
+                [
+                  {
+                    "BatchID": "W13WBC",
+                    "QuantityDelta": -2,
+                    "MovementType": "销售出库"
+                  },
+                  {
+                    "BatchID": "W13WRCC",
+                    "QuantityDelta": 5,
+                    "MovementType": "采购入库"
+                  }
+                ]
+              ]
+            },
+            {
+              "step": "A cleanup",
+              "result": {
+                "SessionID": 53,
+                "TranCount": 0,
+                "XactState": 0
+              }
+            },
+            {
+              "step": "B cleanup",
+              "result": {
+                "SessionID": 105,
+                "TranCount": 0,
+                "XactState": 0
+              }
+            }
+          ]
+        },
+        {
+          "case": "business_receipt_after_rollback",
+          "steps": [
+            {
+              "step": "A session",
+              "result": {
+                "SessionID": 53,
+                "IsolationLevel": 2,
+                "TranCount": 0,
+                "SqlServerVersion": "16.0.1000.6",
+                "RCSI": false
+              }
+            },
+            {
+              "step": "B session",
+              "result": {
+                "SessionID": 105,
+                "IsolationLevel": 2,
+                "TranCount": 0,
+                "SqlServerVersion": "16.0.1000.6",
+                "RCSI": false
+              }
+            },
+            {
+              "step": "initial business state",
+              "result": [
+                [
+                  {
+                    "BatchID": "W13WBR",
+                    "OnHandQty": 10
+                  }
+                ],
+                [
+                  {
+                    "SaleStatus": "待出库",
+                    "ReceiptStatus": "已批准"
+                  }
+                ],
+                []
+              ]
+            },
+            {
+              "step": "A1 start",
+              "result": {
+                "session": "A",
+                "script": "business_wait_A.sql"
+              }
+            },
+            {
+              "step": "A1 end",
+              "result": [
+                [
+                  {
+                    "OrderID": "W13WSR",
+                    "OrderStatus": "已完成"
+                  }
+                ]
+              ]
+            },
+            {
+              "step": "B1 start",
+              "result": {
+                "session": "B",
+                "script": "business_wait_B.sql"
+              }
+            },
+            {
+              "step": "DMV observation",
+              "result": {
+                "waiter": "B",
+                "blocker": "A",
+                "product": null,
+                "sessions": [
+                  {
+                    "SessionID": 53,
+                    "IsolationLevel": 2,
+                    "TranCount": 1
+                  },
+                  {
+                    "SessionID": 105,
+                    "IsolationLevel": 2,
+                    "TranCount": 1
+                  }
+                ],
+                "request": {
+                  "SessionID": 105,
+                  "Blocker": 53,
+                  "WaitType": "LCK_M_X",
+                  "WaitMs": 55
+                },
+                "locks": [
+                  {
+                    "SessionID": 53,
+                    "ResourceType": "APPLICATION",
+                    "TableName": null,
+                    "Resource": "0:[DataBaseLab.WebWrite]:(a6f91be2)",
+                    "Mode": "X",
+                    "Status": "GRANT"
+                  },
+                  {
+                    "SessionID": 105,
+                    "ResourceType": "APPLICATION",
+                    "TableName": null,
+                    "Resource": "0:[DataBaseLab.WebWrite]:(a6f91be2)",
+                    "Mode": "X",
+                    "Status": "WAIT"
+                  }
+                ]
+              }
+            },
+            {
+              "step": "A3 start",
+              "result": {
+                "session": "A",
+                "script": "business_wait_A.sql"
+              }
+            },
+            {
+              "step": "A3 end",
+              "result": []
+            },
+            {
+              "step": "B1 end",
+              "result": [
+                [
+                  {
+                    "PurchaseOrderID": "W13WPR",
+                    "BatchID": "W13WRCR",
+                    "ProductID": "W13PR",
+                    "ReceivedQty": 5,
+                    "OrderStatus": "已收货"
+                  }
+                ]
+              ]
+            },
+            {
+              "step": "final business state",
+              "result": [
+                [
+                  {
+                    "BatchID": "W13WBR",
+                    "OnHandQty": 10
+                  },
+                  {
+                    "BatchID": "W13WRCR",
+                    "OnHandQty": 5
+                  }
+                ],
+                [
+                  {
+                    "SaleStatus": "待出库",
+                    "ReceiptStatus": "已收货"
+                  }
+                ],
+                [
+                  {
+                    "BatchID": "W13WRCR",
+                    "QuantityDelta": 5,
+                    "MovementType": "采购入库"
+                  }
+                ]
+              ]
+            },
+            {
+              "step": "A cleanup",
+              "result": {
+                "SessionID": 53,
+                "TranCount": 0,
+                "XactState": 0
+              }
+            },
+            {
+              "step": "B cleanup",
+              "result": {
+                "SessionID": 105,
+                "TranCount": 0,
+                "XactState": 0
+              }
+            }
+          ]
+        },
+        {
+          "case": "order_race",
+          "steps": [
+            {
+              "step": "A session",
+              "result": {
+                "SessionID": 53,
+                "IsolationLevel": 2,
+                "TranCount": 0,
+                "SqlServerVersion": "16.0.1000.6",
+                "RCSI": false
+              }
+            },
+            {
+              "step": "B session",
+              "result": {
+                "SessionID": 105,
+                "IsolationLevel": 2,
+                "TranCount": 0,
+                "SqlServerVersion": "16.0.1000.6",
+                "RCSI": false
+              }
+            },
+            {
+              "step": "initial business state",
+              "result": [
+                [
+                  {
+                    "BatchID": "W13BP",
+                    "OnHandQty": 10
+                  }
+                ],
+                [
+                  {
+                    "SalesOrderID": "W13OA",
+                    "OrderStatus": "待出库",
+                    "CompletedAt": null
+                  },
+                  {
+                    "SalesOrderID": "W13OB",
+                    "OrderStatus": "待出库",
+                    "CompletedAt": null
+                  }
+                ],
+                [
+                  {
+                    "ReservationID": "W13RA",
+                    "ReservedQty": 6,
+                    "ReservationStatus": "有效"
+                  }
+                ],
+                [],
+                [],
+                []
+              ]
+            },
+            {
+              "step": "A1 start",
+              "result": {
+                "session": "A",
+                "script": "business_race_A.sql"
+              }
+            },
+            {
+              "step": "A1 end",
+              "result": [
+                [
+                  {
+                    "OrderID": "W13OA",
+                    "OrderStatus": "已完成"
+                  }
+                ]
+              ]
+            },
+            {
+              "step": "B1 start",
+              "result": {
+                "session": "B",
+                "script": "business_race_B.sql"
+              }
+            },
+            {
+              "step": "DMV observation",
+              "result": {
+                "waiter": "B",
+                "blocker": "A",
+                "product": null,
+                "sessions": [
+                  {
+                    "SessionID": 53,
+                    "IsolationLevel": 2,
+                    "TranCount": 1
+                  },
+                  {
+                    "SessionID": 105,
+                    "IsolationLevel": 2,
+                    "TranCount": 1
+                  }
+                ],
+                "request": {
+                  "SessionID": 105,
+                  "Blocker": 53,
+                  "WaitType": "LCK_M_X",
+                  "WaitMs": 55
+                },
+                "locks": [
+                  {
+                    "SessionID": 53,
+                    "ResourceType": "APPLICATION",
+                    "TableName": null,
+                    "Resource": "0:[DataBaseLab.WebWrite]:(a6f91be2)",
+                    "Mode": "X",
+                    "Status": "GRANT"
+                  },
+                  {
+                    "SessionID": 105,
+                    "ResourceType": "APPLICATION",
+                    "TableName": null,
+                    "Resource": "0:[DataBaseLab.WebWrite]:(a6f91be2)",
+                    "Mode": "X",
+                    "Status": "WAIT"
+                  }
+                ]
+              }
+            },
+            {
+              "step": "A2 start",
+              "result": {
+                "session": "A",
+                "script": "business_race_A.sql"
+              }
+            },
+            {
+              "step": "A2 end",
+              "result": []
+            },
+            {
+              "step": "B1 end",
+              "result": [
+                [
+                  {
+                    "ErrorNumber": 51804,
+                    "ErrorMessage": "Reserved batch is unavailable or overcommitted.",
+                    "TranCount": 0,
+                    "XactState": 0
+                  }
+                ]
+              ]
+            },
+            {
+              "step": "final business state",
+              "result": [
+                [
+                  {
+                    "BatchID": "W13BP",
+                    "OnHandQty": 4
+                  }
+                ],
+                [
+                  {
+                    "SalesOrderID": "W13OA",
+                    "OrderStatus": "已完成",
+                    "CompletedAt": "2026-11-28 16:03:48"
+                  },
+                  {
+                    "SalesOrderID": "W13OB",
+                    "OrderStatus": "待出库",
+                    "CompletedAt": null
+                  }
+                ],
+                [
+                  {
+                    "ReservationID": "W13RA",
+                    "ReservedQty": 6,
+                    "ReservationStatus": "已转出库"
+                  }
+                ],
+                [
+                  {
+                    "SalesItemID": "W13IA",
+                    "QuantityDelta": -6
+                  }
+                ],
+                [
+                  {
+                    "BeforeQty": 10,
+                    "AfterQty": 4,
+                    "QuantityDelta": -6
+                  }
+                ],
+                [
+                  {
+                    "SalesOrderID": "W13OA",
+                    "PointsDelta": 30
+                  }
+                ]
+              ]
+            },
+            {
+              "step": "A cleanup",
+              "result": {
+                "SessionID": 53,
+                "TranCount": 0,
+                "XactState": 0
+              }
+            },
+            {
+              "step": "B cleanup",
+              "result": {
+                "SessionID": 105,
+                "TranCount": 0,
+                "XactState": 0
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "on": {
+      "SPIDs": {
+        "observer": 53,
+        "A": 104,
+        "B": 105
+      },
+      "cases": [
+        {
+          "case": "read_committed",
+          "steps": [
+            {
+              "step": "A session",
+              "result": {
+                "SessionID": 104,
+                "IsolationLevel": 2,
+                "TranCount": 0,
+                "SqlServerVersion": "16.0.1000.6",
+                "RCSI": true
+              }
+            },
+            {
+              "step": "B session",
+              "result": {
+                "SessionID": 105,
+                "IsolationLevel": 2,
+                "TranCount": 0,
+                "SqlServerVersion": "16.0.1000.6",
+                "RCSI": true
+              }
+            },
+            {
+              "step": "initial state",
+              "result": {
+                "P": 10,
+                "Q": 8,
+                "ORDER": "Pending",
+                "RECEIPT": "Approved"
+              }
+            },
+            {
+              "step": "stock key mapping",
+              "result": {
+                "P": "(cc9c381108b4)",
+                "Q": "(277dab27e21d)"
+              }
+            },
+            {
+              "step": "A1 start",
+              "result": {
+                "session": "A",
+                "script": "dirty_read_A.sql"
+              }
+            },
+            {
+              "step": "A1 end",
+              "result": []
+            },
+            {
+              "step": "B2 start",
+              "result": {
+                "session": "B",
+                "script": "dirty_read_B.sql"
+              }
+            },
+            {
+              "step": "B2 end",
+              "result": [
+                [
+                  {
+                    "Qty": 10,
+                    "IsolationLevel": 2
+                  }
+                ]
+              ]
+            },
+            {
+              "step": "A2 start",
+              "result": {
+                "session": "A",
+                "script": "dirty_read_A.sql"
+              }
+            },
+            {
+              "step": "A2 end",
+              "result": []
+            },
+            {
+              "step": "A cleanup",
+              "result": {
+                "SessionID": 104,
+                "TranCount": 0,
+                "XactState": 0
+              }
+            },
+            {
+              "step": "B cleanup",
+              "result": {
+                "SessionID": 105,
+                "TranCount": 0,
+                "XactState": 0
+              }
+            }
+          ]
+        },
+        {
+          "case": "read_committed_lock_hint",
+          "steps": [
+            {
+              "step": "A session",
+              "result": {
+                "SessionID": 104,
+                "IsolationLevel": 2,
+                "TranCount": 0,
+                "SqlServerVersion": "16.0.1000.6",
+                "RCSI": true
+              }
+            },
+            {
+              "step": "B session",
+              "result": {
+                "SessionID": 105,
+                "IsolationLevel": 2,
+                "TranCount": 0,
+                "SqlServerVersion": "16.0.1000.6",
+                "RCSI": true
+              }
+            },
+            {
+              "step": "initial state",
+              "result": {
+                "P": 10,
+                "Q": 8,
+                "ORDER": "Pending",
+                "RECEIPT": "Approved"
+              }
+            },
+            {
+              "step": "stock key mapping",
+              "result": {
+                "P": "(cc9c381108b4)",
+                "Q": "(277dab27e21d)"
+              }
+            },
+            {
+              "step": "A1 start",
+              "result": {
+                "session": "A",
+                "script": "dirty_read_A.sql"
+              }
+            },
+            {
+              "step": "A1 end",
+              "result": []
+            },
+            {
+              "step": "B3 start",
+              "result": {
+                "session": "B",
+                "script": "dirty_read_B.sql"
+              }
+            },
+            {
+              "step": "DMV observation",
+              "result": {
+                "waiter": "B",
+                "blocker": "A",
+                "product": "P",
+                "sessions": [
+                  {
+                    "SessionID": 104,
+                    "IsolationLevel": 2,
+                    "TranCount": 1
+                  },
+                  {
+                    "SessionID": 105,
+                    "IsolationLevel": 2,
+                    "TranCount": 0
+                  }
+                ],
+                "request": {
+                  "SessionID": 105,
+                  "Blocker": 104,
+                  "WaitType": "LCK_M_S",
+                  "WaitMs": 52
+                },
+                "locks": [
+                  {
+                    "SessionID": 104,
+                    "ResourceType": "KEY",
+                    "TableName": "Stock",
+                    "Resource": "(cc9c381108b4)",
+                    "Mode": "X",
+                    "Status": "GRANT"
+                  },
+                  {
+                    "SessionID": 104,
+                    "ResourceType": "KEY",
+                    "TableName": "Document",
+                    "Resource": "(ed476e6fd1ca)",
+                    "Mode": "X",
+                    "Status": "GRANT"
+                  },
+                  {
+                    "SessionID": 105,
+                    "ResourceType": "KEY",
+                    "TableName": "Stock",
+                    "Resource": "(cc9c381108b4)",
+                    "Mode": "S",
+                    "Status": "WAIT"
+                  }
+                ]
+              }
+            },
+            {
+              "step": "A2 start",
+              "result": {
+                "session": "A",
+                "script": "dirty_read_A.sql"
+              }
+            },
+            {
+              "step": "A2 end",
+              "result": []
+            },
+            {
+              "step": "B3 end",
+              "result": [
+                [
+                  {
+                    "Qty": 10,
+                    "IsolationLevel": 2
+                  }
+                ]
+              ]
+            },
+            {
+              "step": "A cleanup",
+              "result": {
+                "SessionID": 104,
+                "TranCount": 0,
+                "XactState": 0
+              }
+            },
+            {
+              "step": "B cleanup",
+              "result": {
+                "SessionID": 105,
+                "TranCount": 0,
+                "XactState": 0
+              }
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

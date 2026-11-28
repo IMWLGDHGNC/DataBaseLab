@@ -53,7 +53,7 @@ powershell.exe -NoProfile -File .\scripts\Invoke-LabSql.ps1 -Database $db -Input
 
 ## 第11周触发器和窗口验证
 
-在已完成第10周的专用库运行 [Run-Week11.ps1](Run-Week11.ps1)，再执行 `python tests/Test-Week11.py`，沿用 `LAB_TEST_DATABASE`。脚本安装触发器并展示三组窗口查询，保留已有数据。测试说明及72项结果见[第11周](../docs/week11/README.md)。
+在已完成第10周的专用库运行 [Run-Week11.ps1](Run-Week11.ps1)，再执行 `python tests/Test-Week11.py`，沿用 `LAB_TEST_DATABASE`。脚本安装触发器并展示三组窗口查询，保留已有数据。[第11周说明](../docs/week11/README.md)及[当前76项复跑结果](../result/third-stage/windows-20261128/README.md#新库与回归)。
 
 ## 第12周递归查询与事务验证
 
